@@ -18,9 +18,7 @@ import { useState, useEffect } from "react";
 // @mui material components
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
-import AppBar from "@mui/material/AppBar";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
+// AppBar/Tabs removed (not needed for simplified profile)
 
 // Soft UI Dashboard PRO React components
 import SuiBox from "components/SuiBox";
@@ -30,10 +28,7 @@ import SuiAvatar from "components/SuiAvatar";
 // Soft UI Dashboard PRO React example components
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
-// Soft UI Dashboard PRO React icons
-import Cube from "examples/Icons/Cube";
-import Document from "examples/Icons/Document";
-import Settings from "examples/Icons/Settings";
+// Removed icon imports for App/Message/Settings tabs
 
 // Soft UI Dashboard PRO React base styles
 import breakpoints from "assets/theme/base/breakpoints";
@@ -46,7 +41,6 @@ import burceMars from "assets/images/bruce-mars.jpg";
 
 function Header() {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
-  const [tabValue, setTabValue] = useState(0);
   const classes = styles();
 
   useEffect(() => {
@@ -67,9 +61,9 @@ function Header() {
 
     // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleTabsOrientation);
-  }, [tabsOrientation]);
+  }, []);
 
-  const handleSetTabValue = (event, newValue) => setTabValue(newValue);
+  // tabs removed; no handler needed
 
   return (
     <SuiBox position="relative">
@@ -96,20 +90,7 @@ function Header() {
               </SuiTypography>
             </SuiBox>
           </Grid>
-          <Grid item xs={12} md={6} lg={4} className="ml-auto">
-            <AppBar position="static">
-              <Tabs
-                orientation={tabsOrientation}
-                value={tabValue}
-                onChange={handleSetTabValue}
-                className="bg-transparent"
-              >
-                <Tab label="App" icon={<Cube />} />
-                <Tab label="Message" icon={<Document />} />
-                <Tab label="Settings" icon={<Settings />} />
-              </Tabs>
-            </AppBar>
-          </Grid>
+          {/* Tabs removed to simplify profile header (App / Message / Settings not required) */}
         </Grid>
       </Card>
     </SuiBox>

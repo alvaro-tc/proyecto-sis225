@@ -14,6 +14,7 @@ Coded by www.creative-tim.com
 */
 
 // @mui material components
+import React, { useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 // Soft UI Dashboard React components
@@ -25,34 +26,76 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import Footer from "examples/Footer";
 import ProfileInfoCard from "examples/Cards/InfoCards/ProfileInfoCard";
 import ProfilesList from "examples/ProfilesList";
-import DefaultProjectCard from "examples/Cards/ProjectCards/DefaultProjectCard";
-import PlaceholderCard from "examples/Cards/PlaceholderCard";
 
 // Overview page components
 import Header from "layouts/profile/components/Header";
-import PlatformSettings from "layouts/profile/components/PlatformSettings";
+// PlatformSettings removed from layout (not necessary)
 
 // Data
 import profilesListData from "layouts/profile/data/profilesListData";
 
-// Images
-import homeDecor1 from "assets/images/home-decor-1.jpg";
-import homeDecor2 from "assets/images/home-decor-2.jpg";
-import homeDecor3 from "assets/images/home-decor-3.jpg";
-import team1 from "assets/images/team-1.jpg";
-import team2 from "assets/images/team-2.jpg";
-import team3 from "assets/images/team-3.jpg";
-import team4 from "assets/images/team-4.jpg";
+// Images (projects removed)
 
 function Overview() {
+  // Temporal: interceptar y bloquear llamadas a LaunchDarkly (events.launchdarkly.com)
+  // para que la página de perfil no haga llamadas externas innecesarias.
+  useEffect(() => {
+    const blockedHost = "events.launchdarkly.com";
+
+    const originalFetch = window.fetch;
+    window.fetch = async (input, init) => {
+      try {
+        const url = typeof input === "string" ? input : input?.url || "";
+        if (url && url.includes(blockedHost)) {
+          // devolver una respuesta vacía sin realizar la petición externa
+          return new Response(null, { status: 204, statusText: "No Content" });
+        }
+      } catch (e) {}
+      return originalFetch(input, init);
+    };
+
+    const XHR = window.XMLHttpRequest;
+    const origOpen = XHR.prototype.open;
+    const origSend = XHR.prototype.send;
+
+    XHR.prototype.open = function (method, url, async, user, password) {
+      try {
+        this._ld_url = typeof url === "string" ? url : "";
+      } catch (e) {
+        this._ld_url = "";
+      }
+      return origOpen.apply(this, arguments);
+    };
+
+    XHR.prototype.send = function (body) {
+      try {
+        if (this._ld_url && this._ld_url.includes(blockedHost)) {
+          // simular finalización sin enviar la petición
+          this.readyState = 4;
+          this.status = 204;
+          this.onreadystatechange && this.onreadystatechange();
+          this.onload && this.onload();
+          return;
+        }
+      } catch (e) {}
+      return origSend.apply(this, arguments);
+    };
+
+    return () => {
+      // restaurar originales al desmontar la página
+      try {
+        window.fetch = originalFetch;
+        XHR.prototype.open = origOpen;
+        XHR.prototype.send = origSend;
+      } catch (e) {}
+    };
+  }, []);
+
   return (
     <DashboardLayout>
       <Header />
       <SuiBox mt={5} mb={3}>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6} xl={4}>
-            <PlatformSettings />
-          </Grid>
           <Grid item xs={12} md={6} xl={4}>
             <ProfileInfoCard
               title="Información de perfil"
@@ -66,94 +109,12 @@ function Overview() {
               action={{ route: "", tooltip: "Editar perfil" }}
             />
           </Grid>
-          <Grid item xs={12} xl={4}>
+          <Grid item xs={12} md={6} xl={4}>
             <ProfilesList title="conversations" profiles={profilesListData} />
           </Grid>
         </Grid>
       </SuiBox>
-      <SuiBox mb={3}>
-        <Card>
-          <SuiBox pt={2} px={2}>
-            <SuiBox mb={0.5}>
-              <SuiTypography variant="h6" fontWeight="medium">
-                Projects
-              </SuiTypography>
-            </SuiBox>
-            <SuiBox mb={1}>
-              <SuiTypography variant="button" fontWeight="regular" textColor="text">
-                Architects design houses
-              </SuiTypography>
-            </SuiBox>
-          </SuiBox>
-          <SuiBox p={2}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6} xl={3}>
-                <DefaultProjectCard
-                  image={homeDecor1}
-                  label="project #2"
-                  title="modern"
-                  description="As Uber works through a huge amount of internal management turmoil."
-                  action={{
-                    type: "internal",
-                    route: "/pages/profile/profile-overview",
-                    color: "info",
-                    label: "view project",
-                  }}
-                  authors={[
-                    { image: team1, name: "Elena Morison" },
-                    { image: team2, name: "Ryan Milly" },
-                    { image: team3, name: "Nick Daniel" },
-                    { image: team4, name: "Peterson" },
-                  ]}
-                />
-              </Grid>
-              <Grid item xs={12} md={6} xl={3}>
-                <DefaultProjectCard
-                  image={homeDecor2}
-                  label="project #1"
-                  title="scandinavian"
-                  description="Music is something that every person has his or her own specific opinion about."
-                  action={{
-                    type: "internal",
-                    route: "/pages/profile/profile-overview",
-                    color: "info",
-                    label: "view project",
-                  }}
-                  authors={[
-                    { image: team3, name: "Nick Daniel" },
-                    { image: team4, name: "Peterson" },
-                    { image: team1, name: "Elena Morison" },
-                    { image: team2, name: "Ryan Milly" },
-                  ]}
-                />
-              </Grid>
-              <Grid item xs={12} md={6} xl={3}>
-                <DefaultProjectCard
-                  image={homeDecor3}
-                  label="project #3"
-                  title="minimalist"
-                  description="Different people have different taste, and various types of music."
-                  action={{
-                    type: "internal",
-                    route: "/pages/profile/profile-overview",
-                    color: "info",
-                    label: "view project",
-                  }}
-                  authors={[
-                    { image: team4, name: "Peterson" },
-                    { image: team3, name: "Nick Daniel" },
-                    { image: team2, name: "Ryan Milly" },
-                    { image: team1, name: "Elena Morison" },
-                  ]}
-                />
-              </Grid>
-              <Grid item xs={12} md={6} xl={3}>
-                <PlaceholderCard title={{ variant: "h5", text: "New project" }} outlined />
-              </Grid>
-            </Grid>
-          </SuiBox>
-        </Card>
-      </SuiBox>
+      {/* Projects section removed to simplify profile page */}
 
       <Footer />
     </DashboardLayout>

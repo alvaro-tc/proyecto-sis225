@@ -66,8 +66,8 @@ function ProfileInfoCard({ title, description, info, social, action }) {
     </SuiBox>
   ));
 
-  // Render the card social media icons
-  const renderSocial = social.map(({ link, icon, color }) => (
+  // Render the card social media icons (safe when `social` is undefined)
+  const renderSocial = (social || []).map(({ link, icon, color }) => (
     <SuiBox
       key={color}
       component="a"
@@ -124,11 +124,15 @@ ProfileInfoCard.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
   info: PropTypes.objectOf(PropTypes.string).isRequired,
-  social: PropTypes.arrayOf(PropTypes.object).isRequired,
+  social: PropTypes.arrayOf(PropTypes.object),
   action: PropTypes.shape({
     route: PropTypes.string.isRequired,
     tooltip: PropTypes.string.isRequired,
   }).isRequired,
+};
+
+ProfileInfoCard.defaultProps = {
+  social: [],
 };
 
 export default ProfileInfoCard;
