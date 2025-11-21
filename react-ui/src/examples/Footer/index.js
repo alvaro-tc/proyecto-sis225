@@ -80,11 +80,8 @@ function Footer({ company, links }) {
 
 // Setting default values for the props of Footer
 Footer.defaultProps = {
-  company: { href: "https://bit.ly/3fKQZaL", name: "Creative Tim" },
-  links: [
-    { href: "https://appseed.us/product/django-react-soft-dashboard", name: "Product" },
-    { href: "https://appseed.us/support", name: "Support" },
-  ],
+  company: { href: "#", name: "Clínica Veterinaria" },
+  links: [],
 };
 
 // Typechecking props for the Footer

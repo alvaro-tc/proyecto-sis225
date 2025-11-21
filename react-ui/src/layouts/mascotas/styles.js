@@ -14,19 +14,18 @@ Coded by www.creative-tim.com
 */
 
 // @mui material components
-import Divider from "@mui/material/Divider";
+import { makeStyles } from "@mui/styles";
 
-// Soft UI Dashboard React components
-import SuiBox from "components/SuiBox";
-import SuiTypography from "components/SuiTypography";
+export default makeStyles(({ borders }) => {
+  const { borderWidth, borderColor } = borders;
 
-function Separator() {
-  return (
-    <SuiBox position="relative" py={0.25}>
-      <Divider />
-      {/* Removed the 'or' text to match the clinic style */}
-    </SuiBox>
-  );
-}
-
-export default Separator;
+  return {
+    tables_table: {
+      "& .MuiTableRow-root:not(:last-child)": {
+        "& td": {
+          borderBottom: `${borderWidth[1]} solid ${borderColor}`,
+        },
+      },
+    },
+  };
+});

@@ -31,12 +31,13 @@ import SuiButton from "components/SuiButton";
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 
 // Images
-import curved9 from "assets/images/curved-images/curved-6.jpg";
-
 import { useAuth } from "../../../auth-context/auth.context";
 import AuthApi from "../../../api/auth";
 
 import { useHistory } from "react-router-dom";
+
+// imagen de fondo externa temporal (veterinaria)
+const curved9 = "https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=1350&q=80";
 
 function SignIn() {
   const history = useHistory();
@@ -47,7 +48,7 @@ function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(undefined);
-  const [buttonText, setButtonText] = useState("Sign in");
+  const [buttonText, setButtonText] = useState("Iniciar sesión");
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
   const login = async (event) => {
@@ -84,18 +85,35 @@ function SignIn() {
   };
 
   const setProfile = async (response) => {
-    let user = { ...response.data.user };
-    user.token = response.data.token;
-    user = JSON.stringify(user);
-    setUser(user);
-    localStorage.setItem("user", user);
+    let userObj = { ...response.data.user };
+    const token = response.data.token;
+    userObj.token = token;
+    const userStr = JSON.stringify(userObj);
+    setUser(userStr);
+    localStorage.setItem("user", userStr);
+    // Also store token separately for API clients that read `localStorage.token`
+    if (token) {
+      localStorage.setItem("token", token);
+      // log token for debugging (remove in production)
+      // eslint-disable-next-line no-console
+      console.log("[Auth] stored token:", token);
+    }
+    // also log the saved localStorage values for debugging
+    try {
+      // eslint-disable-next-line no-console
+      console.log("[Auth] localStorage.token =", localStorage.getItem("token"));
+      // eslint-disable-next-line no-console
+      console.log("[Auth] localStorage.user =", localStorage.getItem("user"));
+    } catch (e) {
+      // ignore
+    }
     return history.push("/dashboard");
   };
 
   return (
     <CoverLayout
-      title="Flask React Soft Dashboard"
-      description={`${user && user.token ? "" : "Enter your email and password to sign in"}`}
+      title="Clínica Veterinaria - Iniciar sesión"
+      description={`${user && user.token ? "" : "Ingrese su correo y contraseña para iniciar sesión"}`}
       image={curved9}
     >
       {user && user.token ? (
@@ -112,7 +130,7 @@ function SignIn() {
           <SuiBox mb={2}>
             <SuiBox mb={1} ml={0.5}>
               <SuiTypography component="label" variant="caption" fontWeight="bold">
-                Email
+                Correo
               </SuiTypography>
             </SuiBox>
             <SuiInput
@@ -122,13 +140,13 @@ function SignIn() {
                 setError(undefined);
               }}
               type="email"
-              placeholder="Email"
+              placeholder="Correo"
             />
           </SuiBox>
           <SuiBox mb={2}>
             <SuiBox mb={1} ml={0.5}>
               <SuiTypography component="label" variant="caption" fontWeight="bold">
-                Password
+                Contraseña
               </SuiTypography>
             </SuiBox>
             <SuiInput
@@ -138,7 +156,7 @@ function SignIn() {
                 setError(undefined);
               }}
               type="password"
-              placeholder="Password"
+              placeholder="Contraseña"
             />
           </SuiBox>
           <SuiBox display="flex" alignItems="center">
@@ -149,7 +167,7 @@ function SignIn() {
               onClick={handleSetRememberMe}
               customClass="cursor-pointer user-select-none"
             >
-              &nbsp;&nbsp;Remember me
+              &nbsp;&nbsp;Recordarme
             </SuiTypography>
           </SuiBox>
           <SuiBox mt={2} mb={2} textAlign="center">
@@ -173,7 +191,7 @@ function SignIn() {
           </SuiBox>
           <SuiBox mt={3} textAlign="center">
             <SuiTypography variant="button" textColor="text" fontWeight="regular">
-              Don&apos;t have an account?{" "}
+              ¿No tienes cuenta?{" "}
               <SuiTypography
                 component={Link}
                 to="/authentication/sign-up"
@@ -182,7 +200,7 @@ function SignIn() {
                 fontWeight="medium"
                 textGradient
               >
-                Sign up
+                Regístrate
               </SuiTypography>
             </SuiTypography>
           </SuiBox>

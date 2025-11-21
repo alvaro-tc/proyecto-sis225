@@ -13,7 +13,7 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 // prop-types is a library for typechecking of props
 import PropTypes from "prop-types";
@@ -34,7 +34,33 @@ import colors from "assets/theme/base/colors";
 import typography from "assets/theme/base/typography";
 import borders from "assets/theme/base/borders";
 
-function Table({ columns, rows }) {
+import clinicApi from "api/clinic";
+
+function Table({ columns, rows, apiResource, rowMapper }) {
+  const [remoteRows, setRemoteRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      if (!apiResource || !rowMapper) return;
+      setLoading(true);
+      try {
+        const data = await clinicApi.list(apiResource);
+        if (!mounted) return;
+        const mapped = (data || []).map((it) => rowMapper(it));
+        setRemoteRows(mapped);
+      } catch (e) {
+        console.error("Error loading table data:", e);
+        setRemoteRows([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [apiResource, rowMapper]);
   const { light } = colors;
   const { size, fontWeightBold } = typography;
   const { borderWidth } = borders;
@@ -74,7 +100,9 @@ function Table({ columns, rows }) {
     );
   });
 
-  const renderRows = rows.map((row, key) => {
+  const rowsToRender = apiResource && rowMapper ? remoteRows : rows;
+
+  const renderRows = (rowsToRender || []).map((row, key) => {
     const rowKey = `row-${key}`;
 
     const tableRow = columns.map(({ name, align }) => {
@@ -121,11 +149,21 @@ function Table({ columns, rows }) {
           <SuiBox component="thead">
             <TableRow>{renderColumns}</TableRow>
           </SuiBox>
-          <TableBody>{renderRows}</TableBody>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <SuiBox component="td" p={2} colSpan={columns.length} textAlign="center">
+                  Cargando...
+                </SuiBox>
+              </TableRow>
+            ) : (
+              renderRows
+            )}
+          </TableBody>
         </MuiTable>
       </TableContainer>
     ),
-    [columns, rows]
+    [columns, rows, loading, rowsToRender]
   );
 }
 
@@ -139,6 +177,8 @@ Table.defaultProps = {
 Table.propTypes = {
   columns: PropTypes.arrayOf(PropTypes.object),
   rows: PropTypes.arrayOf(PropTypes.object),
+  apiResource: PropTypes.string,
+  rowMapper: PropTypes.func,
 };
 
 export default Table;

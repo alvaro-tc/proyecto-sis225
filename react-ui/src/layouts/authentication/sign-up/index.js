@@ -30,14 +30,12 @@ import SuiButton from "components/SuiButton";
 
 // Authentication layout components
 import BasicLayout from "layouts/authentication/components/BasicLayout";
-import Socials from "layouts/authentication/components/Socials";
 import Separator from "layouts/authentication/components/Separator";
 
 // Images
-import curved6 from "assets/images/curved-images/curved14.jpg";
-
 import AuthApi from "../../../api/auth";
 import { useHistory } from "react-router-dom";
+import curved6 from "assets/images/curved-images/curved-6.jpg";
 
 function SignUp() {
   const history = useHistory();
@@ -45,7 +43,7 @@ function SignUp() {
   const [firstName, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [buttonText, setButtonText] = useState("Sign up");
+  const [buttonText, setButtonText] = useState("Registrarse");
   const [error, setError] = useState(undefined);
 
   const handleSetAgremment = () => setAgremment(!agreement);
@@ -55,50 +53,48 @@ function SignUp() {
       event.preventDefault();
     }
     if (firstName === "") {
-      return setError("You must enter your first name.");
+      return setError("Debes ingresar tu nombre.");
     }
     if (email === "") {
-      return setError("You must enter your email.");
+      return setError("Debes ingresar tu correo.");
     }
     if (password === "") {
-      return setError("You must enter a password.");
+      return setError("Debes ingresar una contraseña.");
     }
     try {
-      setButtonText("Signing up");
-      let response = await AuthApi.Register({
+      setButtonText("Registrando...");
+      const response = await AuthApi.Register({
         username: firstName,
         email,
         password,
       });
-      if (response.data && response.data.success === false) {
-        setButtonText("Sign up");
-        return setError(response.data.msg);
+      // assume success when response.status in 200-299
+      if (response && response.data && response.data.success === false) {
+        setButtonText("Registrarse");
+        return setError(response.data.msg || "Error en el registro.");
       }
       return history.push("/authentication/sign-in");
     } catch (err) {
       console.log(err);
-      setButtonText("Sign up");
-      if (err.response) {
-        return setError(err.response.data.msg);
+      setButtonText("Registrarse");
+      if (err.response && err.response.data) {
+        return setError(err.response.data.msg || "Error en el servidor.");
       }
-      return setError("There has been an error.");
+      return setError("Ha ocurrido un error. Intenta de nuevo.");
     }
   };
 
   return (
     <BasicLayout
-      title="Welcome!"
-      description="Use these awesome forms to login or create new account in your project for free."
+      title="Clínica Veterinaria - Registro"
+      description="Crea una cuenta para gestionar citas y fichas de mascotas."
       image={curved6}
     >
       <Card>
         <SuiBox p={3} mb={1} textAlign="center">
           <SuiTypography variant="h5" fontWeight="medium">
-            Register with
+            Crear cuenta
           </SuiTypography>
-        </SuiBox>
-        <SuiBox mb={2}>
-          <Socials />
         </SuiBox>
         <Separator />
         <SuiBox pt={2} pb={3} px={3}>
@@ -109,7 +105,7 @@ function SignUp() {
                   setName(event.target.value);
                   setError(undefined);
                 }}
-                placeholder="Name"
+                placeholder="Nombre"
               />
             </SuiBox>
             <SuiBox mb={2}>
@@ -119,7 +115,7 @@ function SignUp() {
                   setError(undefined);
                 }}
                 type="email"
-                placeholder="Email"
+                placeholder="Correo"
               />
             </SuiBox>
             <SuiBox mb={2}>
@@ -129,7 +125,7 @@ function SignUp() {
                   setError(undefined);
                 }}
                 type="password"
-                placeholder="Password"
+                placeholder="Contraseña"
               />
             </SuiBox>
             <SuiBox display="flex" alignItems="center">
@@ -140,7 +136,7 @@ function SignUp() {
                 onClick={handleSetAgremment}
                 customClass="cursor-pointer user-select-none"
               >
-                &nbsp;&nbsp;I agree the&nbsp;
+                &nbsp;&nbsp;Acepto los&nbsp;
               </SuiTypography>
               <SuiTypography component="a" href="#" variant="button" fontWeight="bold" textGradient>
                 Terms and Conditions
@@ -166,7 +162,7 @@ function SignUp() {
             </SuiBox>
             <SuiBox mt={3} textAlign="center">
               <SuiTypography variant="button" textColor="text" fontWeight="regular">
-                Already have an account?&nbsp;
+                ¿Ya tienes cuenta?&nbsp;
                 <SuiTypography
                   component={Link}
                   to="/authentication/sign-in"
@@ -175,7 +171,7 @@ function SignUp() {
                   fontWeight="bold"
                   textGradient
                 >
-                  Sign in
+                  Iniciar sesión
                 </SuiTypography>
               </SuiTypography>
             </SuiBox>

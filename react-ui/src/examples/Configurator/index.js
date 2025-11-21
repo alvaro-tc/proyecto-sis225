@@ -16,7 +16,6 @@ Coded by www.creative-tim.com
 import { useState, useEffect } from "react";
 
 // react-github-btn
-import GitHubButton from "react-github-btn";
 
 // clsx is a utility for constructing className strings conditionally
 import clsx from "clsx";
@@ -26,12 +25,11 @@ import Drawer from "@mui/material/Drawer";
 import Divider from "@mui/material/Divider";
 import Switch from "@mui/material/Switch";
 import IconButton from "@mui/material/IconButton";
-import Link from "@mui/material/Link";
+// Link not used here
 import Icon from "@mui/material/Icon";
 
 // @mui icons
-import TwitterIcon from "@mui/icons-material/Twitter";
-import FacebookIcon from "@mui/icons-material/Facebook";
+// social icons removed (not used)
 
 // Soft UI Dashboard React components
 import SuiBox from "components/SuiBox";
@@ -103,9 +101,9 @@ function Configurator() {
         px={3}
       >
         <SuiBox>
-          <SuiTypography variant="h5">Soft UI Configurator</SuiTypography>
+          <SuiTypography variant="h5">Configurador</SuiTypography>
           <SuiTypography variant="body2" textColor="text">
-            See our dashboard options.
+            Opciones de la interfaz de la clínica.
           </SuiTypography>
         </SuiBox>
 
@@ -172,60 +170,12 @@ function Configurator() {
         <Divider />
 
         <SuiBox mt={3} mb={2}>
-          <SuiBox mb={2}>
-            <SuiButton
-              component={Link}
-              href="https://appseed.us/product/django-react-soft-dashboard"
-              target="_blank"
-              rel="noreferrer"
-              buttonColor="dark"
-              variant="gradient"
-              fullWidth
-            >
-              free download
-            </SuiButton>
-          </SuiBox>
-        </SuiBox>
-        <SuiBox display="flex" justifyContent="center">
-          <GitHubButton
-            href="https://github.com/app-generator/django-reactsoft-dashboard"
-            data-icon="octicon-star"
-            data-size="large"
-            data-show-count="true"
-            aria-label="Star Soft UI Dashboard React on GitHub"
-          >
-            Star
-          </GitHubButton>
+          <SuiTypography variant="body2" textColor="text">
+            No hay descargas públicas disponibles desde la UI.
+          </SuiTypography>
         </SuiBox>
         <SuiBox mt={3} textAlign="center">
-          <SuiBox mb={0.5}>
-            <SuiTypography variant="h6">Thank you for sharing!</SuiTypography>
-          </SuiBox>
-
-          <SuiBox display="flex" justifyContent="center">
-            <SuiBox mr={1.5}>
-              <SuiButton
-                component={Link}
-                href="//twitter.com/intent/tweet?text=Check%20Soft%20UI%20Dashboard%20%20React%20made%20by%20%40CreativeTim%20%23webdesign%20%23dashboard%20%23bootstrap5&url=https%3A%2F%2Fwww.creative-tim.com%2Fproduct%2Fsoft-ui-dashboard-react"
-                target="_blank"
-                rel="noreferrer"
-                buttonColor="dark"
-              >
-                <TwitterIcon />
-                &nbsp; Tweet
-              </SuiButton>
-            </SuiBox>
-            <SuiButton
-              component={Link}
-              href="https://www.facebook.com/sharer/sharer.php?u=https://appseed.us/product/django-react-soft-dashboard"
-              target="_blank"
-              rel="noreferrer"
-              buttonColor="dark"
-            >
-              <FacebookIcon />
-              &nbsp; Share
-            </SuiButton>
-          </SuiBox>
+          <SuiTypography variant="h6">Gracias por usar la interfaz</SuiTypography>
         </SuiBox>
       </SuiBox>
     </Drawer>

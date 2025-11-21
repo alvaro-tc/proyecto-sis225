@@ -82,22 +82,17 @@ function DefaultNavbar({ transparent, light, action }) {
       >
         <SuiBox component={Link} to="/" py={transparent ? 1.5 : 0.75}>
           <SuiTypography variant="button" fontWeight="bold" textColor={light ? "white" : "dark"}>
-            Soft UI Dashboard
+            Clínica Veterinaria
           </SuiTypography>
         </SuiBox>
         <SuiBox color="inherit" display={{ xs: "none", lg: "flex" }} m={0} p={0}>
           <DefaultNavbarLink
             icon="account_circle"
-            name="sign up"
+            name="Registrarse"
             route="/authentication/sign-up"
             light={light}
           />
-          <DefaultNavbarLink
-            icon="key"
-            name="sign in"
-            route="/authentication/sign-in"
-            light={light}
-          />
+          <DefaultNavbarLink icon="key" name="Iniciar Sesión" route="/authentication/sign-in" light={light} />
         </SuiBox>
         {action &&
           (action.type === "internal" ? (

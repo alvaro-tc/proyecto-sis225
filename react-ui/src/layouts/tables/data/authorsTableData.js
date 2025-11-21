@@ -3,14 +3,14 @@
 import SuiBox from "components/SuiBox";
 import SuiTypography from "components/SuiTypography";
 import SuiAvatar from "components/SuiAvatar";
-import SuiBadge from "components/SuiBadge";
 
-// Images
-import team2 from "assets/images/team-2.jpg";
-import team3 from "assets/images/team-3.jpg";
-import team4 from "assets/images/team-4.jpg";
+// Images (use curved/illustrative images for species)
+import dogImg from "assets/images/curved-images/curved1.jpg";
+import catImg from "assets/images/curved-images/curved14.jpg";
+import rabbitImg from "assets/images/curved-images/curved0.jpg";
+import defaultImg from "assets/images/team-2.jpg";
 
-function Author({ image, name, email }) {
+function Author({ image, name }) {
   return (
     <SuiBox display="flex" alignItems="center" px={1} py={0.5}>
       <SuiBox mr={2}>
@@ -19,9 +19,6 @@ function Author({ image, name, email }) {
       <SuiBox display="flex" flexDirection="column">
         <SuiTypography variant="button" fontWeight="medium">
           {name}
-        </SuiTypography>
-        <SuiTypography variant="caption" textColor="secondary">
-          {email}
         </SuiTypography>
       </SuiBox>
     </SuiBox>
@@ -43,148 +40,51 @@ function Function({ job, org }) {
 
 export default {
   columns: [
-    { name: "author", align: "left" },
-    { name: "function", align: "left" },
-    { name: "status", align: "center" },
-    { name: "employed", align: "center" },
+    { name: "Nombre", align: "left" },
+    { name: "Raza", align: "left" },
+    { name: "Edad", align: "center" },
     { name: "action", align: "center" },
   ],
 
   rows: [
     {
-      author: <Author image={team2} name="John Michael" email="john@creative-tim.com" />,
-      function: <Function job="Manager" org="Organization" />,
-      status: (
-        <SuiBadge variant="gradient" badgeContent="online" color="success" size="extra-small" />
-      ),
-      employed: (
+      Nombre: <Author image={dogImg} name="Firulais" />,
+      Raza: <Function job="Perro" org="Labrador" />,
+      Edad: (
         <SuiTypography variant="caption" textColor="secondary" fontWeight="medium">
-          23/04/18
+          3
         </SuiTypography>
       ),
       action: (
-        <SuiTypography
-          component="a"
-          href="#"
-          variant="caption"
-          textColor="secondary"
-          fontWeight="medium"
-        >
+        <SuiTypography component="a" href="#" variant="caption" textColor="secondary" fontWeight="medium">
           Edit
         </SuiTypography>
       ),
     },
     {
-      author: <Author image={team3} name="Alexa Liras" email="alexa@creative-tim.com" />,
-      function: <Function job="Programator" org="Developer" />,
-      status: (
-        <SuiBadge variant="gradient" badgeContent="offline" color="secondary" size="extra-small" />
-      ),
-      employed: (
+      Nombre: <Author image={catImg} name="Misu" />,
+      Raza: <Function job="Gato" org="Europeo" />,
+      Edad: (
         <SuiTypography variant="caption" textColor="secondary" fontWeight="medium">
-          11/01/19
+          2
         </SuiTypography>
       ),
       action: (
-        <SuiTypography
-          component="a"
-          href="#"
-          variant="caption"
-          textColor="secondary"
-          fontWeight="medium"
-        >
+        <SuiTypography component="a" href="#" variant="caption" textColor="secondary" fontWeight="medium">
           Edit
         </SuiTypography>
       ),
     },
     {
-      author: <Author image={team4} name="Laurent Perrier" email="laurent@creative-tim.com" />,
-      function: <Function job="Executive" org="Projects" />,
-      status: (
-        <SuiBadge variant="gradient" badgeContent="online" color="success" size="extra-small" />
-      ),
-      employed: (
+      Nombre: <Author image={rabbitImg} name="Bunny" />,
+      Raza: <Function job="Conejo" org="Angora" />,
+      Edad: (
         <SuiTypography variant="caption" textColor="secondary" fontWeight="medium">
-          19/09/17
+          1
         </SuiTypography>
       ),
       action: (
-        <SuiTypography
-          component="a"
-          href="#"
-          variant="caption"
-          textColor="secondary"
-          fontWeight="medium"
-        >
-          Edit
-        </SuiTypography>
-      ),
-    },
-    {
-      author: <Author image={team3} name="Michael Levi" email="michael@creative-tim.com" />,
-      function: <Function job="Programator" org="Developer" />,
-      status: (
-        <SuiBadge variant="gradient" badgeContent="online" color="success" size="extra-small" />
-      ),
-      employed: (
-        <SuiTypography variant="caption" textColor="secondary" fontWeight="medium">
-          24/12/08
-        </SuiTypography>
-      ),
-      action: (
-        <SuiTypography
-          component="a"
-          href="#"
-          variant="caption"
-          textColor="secondary"
-          fontWeight="medium"
-        >
-          Edit
-        </SuiTypography>
-      ),
-    },
-    {
-      author: <Author image={team2} name="Richard Gran" email="richard@creative-tim.com" />,
-      function: <Function job="Manager" org="Executive" />,
-      status: (
-        <SuiBadge variant="gradient" badgeContent="offline" color="secondary" size="extra-small" />
-      ),
-      employed: (
-        <SuiTypography variant="caption" textColor="secondary" fontWeight="medium">
-          04/10/21
-        </SuiTypography>
-      ),
-      action: (
-        <SuiTypography
-          component="a"
-          href="#"
-          variant="caption"
-          textColor="secondary"
-          fontWeight="medium"
-        >
-          Edit
-        </SuiTypography>
-      ),
-    },
-    {
-      author: <Author image={team4} name="Miriam Eric" email="miriam@creative-tim.com" />,
-      function: <Function job="Programtor" org="Developer" />,
-      status: (
-        <SuiBadge variant="gradient" badgeContent="offline" color="secondary" size="extra-small" />
-      ),
-      employed: (
-        <SuiTypography variant="caption" textColor="secondary" fontWeight="medium">
-          14/09/20
-        </SuiTypography>
-      ),
-      action: (
-        <SuiTypography
-          component="a"
-          href="#"
-          variant="caption"
-          textColor="secondary"
-          fontWeight="medium"
-        >
+        <SuiTypography component="a" href="#" variant="caption" textColor="secondary" fontWeight="medium">
           Edit
         </SuiTypography>
       ),

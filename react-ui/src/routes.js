@@ -38,6 +38,7 @@ Coded by www.creative-tim.com
 // Soft UI Dashboard React layouts
 import Dashboard from "layouts/dashboard";
 import Tables from "layouts/tables";
+import MascotasLayout from "layouts/mascotas";
 import Billing from "layouts/billing";
 import VirtualReality from "layouts/virtual-reality";
 import RTL from "layouts/rtl";
@@ -45,6 +46,15 @@ import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import SignOut from "layouts/authentication/sign-out";
+// Clinic pages
+import Duenos from "pages/clinic/Duenos";
+import Mascotas from "pages/clinic/Mascotas";
+import Citas from "pages/clinic/Citas";
+import Consultas from "pages/clinic/Consultas";
+import Historiales from "pages/clinic/Historiales";
+import Veterinarios from "pages/clinic/Veterinarios";
+import Recepcionistas from "pages/clinic/Recepcionistas";
+import Comprobantes from "pages/clinic/Comprobantes";
 
 // Soft UI Dashboard React icons
 import Shop from "examples/Icons/Shop";
@@ -79,8 +89,18 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Billing",
-    key: "billing",
+    name: "Mascotas",
+    key: "mascotas-layout",
+    route: "/mascotas",
+    icon: <Office size="12px" />,
+    component: MascotasLayout,
+    noCollapse: true,
+    protected: true,
+  },
+  {
+    type: "collapse",
+    name: "Reservas",
+    key: "reservas",
     route: "/billing",
     icon: <CreditCard size="12px" />,
     component: Billing,
@@ -107,10 +127,10 @@ const routes = [
     noCollapse: true,
     protected: true,
   },
-  { type: "title", title: "Account Pages", key: "account-pages" },
+  { type: "title", title: "Cuenta", key: "account-pages" },
   {
     type: "collapse",
-    name: "Profile",
+    name: "Perfil",
     key: "profile",
     route: "/profile",
     icon: <CustomerSupport size="12px" />,
@@ -120,7 +140,7 @@ const routes = [
   },
   {
     type: "none",
-    name: "Sign In",
+    name: "Iniciar Sesión",
     key: "sign-in",
     route: "/authentication/sign-in",
     icon: <Document size="12px" />,
@@ -129,7 +149,7 @@ const routes = [
   },
   {
     type: "none",
-    name: "Sign Up",
+    name: "Registrarse",
     key: "sign-up",
     route: "/authentication/sign-up",
     icon: <SpaceShip size="12px" />,
@@ -138,12 +158,94 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Logout",
+    name: "Cerrar sesión",
     key: "sign-out",
     route: "/authentication/sign-out",
     icon: <SpaceShip size="12px" />,
     component: SignOut,
     noCollapse: true,
+  },
+
+  { type: "title", title: "Clínica", key: "clinic-title" },
+  {
+    type: "collapse",
+    name: "Dueños",
+    key: "duenos",
+    route: "/clinic/duenos",
+    icon: <Document size="12px" />,
+    component: Duenos,
+    noCollapse: true,
+    protected: true,
+  },
+  {
+    type: "collapse",
+    name: "Mascotas",
+    key: "mascotas",
+    route: "/clinic/mascotas",
+    icon: <Office size="12px" />,
+    component: Mascotas,
+    noCollapse: true,
+    protected: true,
+  },
+  {
+    type: "collapse",
+    name: "Citas",
+    key: "citas",
+    route: "/clinic/citas",
+    icon: <CreditCard size="12px" />,
+    component: Citas,
+    noCollapse: true,
+    protected: true,
+  },
+  {
+    type: "collapse",
+    name: "Consultas",
+    key: "consultas",
+    route: "/clinic/consultas",
+    icon: <Cube size="12px" />,
+    component: Consultas,
+    noCollapse: true,
+    protected: true,
+  },
+  {
+    type: "collapse",
+    name: "Historiales",
+    key: "historiales",
+    route: "/clinic/historiales",
+    icon: <Settings size="12px" />,
+    component: Historiales,
+    noCollapse: true,
+    protected: true,
+  },
+  {
+    type: "collapse",
+    name: "Veterinarios",
+    key: "veterinarios",
+    route: "/clinic/veterinarios",
+    icon: <CustomerSupport size="12px" />,
+    component: Veterinarios,
+    noCollapse: true,
+    protected: true,
+  },
+  {
+    type: "collapse",
+    name: "Recepcionistas",
+    key: "recepcionistas",
+    route: "/clinic/recepcionistas",
+    icon: <Shop size="12px" />,
+    component: Recepcionistas,
+    noCollapse: true,
+    protected: true,
+  },
+  {
+    type: "collapse",
+    name: "Comprobantes",
+    key: "comprobantes",
+    route: "/clinic/comprobantes",
+    icon: <Document size="12px" />,
+    component: Comprobantes,
+    noCollapse: true,
+    protected: true,
   },
 ];
 

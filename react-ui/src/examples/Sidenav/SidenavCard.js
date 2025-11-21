@@ -45,23 +45,15 @@ function SidenavCard() {
         </SuiBox>
         <SuiBox>
           <SuiTypography variant="h6" textColor="white">
-            Need help?
+            ¿Necesitas ayuda?
           </SuiTypography>
           <SuiBox mb={1.5} mt={-1}>
             <SuiTypography variant="caption" textColor="white" fontWeight="medium">
-              Access Product Page
+              Contáctanos para soporte interno
             </SuiTypography>
           </SuiBox>
-          <SuiButton
-            component={Link}
-            href="https://appseed.us/product/django-react-soft-dashboard"
-            target="_blank"
-            rel="noreferrer"
-            size="small"
-            color="default"
-            fullWidth
-          >
-            React Soft Dashboard
+          <SuiButton component={Link} href="/profile" size="small" color="default" fullWidth>
+            Contacto
           </SuiButton>
         </SuiBox>
       </CardContent>

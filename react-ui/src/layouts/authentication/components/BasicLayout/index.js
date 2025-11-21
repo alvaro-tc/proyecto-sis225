@@ -41,16 +41,7 @@ function BasicLayout({ title, description, image, children }) {
 
   return (
     <PageLayout>
-      <DefaultNavbar
-        routes={routes}
-        action={{
-          type: "external",
-          route: "https://appseed.us/product/django-react-soft-dashboard",
-          label: "free download",
-        }}
-        transparent
-        light
-      />
+      <DefaultNavbar routes={routes} transparent light />
       <SuiBox customClass={classes.basicLayout}>
         <Grid container spacing={3} justifyContent="center" className="text-center">
           <Grid item xs={10} lg={4}>
