@@ -34,10 +34,8 @@ import clinicApi from "api/clinic";
 
 import styles from "layouts/tables/styles";
 
-import dogImg from "assets/images/curved-images/curved1.jpg";
-import catImg from "assets/images/curved-images/curved14.jpg";
-import rabbitImg from "assets/images/curved-images/curved0.jpg";
-import defaultImg from "assets/images/team-2.jpg";
+import petsIcon from "assets/images/pets.svg";
+
 
 function Mascotas() {
   const classes = styles();
@@ -84,10 +82,7 @@ function Mascotas() {
     (m) => {
       // m expected with fields: idMascota, nombre, especie, raza, edad
       const especie = (m.especie || "").toLowerCase();
-      let img = defaultImg;
-      if (especie.includes("perro") || especie.includes("dog")) img = dogImg;
-      else if (especie.includes("gato") || especie.includes("cat")) img = catImg;
-      else if (especie.includes("conejo") || especie.includes("rabbit")) img = rabbitImg;
+      let img = petsIcon;
 
       return {
         Nombre: [img, m.nombre || "-"],

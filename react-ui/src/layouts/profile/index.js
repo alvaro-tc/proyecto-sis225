@@ -14,27 +14,32 @@ Coded by www.creative-tim.com
 */
 
 // @mui material components
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 // Soft UI Dashboard React components
 import SuiBox from "components/SuiBox";
 import SuiTypography from "components/SuiTypography";
 
+
 // Soft UI Dashboard React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import Footer from "examples/Footer";
 import ProfileInfoCard from "examples/Cards/InfoCards/ProfileInfoCard";
 import ProfilesList from "examples/ProfilesList";
+import SuiButton from "components/SuiButton";
+import clinicApi from "api/clinic";
+import ModalEditarPerfil from "./ModalEditarPerfil";
 
 // Overview page components
 import Header from "layouts/profile/components/Header";
 // PlatformSettings removed from layout (not necessary)
 
 // Data
-import profilesListData from "layouts/profile/data/profilesListData";
+
 
 // Images (projects removed)
+import petsIcon from "assets/images/pets.svg";
 
 function Overview() {
   // Temporal: interceptar y bloquear llamadas a LaunchDarkly (events.launchdarkly.com)
@@ -90,32 +95,194 @@ function Overview() {
       } catch (e) {}
     };
   }, []);
+  // fetch profile summary at Overview level and pass to Header/ProfileSummary
+  const [summary, setSummary] = useState(null);
+  const [loadingSummary, setLoadingSummary] = useState(true);
+  const [summaryError, setSummaryError] = useState(null);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+
+  const fetchSummary = () => {
+    let mounted = true;
+    setLoadingSummary(true);
+    clinicApi
+      .list("duenos/me/summary")
+      .then((data) => {
+        if (!mounted) return;
+        setSummary(data);
+      })
+      .catch((err) => {
+        console.warn("Error fetching profile summary:", err);
+        if (mounted) setSummaryError(err);
+      })
+      .finally(() => {
+        if (mounted) setLoadingSummary(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  };
+
+  useEffect(() => {
+    const cleanup = fetchSummary();
+    return cleanup;
+  }, []);
+
+  function ProfileSummary({ summary, loading, error }) {
+
+        // helper to map mascota to ProfilesList shape (use imported petsIcon)
+        const mapMascotas = (mascotas = []) =>
+          mascotas.map((m) => ({
+            image: petsIcon,
+            name: m.nombre || "-",
+            description: `${m.especie || "-"}${m.raza ? ` · ${m.raza}` : ""}`,
+            action: { type: "internal", route: `#/clinic/mascotas/${m.idMascota || m.id || ""}`, color: "info", label: "ver" },
+          }));
+
+        const mapCitas = (citas = []) =>
+          citas.map((c) => ({
+            image: "",
+            name: `${c.fecha || ""} ${c.hora || ""}`.trim(),
+            description: c.motivo || "",
+            action: { type: "internal", route: `#/clinic/citas/${c.idCita || c.id || ""}`, color: "info", label: "ver" },
+          }));
+
+        return (
+          <SuiBox mt={5} mb={3}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6} xl={4}>
+                <ProfileInfoCard
+                  title="Perfil"
+                  description={summary?.profile ? "Perfil del usuario" : "Detalle del usuario"}
+                  info={{
+                    "Nombre completo": summary?.dueno?.nombre || "Nombre Apellido",
+                    Teléfono: summary?.dueno?.telefono || "",
+                    Email: summary?.dueno?.user?.email || "",
+                  }}
+                  action={{ onClick: () => setEditProfileOpen(true), tooltip: "Editar perfil" }}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={4}>
+                {loading ? (
+                    <ProfileLoadingCard title="Mascotas" />
+                  ) : summary?.mascotas && summary.mascotas.length > 0 ? (
+                    (() => {
+                      const mascotasToShow = (summary.mascotas || []).slice(0, 4);
+                      return (
+                        <Card className="h-100">
+                          <SuiBox pt={2} px={2} display="flex" alignItems="center" justifyContent="space-between">
+                            <SuiTypography variant="h6" fontWeight="medium">
+                              Mascotas
+                            </SuiTypography>
+                            <SuiButton component="a" href="/mascotas" variant="text" buttonColor="info">
+                              Ver más
+                            </SuiButton>
+                          </SuiBox>
+                          <SuiBox p={2}>
+                            <SuiBox component="ul" display="flex" flexDirection="column" p={0} m={0}>
+                              {mapMascotas(mascotasToShow).map(({ image, name, description, action }) => (
+                                <SuiBox key={name} component="li" display="flex" alignItems="center" py={1} mb={1}>
+                                  <SuiBox mr={2}>
+                                    <img src={image || petsIcon} alt={name} style={{ width: 44, height: 44, borderRadius: 8, objectFit: "cover" }} />
+                                  </SuiBox>
+                                  <SuiBox display="flex" flexDirection="column" alignItems="flex-start" justifyContent="center">
+                                    <SuiTypography variant="button" fontWeight="medium">
+                                      {name}
+                                    </SuiTypography>
+                                    <SuiTypography variant="caption" textColor="text">
+                                      {description}
+                                    </SuiTypography>
+                                  </SuiBox>
+                                  {/* action removed for inline mascotas list */}
+                                </SuiBox>
+                              ))}
+                            </SuiBox>
+                          </SuiBox>
+                        </Card>
+                      );
+                    })()
+                  ) : (
+                  <Card className="h-100">
+                    <SuiBox pt={2} px={2}>
+                      <SuiTypography variant="h6" fontWeight="medium">
+                        Mascotas
+                      </SuiTypography>
+                    </SuiBox>
+                    <SuiBox p={2}>
+                          <SuiTypography variant="body2" textColor="text">
+                            Aún no tienes mascotas registradas.
+                          </SuiTypography>
+                          <SuiBox mt={2}>
+                            <SuiButton component="a" href="/mascotas" variant="gradient" buttonColor="dark">
+                              Agregar mascota
+                            </SuiButton>
+                          </SuiBox>
+                        </SuiBox>
+                  </Card>
+                )}
+              </Grid>
+
+              <Grid item xs={12} md={6} xl={4}>
+                {loading ? (
+                  <ProfileLoadingCard title="Historial de consultas veterinarias" />
+                ) : summary?.citas && summary.citas.length > 0 ? (
+                  <ProfilesList title="Historial de consultas veterinarias" profiles={mapCitas((summary.citas || []).slice(0, 4))} />
+                ) : (
+                  <Card className="h-100">
+                    <SuiBox pt={2} px={2}>
+                      <SuiTypography variant="h6" fontWeight="medium">
+                        Historial de consultas veterinarias
+                      </SuiTypography>
+                    </SuiBox>
+                    <SuiBox p={2}>
+                      <SuiTypography variant="body2" textColor="text">
+                        No hay consultas disponibles.
+                      </SuiTypography>
+                    </SuiBox>
+                  </Card>
+                )}
+              </Grid>
+            </Grid>
+          </SuiBox>
+        );
+      }
+
+      function getImageForEspecie(especie) {
+        // Return imported petsIcon for consistency
+        return petsIcon;
+      }
+
+      function ProfileLoadingCard({ title }) {
+        return (
+          <Card className="h-100">
+            <SuiBox pt={2} px={2}>
+              <SuiTypography variant="h6" fontWeight="medium">
+                {title}
+              </SuiTypography>
+            </SuiBox>
+            <SuiBox p={2}>
+              <SuiTypography variant="body2" textColor="text">
+                Cargando...
+              </SuiTypography>
+            </SuiBox>
+          </Card>
+        );
+      }
 
   return (
     <DashboardLayout>
-      <Header />
-      <SuiBox mt={5} mb={3}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6} xl={4}>
-            <ProfileInfoCard
-              title="Información de perfil"
-              description="Detalle del usuario y preferencias de la clínica."
-              info={{
-                fullName: "Nombre Apellido",
-                mobile: "",
-                email: "",
-                location: "",
-              }}
-              action={{ route: "", tooltip: "Editar perfil" }}
-            />
-          </Grid>
-          <Grid item xs={12} md={6} xl={4}>
-            <ProfilesList title="conversations" profiles={profilesListData} />
-          </Grid>
-        </Grid>
+      <Header name={summary?.dueno?.nombre} role={summary?.role} avatar={(summary?.dueno?.avatar || summary?.dueno?.foto) || undefined} />
+      <SuiBox py={3}>
+        <ProfileSummary summary={summary} loading={loadingSummary} error={summaryError} />
       </SuiBox>
-      {/* Projects section removed to simplify profile page */}
-
+      <ModalEditarPerfil
+        open={editProfileOpen}
+        onClose={() => setEditProfileOpen(false)}
+        onSaved={() => {
+          setEditProfileOpen(false);
+          fetchSummary();
+        }}
+      />
       <Footer />
     </DashboardLayout>
   );

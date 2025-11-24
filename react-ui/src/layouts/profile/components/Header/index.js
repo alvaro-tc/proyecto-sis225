@@ -18,17 +18,18 @@ import { useState, useEffect } from "react";
 // @mui material components
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
-// AppBar/Tabs removed (not needed for simplified profile)
+// removed Tabs UI for clinic profile
 
 // Soft UI Dashboard PRO React components
 import SuiBox from "components/SuiBox";
 import SuiTypography from "components/SuiTypography";
 import SuiAvatar from "components/SuiAvatar";
 
-// Soft UI Dashboard PRO React example components
+// Soft UI Dashboard PRO React example components 
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
-// Removed icon imports for App/Message/Settings tabs
+// Soft UI Dashboard PRO React icons
+// icons removed
 
 // Soft UI Dashboard PRO React base styles
 import breakpoints from "assets/theme/base/breakpoints";
@@ -37,33 +38,10 @@ import breakpoints from "assets/theme/base/breakpoints";
 import styles from "layouts/profile/components/Header/styles";
 
 // Images
-import burceMars from "assets/images/bruce-mars.jpg";
+import usersIcon from "assets/images/user.svg";
 
-function Header() {
-  const [tabsOrientation, setTabsOrientation] = useState("horizontal");
+function Header({ name, role, avatar }) {
   const classes = styles();
-
-  useEffect(() => {
-    // A function that sets the orientation state of the tabs.
-    function handleTabsOrientation() {
-      return window.innerWidth < breakpoints.values.sm
-        ? setTabsOrientation("vertical")
-        : setTabsOrientation("horizontal");
-    }
-
-    /** 
-     The event listener that's calling the handleTabsOrientation function when resizing the window.
-    */
-    window.addEventListener("resize", handleTabsOrientation);
-
-    // Call the handleTabsOrientation function to set the state with the initial value.
-    handleTabsOrientation();
-
-    // Remove event listener on cleanup
-    return () => window.removeEventListener("resize", handleTabsOrientation);
-  }, []);
-
-  // tabs removed; no handler needed
 
   return (
     <SuiBox position="relative">
@@ -73,7 +51,7 @@ function Header() {
         <Grid container spacing={3} alignItems="center">
           <Grid item>
             <SuiAvatar
-              src={burceMars}
+              src={usersIcon}
               alt="profile-image"
               variant="rounded"
               size="xl"
@@ -81,16 +59,19 @@ function Header() {
             />
           </Grid>
           <Grid item>
-            <SuiBox height="100%" mt={0.5} lineHeight={1}>
-              <SuiTypography variant="h5" fontWeight="medium">
-                Alex Thompson
-              </SuiTypography>
-              <SuiTypography variant="button" textColor="text" fontWeight="medium">
-                CEO / Co-Founder
-              </SuiTypography>
+            <SuiBox height="100%" mt={0.5} lineHeight={1} display="flex" alignItems="center" gap={1}>
+              <SuiBox>
+                <SuiTypography variant="h5" fontWeight="medium">
+                  {name || "Nombre Apellido"}
+                </SuiTypography>
+                <SuiTypography variant="button" textColor="text" fontWeight="medium">
+                  {role || ""}
+                </SuiTypography>
+              </SuiBox>
+              
             </SuiBox>
           </Grid>
-          {/* Tabs removed to simplify profile header (App / Message / Settings not required) */}
+          {/* removed App/Message/Settings tabs for clinic UI */}
         </Grid>
       </Card>
     </SuiBox>

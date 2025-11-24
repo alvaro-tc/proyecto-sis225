@@ -44,6 +44,10 @@ export default function ModalEditarMascota({ open, onClose, onSave, initialData 
   const [speciesOpen, setSpeciesOpen] = useState(false);
 
   useEffect(() => {
+    // Only reset form when the dialog is open to avoid flicker from background updates
+    if (!open) {
+      return;
+    }
     if (initialData) {
       const especieValue = ESPECIES.includes(initialData.especie) ? initialData.especie : "Otro";
       reset({
@@ -56,7 +60,7 @@ export default function ModalEditarMascota({ open, onClose, onSave, initialData 
     } else {
       reset({ nombre: "", especieSel: "Perro", especieOtro: "", raza: "", edad: "" });
     }
-  }, [initialData, reset]);
+  }, [initialData, open, reset]);
 
   const submit = async (data) => {
     setSubmitError("");

@@ -30,14 +30,11 @@ import SuiBox from "components/SuiBox";
 import SuiTypography from "components/SuiTypography";
 
 // Soft UI Dashboard React base styles
-import colors from "assets/theme/base/colors";
-import typography from "assets/theme/base/typography";
+// colors/typography imports removed because social section was removed
 
-function ProfileInfoCard({ title, description, info, social, action }) {
+function ProfileInfoCard({ title, description, info, action }) {
   const labels = [];
   const values = [];
-  const { socialMediaColors } = colors;
-  const { size } = typography;
 
   // Convert this form `objectKey` of the object key in to this `object key`
   Object.keys(info).forEach((el) => {
@@ -66,23 +63,7 @@ function ProfileInfoCard({ title, description, info, social, action }) {
     </SuiBox>
   ));
 
-  // Render the card social media icons (safe when `social` is undefined)
-  const renderSocial = (social || []).map(({ link, icon, color }) => (
-    <SuiBox
-      key={color}
-      component="a"
-      href={link}
-      target="_blank"
-      rel="noreferrer"
-      fontSize={size.lg}
-      color={socialMediaColors[color].main}
-      pr={1}
-      pl={0.5}
-      mt={-0.1}
-    >
-      {icon}
-    </SuiBox>
-  ));
+  // social section intentionally removed for clinic profile
 
   return (
     <Card className="h-100">
@@ -90,11 +71,19 @@ function ProfileInfoCard({ title, description, info, social, action }) {
         <SuiTypography variant="h6" fontWeight="medium" textTransform="capitalize">
           {title}
         </SuiTypography>
-        <SuiTypography component={Link} to={action.route} variant="body2" textColor="secondary">
-          <Tooltip title={action.tooltip} placement="top">
-            <Icon>edit</Icon>
-          </Tooltip>
-        </SuiTypography>
+        {action && action.onClick ? (
+          <SuiTypography component="button" onClick={action.onClick} variant="body2" textColor="secondary" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+            <Tooltip title={action.tooltip} placement="top">
+              <Icon>edit</Icon>
+            </Tooltip>
+          </SuiTypography>
+        ) : (
+          <SuiTypography component={Link} to={action.route} variant="body2" textColor="secondary">
+            <Tooltip title={action.tooltip} placement="top">
+              <Icon>edit</Icon>
+            </Tooltip>
+          </SuiTypography>
+        )}
       </SuiBox>
       <SuiBox p={2}>
         <SuiBox mb={2} lineHeight={1.25}>
@@ -107,12 +96,6 @@ function ProfileInfoCard({ title, description, info, social, action }) {
         </SuiBox>
         <SuiBox>
           {renderItems}
-          <SuiBox display="flex" py={1} pr={2}>
-            <SuiTypography variant="button" fontWeight="bold" textTransform="capitalize">
-              social: &nbsp;
-            </SuiTypography>
-            {renderSocial}
-          </SuiBox>
         </SuiBox>
       </SuiBox>
     </Card>
@@ -124,15 +107,14 @@ ProfileInfoCard.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
   info: PropTypes.objectOf(PropTypes.string).isRequired,
-  social: PropTypes.arrayOf(PropTypes.object),
   action: PropTypes.shape({
-    route: PropTypes.string.isRequired,
+    route: PropTypes.string,
     tooltip: PropTypes.string.isRequired,
+    onClick: PropTypes.func,
   }).isRequired,
 };
-
-ProfileInfoCard.defaultProps = {
-  social: [],
-};
+/**
+ * Note: social prop and defaults removed on purpose for clinic usage.
+ */
 
 export default ProfileInfoCard;

@@ -101,6 +101,44 @@ async function remove(resource, id) {
   return handleResponse(res);
 }
 
+// Retrieve resource without id (useful for endpoints like 'duenos/me')
+async function retrieveSelf(resource) {
+  const url = `${API_BASE}/api/clinic/${resource}`;
+  const headers = authHeaders();
+  const res = await fetch(url, {
+    method: "GET",
+    headers,
+  });
+  return handleResponse(res);
+}
+
+// Update resource without id (useful for endpoints like 'duenos/me')
+async function updateSelf(resource, payload) {
+  const url = `${API_BASE}/api/clinic/${resource}`;
+  const headers = authHeaders();
+  const res = await fetch(url, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(payload),
+  });
+  return handleResponse(res);
+}
+
+// Generic request helper that uses the same API_BASE and auth headers.
+// `path` may be an absolute path starting with '/' (appended to API_BASE)
+// or a full URL. `options.body` may be a plain object and will be JSON-stringified.
+async function request(path, options = {}) {
+  const { method = "GET", body = null, headers: extraHeaders = {} } = options;
+  const url = path && path.startsWith("http") ? path : `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
+  const headers = { ...authHeaders(), ...extraHeaders };
+  const fetchOpts = { method, headers };
+  if (body !== null && body !== undefined) {
+    fetchOpts.body = typeof body === "string" ? body : JSON.stringify(body);
+  }
+  const res = await fetch(url, fetchOpts);
+  return handleResponse(res);
+}
+
 export default {
   list,
   retrieve,
@@ -108,4 +146,7 @@ export default {
   update,
   partial,
   remove,
+  retrieveSelf,
+  updateSelf,
+  request,
 };
