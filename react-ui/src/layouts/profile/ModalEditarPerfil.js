@@ -19,7 +19,7 @@ export default function ModalEditarPerfil({ open, onClose, onSaved }) {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm({ defaultValues: { nombre: "", telefono: "" } });
+  } = useForm({ defaultValues: { nombre: "", telefono: "", email: "", password: "" } });
 
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -34,7 +34,12 @@ export default function ModalEditarPerfil({ open, onClose, onSaved }) {
       .request("/api/users/me", { method: "GET" })
       .then((data) => {
         if (!mounted) return;
-        reset({ nombre: data.nombre || data.name || "", telefono: data.telefono || data.phone || "" });
+        reset({
+          nombre: data.nombre || data.name || "",
+          telefono: data.telefono || data.phone || "",
+          email: data.email || data.user?.email || "",
+          password: "",
+        });
       })
       .catch((err) => {
         console.error("Error loading perfil from /api/users/me:", err);
@@ -52,9 +57,16 @@ export default function ModalEditarPerfil({ open, onClose, onSaved }) {
     setSubmitError("");
     try {
       setSaving(true);
+      const payload = { nombre: values.nombre || null, telefono: values.telefono || null };
+      if (values.email) payload.email = values.email;
+      // only include password if set (leave blank to not change)
+      if (values.password) payload.password = values.password;
+      // Log payload for debugging
+      // eslint-disable-next-line no-console
+      console.debug("PUT /api/users/me payload:", payload);
       await clinicApi.request("/api/users/me", {
         method: "PUT",
-        body: { nombre: values.nombre || null, telefono: values.telefono || null },
+        body: payload,
       });
       onSaved && onSaved();
       onClose && onClose();
@@ -85,6 +97,30 @@ export default function ModalEditarPerfil({ open, onClose, onSaved }) {
                   {...register("nombre", { maxLength: 255 })}
                   error={!!errors.nombre}
                   helperText={errors.nombre?.message}
+                  InputLabelProps={{ shrink: true }}
+                  InputProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Email"
+                  fullWidth
+                  type="email"
+                  {...register("email", { required: false, maxLength: 255 })}
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                  InputLabelProps={{ shrink: true }}
+                  InputProps={{ style: { fontSize: 16 } }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Password (dejar vacío para no cambiar)"
+                  fullWidth
+                  type="password"
+                  {...register("password", { minLength: { value: 6, message: "Mínimo 6 caracteres" } })}
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
                   InputLabelProps={{ shrink: true }}
                   InputProps={{ style: { fontSize: 16 } }}
                 />

@@ -24,7 +24,15 @@ import { SoftUIControllerProvider } from "context";
 import { AuthProvider } from "auth-context/auth.context";
 
 let user = localStorage.getItem("user");
-user = JSON.parse(user);
+try {
+  user = typeof user === "string" && user !== "null" ? JSON.parse(user) : null;
+} catch (e) {
+  // if the stored value is not valid JSON (eg. an HTML error page), ignore it
+  // and fall back to null to avoid crashing the app on startup
+  // eslint-disable-next-line no-console
+  console.warn("Could not parse localStorage.user, ignoring invalid value.", e);
+  user = null;
+}
 
 ReactDOM.render(
   <BrowserRouter>

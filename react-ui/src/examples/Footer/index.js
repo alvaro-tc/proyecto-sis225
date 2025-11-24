@@ -69,7 +69,6 @@ function Footer({ company, links }) {
             &nbsp;{name}&nbsp;
           </SuiTypography>
         </Link>
-        Coded By AppSeed.
       </SuiBox>
       <SuiBox component="ul" customClass={classes.footer_list}>
         {renderLinks()}

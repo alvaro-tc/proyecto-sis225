@@ -24,7 +24,12 @@ import SuiBox from "components/SuiBox";
 import SuiTypography from "components/SuiTypography";
 import SuiButton from "components/SuiButton";
 
-function Bill({ name, company, email, vat, noGutter }) {
+function Bill({ consulta, onEdit, onDelete, noGutter }) {
+  const name = consulta?.motivo || "-";
+  const mascotaName = consulta?.mascota?.nombre || (typeof consulta?.mascota === "string" ? consulta.mascota : "-");
+  const fecha = consulta?.fecha || "";
+  const descripcion = consulta?.descripcion || "";
+
   return (
     <SuiBox
       component="li"
@@ -51,35 +56,35 @@ function Bill({ name, company, email, vat, noGutter }) {
 
           <SuiBox display="flex" alignItems="center" mt={{ xs: 2, sm: 0 }} ml={{ xs: -1.5, sm: 0 }}>
             <SuiBox mr={1}>
-              <SuiButton variant="text" buttonColor="error">
-                <Icon className="material-icons-round">delete</Icon>&nbsp;delete
+              <SuiButton variant="text" buttonColor="error" onClick={() => onDelete && onDelete(consulta)}>
+                <Icon className="material-icons-round">delete</Icon>&nbsp;eliminar
               </SuiButton>
             </SuiBox>
-            <SuiButton variant="text" buttonColor="dark">
-              <Icon className="material-icons-round">edit</Icon>&nbsp;edit
+            <SuiButton variant="text" buttonColor="dark" onClick={() => onEdit && onEdit(consulta)}>
+              <Icon className="material-icons-round">edit</Icon>&nbsp;editar
             </SuiButton>
           </SuiBox>
         </SuiBox>
         <SuiBox mb={1} lineHeight={0}>
           <SuiTypography variant="caption" textColor="text">
-            Company Name:&nbsp;&nbsp;&nbsp;
+            Mascota:&nbsp;&nbsp;&nbsp;
             <SuiTypography variant="caption" fontWeight="medium" textTransform="capitalize">
-              {company}
+              {mascotaName}
             </SuiTypography>
           </SuiTypography>
         </SuiBox>
         <SuiBox mb={1} lineHeight={0}>
           <SuiTypography variant="caption" textColor="text">
-            Email Address:&nbsp;&nbsp;&nbsp;
+            Fecha:&nbsp;&nbsp;&nbsp;
             <SuiTypography variant="caption" fontWeight="medium">
-              {email}
+              {fecha}
             </SuiTypography>
           </SuiTypography>
         </SuiBox>
         <SuiTypography variant="caption" textColor="text">
-          VAT Number:&nbsp;&nbsp;&nbsp;
+          Descripción:&nbsp;&nbsp;&nbsp;
           <SuiTypography variant="caption" fontWeight="medium">
-            {vat}
+            {descripcion}
           </SuiTypography>
         </SuiTypography>
       </SuiBox>
@@ -92,12 +97,11 @@ Bill.defaultProps = {
   noGutter: false,
 };
 
-// Typechecking props for the Bill
+// Typechecking props for the Bill (adapted for consultas)
 Bill.propTypes = {
-  name: PropTypes.string.isRequired,
-  company: PropTypes.string.isRequired,
-  email: PropTypes.string.isRequired,
-  vat: PropTypes.string.isRequired,
+  consulta: PropTypes.object.isRequired,
+  onEdit: PropTypes.func,
+  onDelete: PropTypes.func,
   noGutter: PropTypes.bool,
 };
 

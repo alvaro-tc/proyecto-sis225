@@ -164,10 +164,10 @@ export default function App() {
           </>
         )}
         {layout === "vr" && <Configurator />}
-        <Switch>
-          {getRoutes(routes)}
-          <Redirect from="*" to="/dashboard" />
-        </Switch>
+          <Switch>
+            {getRoutes(routes)}
+            <Redirect from="*" to="/profile" />
+          </Switch>
       </ThemeProvider>
     </StyledEngineProvider>
   );

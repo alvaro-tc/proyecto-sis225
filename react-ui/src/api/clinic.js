@@ -33,8 +33,26 @@ function authHeaders() {
 
 async function handleResponse(res) {
   const text = await res.text();
-  const data = text ? JSON.parse(text) : {};
-  if (!res.ok) throw data;
+  const contentType = res.headers.get("content-type") || "";
+  let data;
+  if (contentType.indexOf("application/json") !== -1) {
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch (e) {
+      // If JSON parsing fails, return the raw text under `_raw` so callers can inspect it
+      data = { _raw: text };
+    }
+  } else {
+    // Not JSON (could be HTML error page). Return raw text under `_raw`.
+    data = text ? { _raw: text } : {};
+  }
+
+  if (!res.ok) {
+    // Include status information so callers can make decisions
+    const err = { status: res.status, statusText: res.statusText, body: data };
+    throw err;
+  }
+
   return data;
 }
 
@@ -45,7 +63,10 @@ async function list(resource) {
     method: "GET",
     headers,
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  // eslint-disable-next-line no-console
+  console.debug(`[clinicApi] GET ${url} →`, data);
+  return data;
 }
 
 async function retrieve(resource, id) {
@@ -55,7 +76,10 @@ async function retrieve(resource, id) {
     method: "GET",
     headers,
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  // eslint-disable-next-line no-console
+  console.debug(`[clinicApi] GET ${url} →`, data);
+  return data;
 }
 
 async function create(resource, payload) {
@@ -109,7 +133,10 @@ async function retrieveSelf(resource) {
     method: "GET",
     headers,
   });
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  // eslint-disable-next-line no-console
+  console.debug(`[clinicApi] GET ${url} →`, data);
+  return data;
 }
 
 // Update resource without id (useful for endpoints like 'duenos/me')
@@ -136,7 +163,12 @@ async function request(path, options = {}) {
     fetchOpts.body = typeof body === "string" ? body : JSON.stringify(body);
   }
   const res = await fetch(url, fetchOpts);
-  return handleResponse(res);
+  const data = await handleResponse(res);
+  if (String(method).toUpperCase() === "GET") {
+    // eslint-disable-next-line no-console
+    console.debug(`[clinicApi] GET ${url} →`, data);
+  }
+  return data;
 }
 
 export default {

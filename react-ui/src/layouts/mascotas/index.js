@@ -21,6 +21,8 @@ import ModalMascota from "./ModalMascota";
 import ModalEditarMascota from "./ModalEditarMascota";
 import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { useHistory } from "react-router-dom";
 import SuiBox from "components/SuiBox";
 import SuiTypography from "components/SuiTypography";
 import SuiButton from "components/SuiButton";
@@ -40,6 +42,7 @@ import petsIcon from "assets/images/pets.svg";
 function Mascotas() {
   const classes = styles();
   const auth = useAuth(); // moved to top-level hook usage
+  const history = useHistory();
 
   // modal/form delegated to ModalMascota component
 
@@ -98,13 +101,18 @@ function Mascotas() {
         ),
         Edad: m.edad != null ? String(m.edad) : "",
         action: (
-          <IconButton size="small" onClick={() => openEdit(m.idMascota || m.id)}>
-            <EditIcon fontSize="small" />
-          </IconButton>
+          <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+            <IconButton size="small" onClick={() => openEdit(m.idMascota || m.id)}>
+              <EditIcon fontSize="small" />
+            </IconButton>
+            <IconButton size="small" onClick={() => history.push(`/historial-veterinario/${m.idMascota || m.id}`)}>
+              <VisibilityIcon fontSize="small" />
+            </IconButton>
+          </div>
         ),
       };
     },
-    [reload]
+    [reload, history]
   );
 
   async function handleSaveMascota(data) {

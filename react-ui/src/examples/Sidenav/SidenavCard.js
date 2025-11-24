@@ -14,51 +14,7 @@ Coded by www.creative-tim.com
 */
 
 // @mui material components
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Icon from "@mui/material/Icon";
-import Link from "@mui/material/Link";
-
-// Soft UI Dashboard PRO Material-UI components
-import SuiButton from "components/SuiButton";
-import SuiBox from "components/SuiBox";
-import SuiTypography from "components/SuiTypography";
-
-// Custom styles for the SidenavCard
-import styles from "examples/Sidenav/styles/sidenavCard";
-
-// Soft UI Dashboard PRO Material-UI context
-import { useSoftUIController } from "context";
-
-function SidenavCard() {
-  const [controller] = useSoftUIController();
-  const { miniSidenav, sidenavColor } = controller;
-  const classes = styles({ miniSidenav, sidenavColor });
-
-  return (
-    <Card className={classes.card}>
-      <CardContent className={classes.card_content}>
-        <SuiBox customClass={classes.card_iconBox}>
-          <Icon className={classes.card_icon} fontSize="default">
-            star
-          </Icon>
-        </SuiBox>
-        <SuiBox>
-          <SuiTypography variant="h6" textColor="white">
-            ¿Necesitas ayuda?
-          </SuiTypography>
-          <SuiBox mb={1.5} mt={-1}>
-            <SuiTypography variant="caption" textColor="white" fontWeight="medium">
-              Contáctanos para soporte interno
-            </SuiTypography>
-          </SuiBox>
-          <SuiButton component={Link} href="/profile" size="small" color="default" fullWidth>
-            Contacto
-          </SuiButton>
-        </SuiBox>
-      </CardContent>
-    </Card>
-  );
+// SidenavCard intentionally left blank — help card removed project-wide.
+export default function SidenavCard() {
+  return null;
 }
-
-export default SidenavCard;

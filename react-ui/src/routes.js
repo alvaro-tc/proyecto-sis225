@@ -36,57 +36,26 @@ Coded by www.creative-tim.com
 */
 
 // Soft UI Dashboard React layouts
-import Dashboard from "layouts/dashboard";
-import Tables from "layouts/tables";
 import MascotasLayout from "layouts/mascotas";
+import VeterinariosLayout from "layouts/veterinarios";
+import HistorialVeterinario from "layouts/historial-veterinario";
+import RecepcionistasLayout from "layouts/recepcionistas";
 import Billing from "layouts/billing";
-import VirtualReality from "layouts/virtual-reality";
-import RTL from "layouts/rtl";
 import Profile from "layouts/profile";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import SignOut from "layouts/authentication/sign-out";
 // Clinic pages
-import Duenos from "pages/clinic/Duenos";
-import Mascotas from "pages/clinic/Mascotas";
-import Citas from "pages/clinic/Citas";
-import Consultas from "pages/clinic/Consultas";
-import Historiales from "pages/clinic/Historiales";
-import Veterinarios from "pages/clinic/Veterinarios";
-import Recepcionistas from "pages/clinic/Recepcionistas";
-import Comprobantes from "pages/clinic/Comprobantes";
+// Clinic pages removed (not needed)
 
 // Soft UI Dashboard React icons
-import Shop from "examples/Icons/Shop";
 import Office from "examples/Icons/Office";
-import Settings from "examples/Icons/Settings";
 import Document from "examples/Icons/Document";
 import SpaceShip from "examples/Icons/SpaceShip";
 import CustomerSupport from "examples/Icons/CustomerSupport";
 import CreditCard from "examples/Icons/CreditCard";
-import Cube from "examples/Icons/Cube";
 
 const routes = [
-  {
-    type: "collapse",
-    name: "Dashboard",
-    key: "dashboard",
-    route: "/dashboard",
-    icon: <Shop size="12px" />,
-    component: Dashboard,
-    noCollapse: true,
-    protected: true,
-  },
-  {
-    type: "collapse",
-    name: "Tables",
-    key: "tables",
-    route: "/tables",
-    icon: <Office size="12px" />,
-    component: Tables,
-    noCollapse: true,
-    protected: true,
-  },
   {
     type: "collapse",
     name: "Mascotas",
@@ -99,32 +68,42 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Reservas",
-    key: "reservas",
-    route: "/billing",
+    name: "Veterinarios",
+    key: "veterinarios",
+    route: "/veterinarios",
+    icon: <Office size="12px" />,
+    component: VeterinariosLayout,
+    noCollapse: true,
+    protected: true,
+    roles: ["admin"],
+  },
+  {
+    type: "collapse",
+    name: "Recepcionistas",
+    key: "recepcionistas",
+    route: "/recepcionistas",
+    icon: <CustomerSupport size="12px" />,
+    component: RecepcionistasLayout,
+    noCollapse: true,
+    protected: true,
+    roles: ["admin"],
+  },
+  {
+    type: "collapse",
+    name: "Consultas",
+    key: "consultas-global",
+    route: "/consultas",
     icon: <CreditCard size="12px" />,
     component: Billing,
     noCollapse: true,
     protected: true,
   },
   {
-    type: "collapse",
-    name: "Virtual Reality",
-    key: "virtual-reality",
-    route: "/virtual-reality",
-    icon: <Cube size="12px" />,
-    component: VirtualReality,
-    noCollapse: true,
-    protected: true,
-  },
-  {
-    type: "collapse",
-    name: "RTL",
-    key: "rtl",
-    route: "/rtl",
-    icon: <Settings size="12px" />,
-    component: RTL,
-    noCollapse: true,
+    type: "none",
+    name: "Historial Veterinario",
+    key: "historial-veterinario",
+    route: "/historial-veterinario/:id",
+    component: HistorialVeterinario,
     protected: true,
   },
   { type: "title", title: "Cuenta", key: "account-pages" },
@@ -166,87 +145,7 @@ const routes = [
     noCollapse: true,
   },
 
-  { type: "title", title: "Clínica", key: "clinic-title" },
-  {
-    type: "collapse",
-    name: "Dueños",
-    key: "duenos",
-    route: "/clinic/duenos",
-    icon: <Document size="12px" />,
-    component: Duenos,
-    noCollapse: true,
-    protected: true,
-  },
-  {
-    type: "collapse",
-    name: "Mascotas",
-    key: "mascotas",
-    route: "/clinic/mascotas",
-    icon: <Office size="12px" />,
-    component: Mascotas,
-    noCollapse: true,
-    protected: true,
-  },
-  {
-    type: "collapse",
-    name: "Citas",
-    key: "citas",
-    route: "/clinic/citas",
-    icon: <CreditCard size="12px" />,
-    component: Citas,
-    noCollapse: true,
-    protected: true,
-  },
-  {
-    type: "collapse",
-    name: "Consultas",
-    key: "consultas",
-    route: "/clinic/consultas",
-    icon: <Cube size="12px" />,
-    component: Consultas,
-    noCollapse: true,
-    protected: true,
-  },
-  {
-    type: "collapse",
-    name: "Historiales",
-    key: "historiales",
-    route: "/clinic/historiales",
-    icon: <Settings size="12px" />,
-    component: Historiales,
-    noCollapse: true,
-    protected: true,
-  },
-  {
-    type: "collapse",
-    name: "Veterinarios",
-    key: "veterinarios",
-    route: "/clinic/veterinarios",
-    icon: <CustomerSupport size="12px" />,
-    component: Veterinarios,
-    noCollapse: true,
-    protected: true,
-  },
-  {
-    type: "collapse",
-    name: "Recepcionistas",
-    key: "recepcionistas",
-    route: "/clinic/recepcionistas",
-    icon: <Shop size="12px" />,
-    component: Recepcionistas,
-    noCollapse: true,
-    protected: true,
-  },
-  {
-    type: "collapse",
-    name: "Comprobantes",
-    key: "comprobantes",
-    route: "/clinic/comprobantes",
-    icon: <Document size="12px" />,
-    component: Comprobantes,
-    noCollapse: true,
-    protected: true,
-  },
+  // Clinic routes removed
 ];
 
 export default routes;

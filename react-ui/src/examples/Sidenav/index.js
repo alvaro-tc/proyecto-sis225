@@ -13,7 +13,7 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // react-router-dom components
 import { useLocation, NavLink } from "react-router-dom";
@@ -47,6 +47,7 @@ import SoftUILogo from "assets/images/logo-ct.png";
 
 // Soft UI Dashboard React context
 import { useSoftUIController } from "context";
+import clinicApi from "api/clinic";
 
 function Sidenav({ routes, ...rest }) {
   const [controller, dispatch] = useSoftUIController();
@@ -55,6 +56,31 @@ function Sidenav({ routes, ...rest }) {
   const location = useLocation();
   const { pathname } = location;
   const collapseName = pathname.split("/").slice(1)[0];
+
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userLoading, setUserLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    setUserLoading(true);
+    clinicApi
+      .request("/api/users/me")
+      .then((u) => {
+        if (!mounted) return;
+        setCurrentUser(u);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setCurrentUser(null);
+      })
+      .finally(() => {
+        if (!mounted) return;
+        setUserLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const closeSizenav = () => dispatch({ type: "MINI_SIDENAV", value: true });
 
@@ -79,11 +105,48 @@ function Sidenav({ routes, ...rest }) {
     return () => window.removeEventListener("resize", handleMiniSidenav);
   }, [dispatch, location]);
 
+  // Filter routes by role (if route.roles is set, require current user to match)
+  const isAdminUser = (u) => {
+    if (!u) return false;
+    return !!(u.is_admin || u.is_staff || u.isSuperuser || u.isSuperUser || u.role === "admin" || (u.roles && u.roles.indexOf("admin") >= 0));
+  };
+
+  const filteredRoutes = routes.filter((r) => {
+    if (!r.roles || r.roles.length === 0) return true;
+    // if user still loading, hide role-restricted routes until we know
+    if (userLoading) return false;
+    if (r.roles.indexOf("admin") >= 0) return isAdminUser(currentUser);
+    // fallback: allow if user has a matching role string in r.roles
+    if (!currentUser) return false;
+    return r.roles.some((role) => String(currentUser.role) === String(role));
+  });
+
+  // If current user is admin, show only the specific admin menu items
+  // (Veterinarios, Recepcionistas, Perfil, Cerrar sesión).
+  const adminAllowedKeys = ["veterinarios", "recepcionistas", "profile", "sign-out"];
+  let finalRoutes = filteredRoutes;
+  if (!userLoading && isAdminUser(currentUser)) {
+    finalRoutes = filteredRoutes.filter((r) => adminAllowedKeys.indexOf(r.key) >= 0);
+  }
+
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
-  const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, route, href }) => {
+  const renderRoutes = finalRoutes.map(({ type, name, icon, title, noCollapse, key, route, href }) => {
     let returnValue;
 
     if (type === "collapse") {
+      // Determine active state by route (preferred) or fallback to the old key comparison
+      const isActive = () => {
+        try {
+          if (route) {
+            const normalizedRoute = route.replace(/\/$/, "");
+            return pathname === normalizedRoute || pathname.startsWith(`${normalizedRoute}/`);
+          }
+        } catch (e) {
+          // ignore
+        }
+        return key === collapseName;
+      };
+
       returnValue = href ? (
         <Link
           href={href}
@@ -95,7 +158,7 @@ function Sidenav({ routes, ...rest }) {
           <SidenavCollapse
             name={name}
             icon={icon}
-            active={key === collapseName}
+            active={isActive()}
             noCollapse={noCollapse}
           />
         </Link>
@@ -104,7 +167,7 @@ function Sidenav({ routes, ...rest }) {
           <SidenavCollapse
             name={name}
             icon={icon}
-            active={key === collapseName}
+            active={isActive()}
             noCollapse={noCollapse}
           />
         </NavLink>
@@ -170,7 +233,7 @@ function Sidenav({ routes, ...rest }) {
       <Divider />
       <List>{renderRoutes}</List>
       <SuiBox customClass={classes.sidenav_footer}>
-        <SidenavCard />
+        {!userLoading && !isAdminUser(currentUser) && <SidenavCard />}
       </SuiBox>
     </Drawer>
   );
