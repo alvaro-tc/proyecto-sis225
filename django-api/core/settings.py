@@ -10,13 +10,20 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-import os, environ
+import os
 from pathlib import Path
 
-env = environ.Env(
-    # set casting, default value
-    DEBUG=(bool, False)
-)
+# Try to use `django-environ` when available; fall back to a minimal env() helper
+try:
+    import environ
+
+    env = environ.Env(
+        # set casting, default value
+        DEBUG=(bool, False)
+    )
+except Exception:
+    def env(key, default=None):
+        return os.environ.get(key, default)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,9 +50,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
+    "drf_spectacular",
     "api",
     "api.user",
     "api.authentication",
+    "api.clinic.apps.ClinicConfig",
 ]
 
 MIDDLEWARE = [
@@ -129,6 +138,9 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
+# Root folder where `collectstatic` will gather static files for production
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -146,6 +158,28 @@ REST_FRAMEWORK = {
         "api.authentication.backends.ActiveSessionAuthentication",
     ),
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    # drf-spectacular schema class
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+# drf-spectacular settings
+SPECTACULAR_SETTINGS = {
+    "TITLE": "React Soft Dashboard Django API",
+    "DESCRIPTION": "OpenAPI schema for the Django backend used by the React soft dashboard.",
+    "VERSION": "1.0.0",
+    "SERVERS": [{"url": "http://localhost:5000", "description": "Local dev"}],
+    # tag order and descriptions shown by Redoc
+    "TAGS": [
+        {"name": "Auth", "description": "Endpoints de autenticación: login, registro y tokens"},
+        {"name": "Usuarios", "description": "Operaciones sobre usuarios (perfil, creación administrativa)"},
+        {"name": "Dueños", "description": "Crear, actualizar y listar dueños y su información"},
+        {"name": "Recepcionistas", "description": "Gestión de recepcionistas (admin)"},
+        {"name": "Veterinarios", "description": "Gestión de veterinarios y su perfil"},
+        {"name": "Mascotas", "description": "Operaciones sobre mascotas y listas por dueño"},
+        {"name": "Consultas", "description": "Consultas médicas y reservas (unificadas)"},
+        {"name": "Comprobantes", "description": "Comprobantes relacionados a consultas"},
+        {"name": "Perfil", "description": "Endpoints para obtener/editar el perfil autenticado"},
+    ],
 }
 
 # ##################################################################### #

@@ -6,6 +6,8 @@ from api.authentication.viewsets import (
 )
 from rest_framework import routers
 from api.user.viewsets import UserViewSet
+from api.user.viewsets import current_user
+from django.urls import path
 
 router = routers.SimpleRouter(trailing_slash=False)
 
@@ -21,4 +23,5 @@ router.register(r"logout", LogoutViewSet, basename="logout")
 
 urlpatterns = [
     *router.urls,
+    path("me", current_user, name="current-user"),
 ]

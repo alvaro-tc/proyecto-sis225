@@ -22,6 +22,13 @@ class ActiveSessionAuthentication(authentication.BaseAuthentication):
 
         token = auth_header.decode("utf-8")
 
+        # Accept either the raw token or a header with a scheme, e.g.:
+        #   Authorization: Bearer <token>
+        #   Authorization: Token <token>
+        parts = token.split()
+        if len(parts) == 2 and parts[0].lower() in ("bearer", "token"):
+            token = parts[1]
+
         return self._authenticate_credentials(token)
 
     def _authenticate_credentials(self, token):

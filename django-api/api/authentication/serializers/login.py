@@ -1,6 +1,6 @@
 import jwt
 from rest_framework import serializers, exceptions
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -19,7 +19,6 @@ def _generate_jwt_token(user):
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=255)
-    username = serializers.CharField(max_length=255, read_only=True)
     password = serializers.CharField(max_length=128, write_only=True)
 
     def validate(self, data):
@@ -34,7 +33,11 @@ class LoginSerializer(serializers.Serializer):
             raise exceptions.ValidationError(
                 {"success": False, "msg": "Password is required to log in."}
             )
-        user = authenticate(username=email, password=password)
+        # Use the project's USERNAME_FIELD dynamically to authenticate.
+        UserModel = get_user_model()
+        username_field = getattr(UserModel._meta, 'USERNAME_FIELD', 'username')
+        auth_kwargs = {username_field: email, 'password': password}
+        user = authenticate(**auth_kwargs)
 
         if user is None:
             raise exceptions.AuthenticationFailed({"success": False, "msg": "Wrong credentials"})
@@ -59,5 +62,5 @@ class LoginSerializer(serializers.Serializer):
         return {
             "success": True,
             "token": session.token,
-            "user": {"_id": user.pk, "username": user.username, "email": user.email},
+            "user": {"_id": user.pk, "email": user.email},
         }
