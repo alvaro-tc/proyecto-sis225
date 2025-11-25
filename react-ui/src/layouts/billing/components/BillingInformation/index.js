@@ -41,7 +41,7 @@ function BillingInformation() {
     setLoading(true);
     setError(null);
     clinicApi
-      .request("/api/clinic/consultas", { method: "GET" })
+      .request("/api/clinic/duenos/me/future-citas", { method: "GET" })
       .then((data) => {
         setConsultas(Array.isArray(data) ? data : []);
       })

@@ -47,6 +47,10 @@ function ProfilesList({ title, profiles }) {
           <SuiButton component={Link} to={action.route} variant="text" buttonColor="info">
             {action.label}
           </SuiButton>
+        ) : action.type === "callback" ? (
+          <SuiButton onClick={action.onClick} variant="text" buttonColor={action.color || "info"}>
+            {action.label}
+          </SuiButton>
         ) : (
           <SuiButton
             component="a"

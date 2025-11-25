@@ -85,6 +85,8 @@ async function retrieve(resource, id) {
 async function create(resource, payload) {
   const url = `${API_BASE}/api/clinic/${resource}`;
   const headers = authHeaders();
+  // eslint-disable-next-line no-console
+  console.debug(`[clinicApi] POST ${url} payload:`, payload);
   const res = await fetch(url, {
     method: "POST",
     headers,
@@ -96,6 +98,8 @@ async function create(resource, payload) {
 async function update(resource, id, payload) {
   const url = `${API_BASE}/api/clinic/${resource}/${id}`;
   const headers = authHeaders();
+  // eslint-disable-next-line no-console
+  console.debug(`[clinicApi] PUT ${url} payload:`, payload);
   const res = await fetch(url, {
     method: "PUT",
     headers,
@@ -107,6 +111,8 @@ async function update(resource, id, payload) {
 async function partial(resource, id, payload) {
   const url = `${API_BASE}/api/clinic/${resource}/${id}`;
   const headers = authHeaders();
+  // eslint-disable-next-line no-console
+  console.debug(`[clinicApi] PATCH ${url} payload:`, payload);
   const res = await fetch(url, {
     method: "PATCH",
     headers,
@@ -118,6 +124,8 @@ async function partial(resource, id, payload) {
 async function remove(resource, id) {
   const url = `${API_BASE}/api/clinic/${resource}/${id}`;
   const headers = authHeaders();
+  // eslint-disable-next-line no-console
+  console.debug(`[clinicApi] DELETE ${url}`);
   const res = await fetch(url, {
     method: "DELETE",
     headers,
@@ -161,6 +169,11 @@ async function request(path, options = {}) {
   const fetchOpts = { method, headers };
   if (body !== null && body !== undefined) {
     fetchOpts.body = typeof body === "string" ? body : JSON.stringify(body);
+  }
+  // Log non-GET requests for easier debugging
+  if (String(method).toUpperCase() !== "GET") {
+    // eslint-disable-next-line no-console
+    console.debug(`[clinicApi] ${String(method).toUpperCase()} ${url} body:`, body);
   }
   const res = await fetch(url, fetchOpts);
   const data = await handleResponse(res);

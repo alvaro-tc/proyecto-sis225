@@ -28,6 +28,7 @@ function Bill({ consulta, onEdit, onDelete, noGutter }) {
   const name = consulta?.motivo || "-";
   const mascotaName = consulta?.mascota?.nombre || (typeof consulta?.mascota === "string" ? consulta.mascota : "-");
   const fecha = consulta?.fecha || "";
+  const hora = consulta?.hora || "";
   const descripcion = consulta?.descripcion || "";
 
   return (
@@ -81,6 +82,16 @@ function Bill({ consulta, onEdit, onDelete, noGutter }) {
             </SuiTypography>
           </SuiTypography>
         </SuiBox>
+        {hora && (
+          <SuiBox mb={1} lineHeight={0}>
+            <SuiTypography variant="caption" textColor="text">
+              Hora:&nbsp;&nbsp;&nbsp;
+              <SuiTypography variant="caption" fontWeight="medium">
+                {hora}
+              </SuiTypography>
+            </SuiTypography>
+          </SuiBox>
+        )}
         <SuiTypography variant="caption" textColor="text">
           Descripción:&nbsp;&nbsp;&nbsp;
           <SuiTypography variant="caption" fontWeight="medium">

@@ -30,6 +30,7 @@ import ProfilesList from "examples/ProfilesList";
 import SuiButton from "components/SuiButton";
 import clinicApi from "api/clinic";
 import ModalEditarPerfil from "./ModalEditarPerfil";
+import ModalVerConsulta from "./ModalVerConsulta";
 
 // Overview page components
 import Header from "layouts/profile/components/Header";
@@ -100,6 +101,8 @@ function Overview() {
   const [loadingSummary, setLoadingSummary] = useState(true);
   const [summaryError, setSummaryError] = useState(null);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [viewConsultaOpen, setViewConsultaOpen] = useState(false);
+  const [viewConsultaId, setViewConsultaId] = useState(null);
 
   const fetchSummary = () => {
     let mounted = true;
@@ -139,12 +142,38 @@ function Overview() {
           }));
 
         const mapCitas = (citas = []) =>
-          citas.map((c) => ({
-            image: "",
-            name: `${c.fecha || ""} ${c.hora || ""}`.trim(),
-            description: c.motivo || "",
-            action: { type: "internal", route: `#/clinic/citas/${c.idCita || c.id || ""}`, color: "info", label: "ver" },
-          }));
+          citas.map((c) => {
+            // format date dd-mm-yyyy
+            const rawDate = c.fecha || "";
+            let formatted = rawDate;
+            try {
+              const d = new Date(rawDate);
+              if (!Number.isNaN(d.getTime())) {
+                const dd = String(d.getDate()).padStart(2, "0");
+                const mm = String(d.getMonth() + 1).padStart(2, "0");
+                const yyyy = d.getFullYear();
+                formatted = `${dd}-${mm}-${yyyy}`;
+              }
+            } catch (e) {}
+
+            const hora = c.hora || "";
+            const mascotaName = c.mascota?.nombre || (typeof c.mascota === "string" ? c.mascota : "-");
+
+            return {
+              image: "",
+              name: `Consulta para ${formatted}`,
+              description: `Hora: ${hora} · Mascota: ${mascotaName}`,
+              action: {
+                type: "callback",
+                onClick: () => {
+                  setViewConsultaId(c.idConsulta || c.id || null);
+                  setViewConsultaOpen(true);
+                },
+                color: "info",
+                label: "ver",
+              },
+            };
+          });
 
         return (
           <SuiBox mt={5} mb={3}>
@@ -224,14 +253,14 @@ function Overview() {
 
               <Grid item xs={12} md={6} xl={4}>
                 {loading ? (
-                  <ProfileLoadingCard title="Historial de consultas veterinarias" />
+                  <ProfileLoadingCard title="Citas próximas" />
                 ) : summary?.citas && summary.citas.length > 0 ? (
-                  <ProfilesList title="Historial de consultas veterinarias" profiles={mapCitas((summary.citas || []).slice(0, 4))} />
+                  <ProfilesList title="Citas próximas" profiles={mapCitas((summary.citas || []).slice(0, 4))} />
                 ) : (
                   <Card className="h-100">
                     <SuiBox pt={2} px={2}>
                       <SuiTypography variant="h6" fontWeight="medium">
-                        Historial de consultas veterinarias
+                        Citas próximas
                       </SuiTypography>
                     </SuiBox>
                     <SuiBox p={2}>
@@ -283,6 +312,7 @@ function Overview() {
           fetchSummary();
         }}
       />
+      <ModalVerConsulta open={viewConsultaOpen} onClose={() => setViewConsultaOpen(false)} consultaId={viewConsultaId} />
       <Footer />
     </DashboardLayout>
   );

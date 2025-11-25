@@ -64,7 +64,13 @@ function Invoices() {
             <SuiTypography variant="body2">Cargando...</SuiTypography>
           ) : recent && recent.length > 0 ? (
             recent.map((c, idx) => (
-              <Invoice key={c.idConsulta || c.id || idx} date={c.fecha} id={`#${c.idConsulta || c.id || ""}`} price={c.motivo || ""} noGutter={idx === recent.length - 1} />
+              <Invoice
+                key={c.idConsulta || c.id || idx}
+                date={`${c.fecha || ""} ${c.hora || ""}`.trim()}
+                id={`#${c.idConsulta || c.id || ""}`}
+                price={c.motivo || ""}
+                noGutter={idx === recent.length - 1}
+              />
             ))
           ) : (
             <SuiTypography variant="body2">No tiene consultas aun</SuiTypography>
