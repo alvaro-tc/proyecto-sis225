@@ -112,10 +112,16 @@ export default function ModalEditarConsulta({ open, onClose, consultaId, onSaved
     let mounted = true;
     async function loadConsultas() {
       setOcupadas([]);
-      if (!veterinarioSel || !veterinarioSel.idVeterinario) return;
+      if (!veterinarioSel) return;
+      const vetId = veterinarioSel.idVeterinario || veterinarioSel.id || (veterinarioSel.user && veterinarioSel.user.id) || null;
+      // eslint-disable-next-line no-console
+      console.debug("[ModalEditarConsulta] loadConsultas called, veterinarianSel:", veterinarioSel, "resolved vetId:", vetId);
+      if (!vetId) return;
       try {
-        const res = await clinicApi.request(`/api/clinic/veterinarios/${veterinarioSel.idVeterinario}/consultas`, { method: "GET" });
+        const res = await clinicApi.request(`/api/clinic/veterinarios/${vetId}/consultas`, { method: "GET" });
         if (!mounted) return;
+        // eslint-disable-next-line no-console
+        console.debug("[ModalEditarConsulta] consultas for vet:", res);
         const taken = (Array.isArray(res) ? res : []).map((c) => ({ id: c.idConsulta || c.id, fecha: c.fecha, hora: c.hora }));
         setOcupadas(taken);
       } catch (err) {
@@ -135,8 +141,19 @@ export default function ModalEditarConsulta({ open, onClose, consultaId, onSaved
     const slots = [];
     for (let m = startMin; m + SLOT_MINUTES <= endMin; m += SLOT_MINUTES) {
       const timeLabel = minutesToTime(m);
-      const occupied = ocupadas.some((o) => String(o.fecha) === String(fechaSel) && String(o.hora) === timeLabel && (o.id !== (consultaId || null)));
-      slots.push({ time: timeLabel, available: !occupied });
+      const occupied = ocupadas.some((o) => {
+        if (String(o.fecha) !== String(fechaSel)) return false;
+        const parsed = parseTime(o.hora);
+        if (!parsed) return false;
+        const consultStart = timeToMinutes(parsed);
+        const consultEnd = consultStart + SLOT_MINUTES;
+        const slotStart = m;
+        const slotEnd = m + SLOT_MINUTES;
+        // if this is the consulta being edited, ignore it (allow keeping same slot)
+        if (o.id && consultaId && String(o.id) === String(consultaId)) return false;
+        return slotStart < consultEnd && slotEnd > consultStart;
+      });
+      slots.push({ time: timeLabel, available: !occupied, occupied });
     }
     return slots;
   }, [veterinarioSel, fechaSel, ocupadas, consultaId]);
@@ -252,7 +269,22 @@ export default function ModalEditarConsulta({ open, onClose, consultaId, onSaved
                   ) : (
                     availableSlotsForDate.map((s) => (
                       <Grid item key={s.time}>
-                        <Button variant={s.time === horaSel ? "contained" : "outlined"} color={s.available ? "primary" : "inherit"} onClick={() => pickSlot(s)} disabled={!s.available} sx={{ minWidth: 84, height: 40, textTransform: "none" }}>{s.time}</Button>
+                        <Button
+                          variant={s.time === horaSel ? "contained" : "outlined"}
+                          color={s.available ? "primary" : (s.occupied ? "error" : "inherit")}
+                          onClick={() => pickSlot(s)}
+                          disabled={!s.available}
+                          sx={{
+                            minWidth: 84,
+                            height: 40,
+                            textTransform: "none",
+                            fontWeight: 600,
+                            color: s.time === horaSel ? 'common.white' : (s.available ? 'text.primary' : 'grey.700'),
+                            borderColor: s.occupied ? 'grey.300' : undefined,
+                          }}
+                        >
+                          {s.time}
+                        </Button>
                       </Grid>
                     ))
                   )}

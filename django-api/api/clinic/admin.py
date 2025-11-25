@@ -3,9 +3,7 @@ from .models import (
     Dueno,
     Recepcionista,
     Mascota,
-    Comprobante,
     Consulta,
-    Historial,
     Veterinario,
 )
 
@@ -33,20 +31,13 @@ class MascotaAdmin(admin.ModelAdmin):
     search_fields = ("nombre", "especie", "raza")
 
 
-@admin.register(Historial)
-class HistorialAdmin(admin.ModelAdmin):
-    list_display = ("idHistorial", "mascota")
-
-
 @admin.register(Consulta)
 class ConsultaAdmin(admin.ModelAdmin):
-    list_display = ("idConsulta", "motivo", "veterinario", "fecha")
+    list_display = ("idConsulta", "motivo", "veterinario", "fecha", "asistio")
     search_fields = ("motivo", "descripcion")
 
 
 # Cita model removed; no admin registration
 
 
-@admin.register(Comprobante)
-class ComprobanteAdmin(admin.ModelAdmin):
-    list_display = ("idCom", "cita", "dueno", "creado_en")
+# Comprobante removed from the data model; no admin registration

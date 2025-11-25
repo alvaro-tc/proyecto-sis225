@@ -4,8 +4,11 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 
 from api.authentication.serializers import LoginSerializer
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class LoginViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     permission_classes = (AllowAny,)
     serializer_class = LoginSerializer

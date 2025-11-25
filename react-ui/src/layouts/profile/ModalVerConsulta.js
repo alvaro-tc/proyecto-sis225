@@ -218,6 +218,46 @@ export default function ModalVerConsulta({ open, onClose, consultaId }) {
                 </SuiTypography>
                 <Typography>{consulta.descripcion || "--"}</Typography>
               </Card>
+
+              {/* --- SÍNTOMAS --- */}
+              <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3, mt: 3 }}>
+                <SuiTypography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                  Síntomas
+                </SuiTypography>
+                <Typography>{consulta.sintomas || "--"}</Typography>
+              </Card>
+
+              {/* --- DIAGNÓSTICO --- */}
+              <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3, mt: 3 }}>
+                <SuiTypography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                  Diagnóstico
+                </SuiTypography>
+                <Typography>{consulta.diagnostico || "--"}</Typography>
+              </Card>
+
+              {/* --- TRATAMIENTO --- */}
+              <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3, mt: 3 }}>
+                <SuiTypography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                  Tratamiento
+                </SuiTypography>
+                <Typography>{consulta.tratamiento || "--"}</Typography>
+              </Card>
+
+              {/* --- NOTAS --- */}
+              <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3, mt: 3 }}>
+                <SuiTypography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                  Notas
+                </SuiTypography>
+                <Typography>{consulta.notas || "--"}</Typography>
+              </Card>
+
+              {/* --- ASISTIÓ --- */}
+              <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3, mt: 3 }}>
+                <SuiTypography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
+                  Asistió
+                </SuiTypography>
+                <Typography>{typeof consulta.asistio === "boolean" ? (consulta.asistio ? "Sí" : "No") : "--"}</Typography>
+              </Card>
             </Grid>
           </Grid>
         ) : (

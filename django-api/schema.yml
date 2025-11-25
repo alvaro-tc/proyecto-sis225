@@ -1,0 +1,1904 @@
+openapi: 3.0.3
+info:
+  title: React Soft Dashboard Django API
+  version: 1.0.0
+  description: OpenAPI schema for the Django backend used by the React soft dashboard.
+paths:
+  
+  /api/clinic/consultas:
+    get:
+      operationId: api_clinic_consultas_list
+      description: Support listing consultas and also retrieving a mascota's historial
+        via ?mascota_id=.
+      summary: Listar consultas
+      tags:
+      - Consultas
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Consulta'
+          description: ''
+    post:
+      operationId: api_clinic_consultas_create
+      summary: Crear consulta/cita
+      tags:
+      - Consultas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Consulta'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Consulta'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Consulta'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Consulta'
+          description: ''
+  /api/clinic/consultas/{idConsulta}:
+    get:
+      operationId: api_clinic_consultas_retrieve
+      summary: Obtener consulta
+      parameters:
+      - in: path
+        name: idConsulta
+        schema:
+          type: integer
+        description: A unique integer value identifying this consulta.
+        required: true
+      tags:
+      - Consultas
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Consulta'
+          description: ''
+    put:
+      operationId: api_clinic_consultas_update
+      summary: Actualizar consulta
+      parameters:
+      - in: path
+        name: idConsulta
+        schema:
+          type: integer
+        description: A unique integer value identifying this consulta.
+        required: true
+      tags:
+      - Consultas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Consulta'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Consulta'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Consulta'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Consulta'
+          description: ''
+    patch:
+      operationId: api_clinic_consultas_partial_update
+      summary: Actualizar parcialmente consulta
+      parameters:
+      - in: path
+        name: idConsulta
+        schema:
+          type: integer
+        description: A unique integer value identifying this consulta.
+        required: true
+      tags:
+      - Consultas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConsulta'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConsulta'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConsulta'
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Consulta'
+          description: ''
+    delete:
+      operationId: api_clinic_consultas_destroy
+      summary: Eliminar consulta
+      parameters:
+      - in: path
+        name: idConsulta
+        schema:
+          type: integer
+        description: A unique integer value identifying this consulta.
+        required: true
+      tags:
+      - Consultas
+      security:
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/clinic/consultas/user/recent:
+    get:
+      operationId: api_clinic_consultas_user_recent_retrieve
+      description: Return the 5 most recent consultas for the authenticated owner's
+        mascotas.
+      tags:
+      - api
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Consulta'
+          description: ''
+  /api/clinic/duenos:
+    get:
+      operationId: api_clinic_duenos_list
+      summary: Listar dueños
+      tags:
+      - Dueños
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dueno'
+          description: ''
+    post:
+      operationId: api_clinic_duenos_create
+      summary: Crear dueño
+      tags:
+      - Dueños
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DuenoSelfRegister'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DuenoSelfRegister'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DuenoSelfRegister'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuenoSelfRegister'
+          description: ''
+  /api/clinic/duenos/{idDueno}:
+    get:
+      operationId: api_clinic_duenos_retrieve
+      summary: Obtener dueño
+      parameters:
+      - in: path
+        name: idDueno
+        schema:
+          type: integer
+        description: A unique integer value identifying this dueno.
+        required: true
+      tags:
+      - Dueños
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dueno'
+          description: ''
+    put:
+      operationId: api_clinic_duenos_update
+      summary: Actualizar dueño
+      parameters:
+      - in: path
+        name: idDueno
+        schema:
+          type: integer
+        description: A unique integer value identifying this dueno.
+        required: true
+      tags:
+      - Dueños
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dueno'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Dueno'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Dueno'
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dueno'
+          description: ''
+    patch:
+      operationId: api_clinic_duenos_partial_update
+      summary: Actualizar parcialmente dueño
+      parameters:
+      - in: path
+        name: idDueno
+        schema:
+          type: integer
+        description: A unique integer value identifying this dueno.
+        required: true
+      tags:
+      - Dueños
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDueno'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDueno'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDueno'
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dueno'
+          description: ''
+    delete:
+      operationId: api_clinic_duenos_destroy
+      summary: Eliminar dueño
+      parameters:
+      - in: path
+        name: idDueno
+        schema:
+          type: integer
+        description: A unique integer value identifying this dueno.
+        required: true
+      tags:
+      - Dueños
+      security:
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/clinic/duenos/me:
+    get:
+      operationId: api_clinic_duenos_me_retrieve
+      description: |-
+        Return or update the Dueno profile for the authenticated user.
+
+        GET  -> returns the Dueno profile
+        PUT/PATCH -> updates the Dueno profile (only `nombre` and `telefono` for owners)
+      summary: Obtener o actualizar perfil del dueño autenticado
+      tags:
+      - Dueños
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dueno'
+          description: ''
+    put:
+      operationId: api_clinic_duenos_me_update
+      description: |-
+        Return or update the Dueno profile for the authenticated user.
+
+        GET  -> returns the Dueno profile
+        PUT/PATCH -> updates the Dueno profile (only `nombre` and `telefono` for owners)
+      summary: Obtener o actualizar perfil del dueño autenticado
+      tags:
+      - Dueños
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dueno'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Dueno'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Dueno'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dueno'
+          description: ''
+    patch:
+      operationId: api_clinic_duenos_me_partial_update
+      description: |-
+        Return or update the Dueno profile for the authenticated user.
+
+        GET  -> returns the Dueno profile
+        PUT/PATCH -> updates the Dueno profile (only `nombre` and `telefono` for owners)
+      summary: Obtener o actualizar perfil del dueño autenticado
+      tags:
+      - Dueños
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDueno'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDueno'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDueno'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dueno'
+          description: ''
+  /api/clinic/duenos/me/future-citas:
+    get:
+      operationId: api_clinic_duenos_me_future_citas_retrieve
+      summary: Citas futuras no atendidas del dueño autenticado
+      tags:
+      - Dueños
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dueno'
+          description: ''
+  /api/clinic/duenos/me/past-citas:
+    get:
+      operationId: api_clinic_duenos_me_past_citas_retrieve
+      summary: Citas pasadas atendidas del dueño autenticado
+      tags:
+      - Dueños
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dueno'
+          description: ''
+  /api/clinic/duenos/me/summary:
+    get:
+      operationId: api_clinic_duenos_me_summary_retrieve
+      description: 'Return combined data for the authenticated owner: dueno profile,
+        mascotas and 5 recent citas.'
+      summary: Resumen del dueño autenticado
+      tags:
+      - Dueños
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeSummary'
+          description: ''
+  /api/clinic/mascotas:
+    get:
+      operationId: api_clinic_mascotas_list
+      summary: Listar mascotas
+      tags:
+      - Mascotas
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mascota'
+          description: ''
+    post:
+      operationId: api_clinic_mascotas_create
+      summary: Crear mascota (dueño autenticado)
+      tags:
+      - Mascotas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Mascota'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Mascota'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Mascota'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mascota'
+          description: ''
+  /api/clinic/mascotas/{idMascota}:
+    get:
+      operationId: api_clinic_mascotas_retrieve
+      summary: Obtener mascota
+      parameters:
+      - in: path
+        name: idMascota
+        schema:
+          type: integer
+        description: A unique integer value identifying this mascota.
+        required: true
+      tags:
+      - Mascotas
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mascota'
+          description: ''
+    put:
+      operationId: api_clinic_mascotas_update
+      summary: Actualizar mascota
+      parameters:
+      - in: path
+        name: idMascota
+        schema:
+          type: integer
+        description: A unique integer value identifying this mascota.
+        required: true
+      tags:
+      - Mascotas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Mascota'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Mascota'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Mascota'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mascota'
+          description: ''
+    patch:
+      operationId: api_clinic_mascotas_partial_update
+      summary: Actualizar parcialmente mascota
+      parameters:
+      - in: path
+        name: idMascota
+        schema:
+          type: integer
+        description: A unique integer value identifying this mascota.
+        required: true
+      tags:
+      - Mascotas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMascota'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMascota'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMascota'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mascota'
+          description: ''
+    delete:
+      operationId: api_clinic_mascotas_destroy
+      summary: Eliminar mascota
+      parameters:
+      - in: path
+        name: idMascota
+        schema:
+          type: integer
+        description: A unique integer value identifying this mascota.
+        required: true
+      tags:
+      - Mascotas
+      responses:
+        '204':
+          description: No response body
+  /api/clinic/mascotas/user:
+    get:
+      operationId: api_clinic_mascotas_user_retrieve
+      description: Return mascotas for the logged-in owner (based on request.user.dueno_profile).
+      tags:
+      - api
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mascota'
+          description: ''
+  /api/clinic/profile/{id}:
+    get:
+      operationId: api_clinic_profile_retrieve
+      description: GET /profile/me
+      summary: Obtener perfil autenticado
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Perfil
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: api_clinic_profile_update
+      description: |-
+        Unified profile endpoint. GET/PUT/PATCH on `/profile/me` will return or update
+        the profile corresponding to the authenticated user based on role.
+
+        - dueno -> uses DuenoUpdateSerializer
+        - recepcionista -> uses RecepcionistaUpdateSerializer
+        - veterinario -> uses VeterinarioUpdateSerializer
+        - admin (superuser) -> uses UserUpdateSerializer on User model
+      summary: Actualizar perfil autenticado
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Perfil
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: api_clinic_profile_partial_update
+      description: PATCH /profile/me
+      summary: Actualizar parcialmente perfil autenticado
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Perfil
+      responses:
+        '200':
+          description: No response body
+  /api/clinic/recepcionistas:
+    get:
+      operationId: api_clinic_recepcionistas_list
+      summary: Listar recepcionistas
+      tags:
+      - Recepcionistas
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recepcionista'
+          description: ''
+    post:
+      operationId: api_clinic_recepcionistas_create
+      summary: Crear recepcionista (admin)
+      tags:
+      - Recepcionistas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecepcionistaCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecepcionistaCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecepcionistaCreate'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecepcionistaCreate'
+          description: ''
+  /api/clinic/recepcionistas/{idRecepcionista}:
+    get:
+      operationId: api_clinic_recepcionistas_retrieve
+      summary: Obtener recepcionista
+      parameters:
+      - in: path
+        name: idRecepcionista
+        schema:
+          type: integer
+        description: A unique integer value identifying this recepcionista.
+        required: true
+      tags:
+      - Recepcionistas
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recepcionista'
+          description: ''
+    put:
+      operationId: api_clinic_recepcionistas_update
+      summary: Actualizar recepcionista
+      parameters:
+      - in: path
+        name: idRecepcionista
+        schema:
+          type: integer
+        description: A unique integer value identifying this recepcionista.
+        required: true
+      tags:
+      - Recepcionistas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Recepcionista'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Recepcionista'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Recepcionista'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recepcionista'
+          description: ''
+    patch:
+      operationId: api_clinic_recepcionistas_partial_update
+      summary: Actualizar parcialmente recepcionista
+      parameters:
+      - in: path
+        name: idRecepcionista
+        schema:
+          type: integer
+        description: A unique integer value identifying this recepcionista.
+        required: true
+      tags:
+      - Recepcionistas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRecepcionista'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRecepcionista'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRecepcionista'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recepcionista'
+          description: ''
+    delete:
+      operationId: api_clinic_recepcionistas_destroy
+      summary: Eliminar recepcionista
+      parameters:
+      - in: path
+        name: idRecepcionista
+        schema:
+          type: integer
+        description: A unique integer value identifying this recepcionista.
+        required: true
+      tags:
+      - Recepcionistas
+      responses:
+        '204':
+          description: No response body
+  /api/clinic/recepcionistas/me:
+    get:
+      operationId: api_clinic_recepcionistas_me_retrieve
+      description: Return or update the Recepcionista profile for the authenticated
+        user.
+      tags:
+      - api
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recepcionista'
+          description: ''
+    put:
+      operationId: api_clinic_recepcionistas_me_update
+      description: Return or update the Recepcionista profile for the authenticated
+        user.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Recepcionista'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Recepcionista'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Recepcionista'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recepcionista'
+          description: ''
+    patch:
+      operationId: api_clinic_recepcionistas_me_partial_update
+      description: Return or update the Recepcionista profile for the authenticated
+        user.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRecepcionista'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRecepcionista'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRecepcionista'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recepcionista'
+          description: ''
+  /api/clinic/veterinarios:
+    get:
+      operationId: api_clinic_veterinarios_list
+      summary: Listar veterinarios
+      tags:
+      - Veterinarios
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Veterinario'
+          description: ''
+    post:
+      operationId: api_clinic_veterinarios_create
+      summary: Crear veterinario (admin)
+      tags:
+      - Veterinarios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VeterinarioCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VeterinarioCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VeterinarioCreate'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VeterinarioCreate'
+          description: ''
+  /api/clinic/veterinarios/{idVeterinario}:
+    get:
+      operationId: api_clinic_veterinarios_retrieve
+      summary: Obtener veterinario
+      parameters:
+      - in: path
+        name: idVeterinario
+        schema:
+          type: integer
+        description: A unique integer value identifying this veterinario.
+        required: true
+      tags:
+      - Veterinarios
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Veterinario'
+          description: ''
+    put:
+      operationId: api_clinic_veterinarios_update
+      summary: Actualizar veterinario
+      parameters:
+      - in: path
+        name: idVeterinario
+        schema:
+          type: integer
+        description: A unique integer value identifying this veterinario.
+        required: true
+      tags:
+      - Veterinarios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Veterinario'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Veterinario'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Veterinario'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Veterinario'
+          description: ''
+    patch:
+      operationId: api_clinic_veterinarios_partial_update
+      summary: Actualizar parcialmente veterinario
+      parameters:
+      - in: path
+        name: idVeterinario
+        schema:
+          type: integer
+        description: A unique integer value identifying this veterinario.
+        required: true
+      tags:
+      - Veterinarios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedVeterinario'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedVeterinario'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedVeterinario'
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Veterinario'
+          description: ''
+    delete:
+      operationId: api_clinic_veterinarios_destroy
+      summary: Eliminar veterinario
+      parameters:
+      - in: path
+        name: idVeterinario
+        schema:
+          type: integer
+        description: A unique integer value identifying this veterinario.
+        required: true
+      tags:
+      - Veterinarios
+      security:
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/clinic/veterinarios/{idVeterinario}/consultas:
+    get:
+      operationId: api_clinic_veterinarios_consultas_retrieve
+      summary: Consultas de un veterinario
+      parameters:
+      - in: path
+        name: idVeterinario
+        schema:
+          type: integer
+        description: A unique integer value identifying this veterinario.
+        required: true
+      tags:
+      - Veterinarios
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Veterinario'
+          description: ''
+  /api/clinic/veterinarios/me:
+    get:
+      operationId: api_clinic_veterinarios_me_retrieve
+      description: |-
+        Return or update the Veterinario profile for the authenticated user.
+
+        Note: Veterinario has an optional OneToOne `user` relation; this endpoint will act on the
+        linked Veterinario (if any). If no Veterinario is linked to the user, returns empty.
+      tags:
+      - api
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Veterinario'
+          description: ''
+    put:
+      operationId: api_clinic_veterinarios_me_update
+      description: |-
+        Return or update the Veterinario profile for the authenticated user.
+
+        Note: Veterinario has an optional OneToOne `user` relation; this endpoint will act on the
+        linked Veterinario (if any). If no Veterinario is linked to the user, returns empty.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Veterinario'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Veterinario'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Veterinario'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Veterinario'
+          description: ''
+    patch:
+      operationId: api_clinic_veterinarios_me_partial_update
+      description: |-
+        Return or update the Veterinario profile for the authenticated user.
+
+        Note: Veterinario has an optional OneToOne `user` relation; this endpoint will act on the
+        linked Veterinario (if any). If no Veterinario is linked to the user, returns empty.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedVeterinario'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedVeterinario'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedVeterinario'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Veterinario'
+          description: ''
+  /api/clinic/veterinarios/with-availability:
+    get:
+      operationId: api_clinic_veterinarios_with_availability_retrieve
+      summary: Obtener veterinarios con disponibilidad para una fecha
+      tags:
+      - Veterinarios
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Veterinario'
+          description: ''
+  /api/schema/:
+    get:
+      operationId: api_schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - api
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/users/checkSession:
+    post:
+      operationId: api_users_checkSession_create
+      tags:
+      - api
+      responses:
+        '201':
+          description: No response body
+  /api/users/edit:
+    post:
+      operationId: api_users_edit_create
+      summary: Crear usuario (admin)
+      tags:
+      - Usuarios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/users/edit/{id}:
+    put:
+      operationId: api_users_edit_update
+      summary: Actualizar usuario
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Usuarios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: api_users_edit_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/users/login:
+    post:
+      operationId: api_users_login_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Login'
+          description: ''
+  /api/users/logout:
+    post:
+      operationId: api_users_logout_create
+      tags:
+      - api
+      responses:
+        '201':
+          description: No response body
+  /api/users/me:
+    get:
+      operationId: api_users_me_retrieve
+      description: Return the authenticated user's data (no id required).
+      summary: Obtener y actualizar usuario autenticado (sin id)
+      tags:
+      - Usuarios
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: api_users_me_update
+      description: Return the authenticated user's data (no id required).
+      summary: Obtener y actualizar usuario autenticado (sin id)
+      tags:
+      - Usuarios
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: api_users_me_partial_update
+      description: Return the authenticated user's data (no id required).
+      summary: Obtener y actualizar usuario autenticado (sin id)
+      tags:
+      - Usuarios
+      responses:
+        '200':
+          description: No response body
+  /api/users/register:
+    post:
+      operationId: api_users_register_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Register'
+          description: ''
+components:
+  schemas:
+    Consulta:
+      type: object
+      properties:
+        idConsulta:
+          type: integer
+          readOnly: true
+        motivo:
+          type: string
+          maxLength: 255
+        descripcion:
+          type: string
+          nullable: true
+        fecha:
+          type: string
+          format: date
+        hora:
+          type: string
+          format: time
+          nullable: true
+        sintomas:
+          type: string
+          nullable: true
+        diagnostico:
+          type: string
+          nullable: true
+        tratamiento:
+          type: string
+          nullable: true
+        notas:
+          type: string
+          nullable: true
+        asistio:
+          type: boolean
+        veterinario:
+          type: integer
+        dueno:
+          type: integer
+          nullable: true
+        mascota:
+          allOf:
+          - $ref: '#/components/schemas/Mascota'
+          readOnly: true
+        mascota_id:
+          type: integer
+          writeOnly: true
+      required:
+      - fecha
+      - idConsulta
+      - mascota
+      - motivo
+      - veterinario
+    Dueno:
+      type: object
+      properties:
+        idDueno:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/UserNested'
+          readOnly: true
+        nombre:
+          type: string
+          nullable: true
+          maxLength: 255
+        telefono:
+          type: string
+          nullable: true
+          maxLength: 50
+        registrado_por_recepcionista:
+          type: integer
+          nullable: true
+      required:
+      - idDueno
+      - user
+    DuenoSelfRegister:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+        telefono:
+          type: string
+          nullable: true
+          maxLength: 50
+        nombre:
+          type: string
+          nullable: true
+          maxLength: 255
+      required:
+      - email
+      - password
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          maxLength: 255
+        password:
+          type: string
+          writeOnly: true
+          maxLength: 128
+      required:
+      - email
+      - password
+    Mascota:
+      type: object
+      properties:
+        idMascota:
+          type: integer
+          readOnly: true
+        nombre:
+          type: string
+          maxLength: 255
+        especie:
+          type: string
+          maxLength: 100
+        raza:
+          type: string
+          nullable: true
+          maxLength: 100
+        edad:
+          type: integer
+          nullable: true
+        dueno:
+          type: integer
+        registrada_por_recepcionista:
+          type: integer
+          nullable: true
+      required:
+      - dueno
+      - especie
+      - idMascota
+      - nombre
+    MeSummary:
+      type: object
+      properties:
+        role:
+          type: string
+        dueno:
+          allOf:
+          - $ref: '#/components/schemas/Dueno'
+          nullable: true
+        mascotas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Mascota'
+        citas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Consulta'
+        requested_for:
+          type: string
+        profile:
+          type: object
+          additionalProperties: {}
+      required:
+      - citas
+      - dueno
+      - mascotas
+      - role
+    
+    PatchedConsulta:
+      type: object
+      properties:
+        idConsulta:
+          type: integer
+          readOnly: true
+        motivo:
+          type: string
+          maxLength: 255
+        descripcion:
+          type: string
+          nullable: true
+        fecha:
+          type: string
+          format: date
+        hora:
+          type: string
+          format: time
+          nullable: true
+        sintomas:
+          type: string
+          nullable: true
+        diagnostico:
+          type: string
+          nullable: true
+        tratamiento:
+          type: string
+          nullable: true
+        notas:
+          type: string
+          nullable: true
+        asistio:
+          type: boolean
+        veterinario:
+          type: integer
+        dueno:
+          type: integer
+          nullable: true
+        mascota:
+          allOf:
+          - $ref: '#/components/schemas/Mascota'
+          readOnly: true
+        mascota_id:
+          type: integer
+          writeOnly: true
+    PatchedDueno:
+      type: object
+      properties:
+        idDueno:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/UserNested'
+          readOnly: true
+        nombre:
+          type: string
+          nullable: true
+          maxLength: 255
+        telefono:
+          type: string
+          nullable: true
+          maxLength: 50
+        registrado_por_recepcionista:
+          type: integer
+          nullable: true
+    PatchedMascota:
+      type: object
+      properties:
+        idMascota:
+          type: integer
+          readOnly: true
+        nombre:
+          type: string
+          maxLength: 255
+        especie:
+          type: string
+          maxLength: 100
+        raza:
+          type: string
+          nullable: true
+          maxLength: 100
+        edad:
+          type: integer
+          nullable: true
+        dueno:
+          type: integer
+        registrada_por_recepcionista:
+          type: integer
+          nullable: true
+    PatchedRecepcionista:
+      type: object
+      properties:
+        idRecepcionista:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/UserNested'
+          readOnly: true
+        nombre:
+          type: string
+          nullable: true
+          maxLength: 255
+        telefono:
+          type: string
+          readOnly: true
+    PatchedUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        telefono:
+          type: string
+          nullable: true
+          maxLength: 50
+        date:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedVeterinario:
+      type: object
+      properties:
+        idVeterinario:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/UserNested'
+          readOnly: true
+        nombre:
+          type: string
+          maxLength: 255
+        telefono:
+          type: string
+          readOnly: true
+        work_start:
+          type: string
+          format: time
+          nullable: true
+        work_end:
+          type: string
+          format: time
+          nullable: true
+        work_days:
+          type: string
+          nullable: true
+          maxLength: 100
+    Recepcionista:
+      type: object
+      properties:
+        idRecepcionista:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/UserNested'
+          readOnly: true
+        nombre:
+          type: string
+          nullable: true
+          maxLength: 255
+        telefono:
+          type: string
+          readOnly: true
+      required:
+      - idRecepcionista
+      - telefono
+      - user
+    RecepcionistaCreate:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+        nombre:
+          type: string
+          nullable: true
+          maxLength: 255
+        telefono:
+          type: string
+          nullable: true
+          maxLength: 50
+      required:
+      - email
+      - password
+    Register:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        password:
+          type: string
+          writeOnly: true
+          maxLength: 128
+          minLength: 4
+        email:
+          type: string
+          format: email
+        is_active:
+          type: boolean
+        date:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - date
+      - email
+      - id
+      - password
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        telefono:
+          type: string
+          nullable: true
+          maxLength: 50
+        date:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - date
+      - email
+      - id
+    UserNested:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+      required:
+      - email
+      - id
+    Veterinario:
+      type: object
+      properties:
+        idVeterinario:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/UserNested'
+          readOnly: true
+        nombre:
+          type: string
+          maxLength: 255
+        telefono:
+          type: string
+          readOnly: true
+        work_start:
+          type: string
+          format: time
+          nullable: true
+        work_end:
+          type: string
+          format: time
+          nullable: true
+        work_days:
+          type: string
+          nullable: true
+          maxLength: 100
+      required:
+      - idVeterinario
+      - nombre
+      - telefono
+      - user
+    VeterinarioCreate:
+      type: object
+      description: |-
+        Create a User and link a Veterinario to it. Intended for admin use.
+
+        `username` is optional: when omitted it will be derived from the email local-part
+        or from `nombre`. The serializer ensures the generated username is unique.
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+        nombre:
+          type: string
+          maxLength: 255
+        telefono:
+          type: string
+          maxLength: 50
+      required:
+      - email
+      - password
+servers:
+- url: http://localhost:5000
+  description: Local dev
+tags:
+- name: Auth
+  description: 'Endpoints de autenticación: login, registro y tokens'
+- name: Usuarios
+  description: Operaciones sobre usuarios (perfil, creación administrativa)
+- name: Dueños
+  description: Crear, actualizar y listar dueños y su información
+- name: Recepcionistas
+  description: Gestión de recepcionistas (admin)
+- name: Veterinarios
+  description: Gestión de veterinarios y su perfil
+- name: Mascotas
+  description: Operaciones sobre mascotas y listas por dueño
+- name: Consultas
+  description: Consultas médicas y reservas (unificadas)
+- name: Comprobantes
+  description: Comprobantes relacionados a consultas
+- name: Perfil
+  description: Endpoints para obtener/editar el perfil autenticado

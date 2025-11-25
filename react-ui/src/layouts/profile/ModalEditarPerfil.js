@@ -18,36 +18,70 @@ export default function ModalEditarPerfil({ open, onClose, onSaved }) {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm({ defaultValues: { nombre: "", telefono: "", email: "", password: "" } });
 
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [userObj, setUserObj] = useState(null);
+  const [roleResource, setRoleResource] = useState({ name: null, data: null });
 
   useEffect(() => {
     if (!open) return;
     let mounted = true;
     setLoading(true);
-    // Use the configured API_BASE by requesting the relative path
-    clinicApi
-      .request("/api/users/me", { method: "GET" })
-      .then((data) => {
+    setSubmitError("");
+    setRoleResource({ name: null, data: null });
+
+    async function load() {
+      try {
+        const u = await clinicApi.request("/api/users/me", { method: "GET" });
         if (!mounted) return;
+        setUserObj(u);
+        // try role-specific endpoints in order and pick the first that works
+        const tryEndpoints = [
+          { name: "dueno", path: "/api/clinic/duenos/me" },
+          { name: "veterinario", path: "/api/clinic/veterinarios/me" },
+          { name: "recepcionista", path: "/api/clinic/recepcionistas/me" },
+        ];
+        let found = null;
+        for (const ep of tryEndpoints) {
+          try {
+            // eslint-disable-next-line no-console
+            console.debug("Trying role endpoint:", ep.path);
+            const d = await clinicApi.request(ep.path, { method: "GET" });
+            if (!mounted) return;
+            if (d) {
+              found = { name: ep.name, data: d, path: ep.path };
+              break;
+            }
+          } catch (e) {
+            // ignore and try next
+          }
+        }
+
+        // prepare form values using the best available source
+        const source = found?.data || u;
         reset({
-          nombre: data.nombre || data.name || "",
-          telefono: data.telefono || data.phone || "",
-          email: data.email || data.user?.email || "",
+          nombre: source.nombre || source.name || u.nombre || u.name || "",
+          telefono: source.telefono || source.phone || u.telefono || u.phone || "",
+          email: (u.email || u.user?.email || source.email || source.user?.email) || "",
           password: "",
         });
-      })
-      .catch((err) => {
-        console.error("Error loading perfil from /api/users/me:", err);
+
+        if (found) setRoleResource({ name: found.name, data: found.data });
+      } catch (err) {
+        console.error("Error loading perfil from /api/users/me or role endpoint:", err);
         if (mounted) setSubmitError("Error cargando datos del usuario");
-      })
-      .finally(() => {
+      } finally {
         if (mounted) setLoading(false);
-      });
+      }
+    }
+
+    load();
+
     return () => {
       mounted = false;
     };
@@ -59,12 +93,18 @@ export default function ModalEditarPerfil({ open, onClose, onSaved }) {
       setSaving(true);
       const payload = { nombre: values.nombre || null, telefono: values.telefono || null };
       if (values.email) payload.email = values.email;
-      // only include password if set (leave blank to not change)
       if (values.password) payload.password = values.password;
-      // Log payload for debugging
+
+      // choose endpoint based on discovered roleResource, fallback to /api/users/me
+      let endpoint = "/api/users/me";
+      if (roleResource.name === "dueno") endpoint = "/api/clinic/duenos/me";
+      else if (roleResource.name === "veterinario") endpoint = "/api/clinic/veterinarios/me";
+      else if (roleResource.name === "recepcionista") endpoint = "/api/clinic/recepcionistas/me";
+
       // eslint-disable-next-line no-console
-      console.debug("PUT /api/users/me payload:", payload);
-      await clinicApi.request("/api/users/me", {
+      console.debug("Submitting profile update to:", endpoint, "payload:", payload);
+
+      await clinicApi.request(endpoint, {
         method: "PUT",
         body: payload,
       });

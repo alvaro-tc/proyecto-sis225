@@ -52,6 +52,9 @@ def current_user(request):
         "role": role,
         "id": user.id,
         "email": user.email,
+        "nombre": None,
+        "telefono": getattr(user, "telefono", None),
+        "profile_id": None,
     }
 
     # enrich with profile fields
@@ -59,16 +62,21 @@ def current_user(request):
         if role == "dueno":
             du = user.dueno_profile
             payload["nombre"] = du.nombre or (user.email.split("@")[0] if getattr(user, "email", None) else "")
-            payload["telefono"] = du.telefono
+            payload["telefono"] = du.telefono or getattr(user, "telefono", None)
+            payload["profile_id"] = getattr(du, "idDueno", None) or getattr(du, "pk", None)
         elif role == "recepcionista":
             rec = user.recepcionista_profile
             payload["nombre"] = rec.nombre or (user.email.split("@")[0] if getattr(user, "email", None) else "")
-            payload["telefono"] = rec.telefono
+            payload["telefono"] = rec.telefono or getattr(user, "telefono", None)
+            payload["profile_id"] = getattr(rec, "idRecepcionista", None) or getattr(rec, "pk", None)
         elif role == "veterinario":
             vet = user.veterinario_profile
             payload["nombre"] = vet.nombre or (user.email.split("@")[0] if getattr(user, "email", None) else "")
+            # prefer telefono stored on User (veterinario profile doesn't have telefono field)
+            payload["telefono"] = getattr(user, "telefono", None)
+            payload["profile_id"] = getattr(vet, "idVeterinario", None) or getattr(vet, "pk", None)
         elif role == "admin":
-            # admin: no extra profile fields; keep email
+            # admin: include telefono if present on user
             payload["telefono"] = getattr(user, "telefono", None)
     except Exception:
         # If any profile access fails, return basic payload
@@ -84,6 +92,11 @@ def current_user(request):
         user_serializer = UserSerializer(user, data=request.data, partial=partial)
         user_serializer.is_valid(raise_exception=True)
         user_serializer.save()
+        # Reload user from DB to pick up changes (email/password/telefono)
+        try:
+            user.refresh_from_db()
+        except Exception:
+            pass
 
         # Then update role-specific profile fields if present
         if role == "dueno" and hasattr(user, "dueno_profile"):
@@ -112,6 +125,26 @@ def current_user(request):
         # Refresh email/telefono from saved user
         payload["email"] = user.email
         payload["telefono"] = getattr(user, "telefono", payload.get("telefono"))
+
+        # Ensure profile_id / nombre reflect updated profile after save
+        try:
+            if role == "dueno" and hasattr(user, "dueno_profile") and user.dueno_profile:
+                du = user.dueno_profile
+                payload["nombre"] = du.nombre or payload.get("nombre")
+                payload["telefono"] = du.telefono or payload.get("telefono")
+                payload["profile_id"] = getattr(du, "idDueno", None) or getattr(du, "pk", None)
+            if role == "recepcionista" and hasattr(user, "recepcionista_profile") and user.recepcionista_profile:
+                rec = user.recepcionista_profile
+                payload["nombre"] = rec.nombre or payload.get("nombre")
+                payload["telefono"] = rec.telefono or payload.get("telefono")
+                payload["profile_id"] = getattr(rec, "idRecepcionista", None) or getattr(rec, "pk", None)
+            if role == "veterinario" and hasattr(user, "veterinario_profile") and user.veterinario_profile:
+                vet = user.veterinario_profile
+                payload["nombre"] = vet.nombre or payload.get("nombre")
+                payload["profile_id"] = getattr(vet, "idVeterinario", None) or getattr(vet, "pk", None)
+                payload["telefono"] = getattr(user, "telefono", payload.get("telefono"))
+        except Exception:
+            pass
 
         return Response(payload)
 

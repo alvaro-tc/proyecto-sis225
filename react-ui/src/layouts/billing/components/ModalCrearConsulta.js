@@ -41,6 +41,36 @@ function formatSlotLabel(slot) {
   return slot;
 }
 
+function parseFechaHora(value) {
+  if (!value) return { fecha: null, hora: null };
+  // if it's an object with fecha/hora
+  if (typeof value === "object") {
+    return { fecha: value.fecha || null, hora: value.hora || null };
+  }
+  // try ISO string
+  try {
+    const d = new Date(String(value));
+    if (!isNaN(d.getTime())) {
+      const fecha = d.toISOString().slice(0, 10);
+      const hora = d.toISOString().slice(11, 16);
+      return { fecha, hora };
+    }
+  } catch (e) {
+    // fallthrough
+  }
+  // try split 'YYYY-MM-DD HH:MM' or 'YYYY-MM-DDTHH:MM:SS'
+  const m = String(value).match(/(\d{4}-\d{2}-\d{2}).*(\d{2}:\d{2})/);
+  if (m) return { fecha: m[1], hora: m[2] };
+  return { fecha: null, hora: null };
+}
+
+function isFuture(fecha, hora) {
+  if (!fecha) return false;
+  const dateStr = `${fecha}T${hora || "00:00"}:00`;
+  const d = new Date(dateStr);
+  return d.getTime() > Date.now();
+}
+
 export default function ModalCrearConsulta({ open, onClose, onSaved }) {
   const LABEL_FONT = "1.25rem";
   const INPUT_FONT = "1.05rem";
@@ -84,6 +114,8 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
         if (!mounted) return;
         setVeterinarios(Array.isArray(vets) ? vets : []);
         setMascotas(Array.isArray(myPets) ? myPets : []);
+        // eslint-disable-next-line no-console
+        console.debug("[ModalCrearConsulta] loaded veterinarios count:", Array.isArray(vets) ? vets.length : 0, "mascotas:", Array.isArray(myPets) ? myPets.length : 0);
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error("Error loading vets or mascotas:", err);
@@ -95,25 +127,40 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
     return () => (mounted = false);
   }, [open]);
 
+  useEffect(() => {
+    // debug whenever selected veterinarian changes
+    // eslint-disable-next-line no-console
+    console.debug("[ModalCrearConsulta] veterinarioSel changed:", veterinarioSel);
+  }, [veterinarioSel]);
+
   // when veterinarian changes, fetch his consultas to mark occupied slots
   useEffect(() => {
     let mounted = true;
     async function loadConsultas() {
       setOcupadas([]);
-      if (!veterinarioSel || !veterinarioSel.idVeterinario) return;
+      if (!veterinarioSel) return;
+      const vetId = veterinarioSel.idVeterinario || veterinarioSel.id || (veterinarioSel.user && veterinarioSel.user.id) || null;
+      // eslint-disable-next-line no-console
+      console.debug("[ModalCrearConsulta] loadConsultas called, veterinarianSel:", veterinarioSel, "resolved vetId:", vetId);
+      if (!vetId) return;
       try {
-        const res = await clinicApi.request(`/api/clinic/veterinarios/${veterinarioSel.idVeterinario}/consultas`, { method: "GET" });
+        const res = await clinicApi.request(`/api/clinic/veterinarios/${vetId}/consultas`, { method: "GET" });
         if (!mounted) return;
-        // normalize: try to extract fecha+hora from each consulta
-        const taken = (Array.isArray(res) ? res : []).map((c) => {
-          // possible shapes: { fecha: '2023-11-01', hora: '09:30' } or { fechaHora: '2023-11-01T09:30:00Z' }
-          if (c.fecha && c.hora) return `${c.fecha} ${c.hora}`;
-          if (c.fechaHora) return c.fechaHora;
-          // try known fields
-          if (c.start_time) return c.start_time;
-          if (c.scheduled_at) return c.scheduled_at;
-          return null;
-        }).filter(Boolean);
+        // eslint-disable-next-line no-console
+        console.debug("[ModalCrearConsulta] consultas for vet:", res);
+        // normalize into objects { id, fecha, hora }
+        const arr = Array.isArray(res) ? res : [];
+        const taken = arr
+          .map((c) => {
+            const id = c.idConsulta || c.id || null;
+            if (c.fecha && c.hora) return { id, fecha: c.fecha, hora: c.hora };
+            if (c.fechaHora) return { id, ...parseFechaHora(c.fechaHora) };
+            if (c.start_time) return { id, ...parseFechaHora(c.start_time) };
+            if (c.scheduled_at) return { id, ...parseFechaHora(c.scheduled_at) };
+            // try full object
+            return { id, fecha: c.fecha || null, hora: c.hora || null };
+          })
+          .filter((x) => x && x.fecha && x.hora);
         setOcupadas(taken);
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -133,10 +180,20 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
     const slots = [];
     for (let m = startMin; m + SLOT_MINUTES <= endMin; m += SLOT_MINUTES) {
       const timeLabel = minutesToTime(m);
-      // check if occupied
-      const datetimeIso = `${fechaSel} ${timeLabel}`;
-      const occupied = ocupadas.some((o) => String(o).indexOf(`${fechaSel}`) !== -1 && String(o).indexOf(timeLabel) !== -1);
-      slots.push({ time: timeLabel, available: !occupied });
+      // check if occupied by any consulta that overlaps this slot (each consulta lasts SLOT_MINUTES)
+      const occupied = ocupadas.some((o) => {
+        if (String(o.fecha) !== String(fechaSel)) return false;
+        const parsed = parseTime(o.hora);
+        if (!parsed) return false;
+        const consultStart = timeToMinutes(parsed);
+        const consultEnd = consultStart + SLOT_MINUTES;
+        const slotStart = m;
+        const slotEnd = m + SLOT_MINUTES;
+        // overlap if slotStart < consultEnd && slotEnd > consultStart
+        return slotStart < consultEnd && slotEnd > consultStart;
+      });
+      const futureOk = isFuture(fechaSel, timeLabel);
+      slots.push({ time: timeLabel, available: !occupied && futureOk, occupied });
     }
     return slots;
   }, [veterinarioSel, fechaSel, ocupadas]);
@@ -154,6 +211,11 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
         mascota: values.mascota?.idMascota || values.mascota?.id || values.mascota || null,
         veterinario: values.veterinario?.idVeterinario || values.veterinario?.id || values.veterinario || null,
       };
+      if (!isFuture(payload.fecha, payload.hora)) {
+        setError("No se puede agendar en fecha/hora pasada. Selecciona una fecha y hora futuras.");
+        setSaving(false);
+        return;
+      }
       // eslint-disable-next-line no-console
       console.log("[ModalCrearConsulta] Crear consulta payload:", payload);
       await clinicApi.request("/api/clinic/consultas", { method: "POST", body: payload });
@@ -201,7 +263,11 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
                       options={veterinarios}
                       getOptionLabel={(o) => o?.nombre || o?.user?.email || "-"}
                       value={field.value}
-                      onChange={(_, v) => field.onChange(v)}
+                      onChange={(_, v) => {
+                        // eslint-disable-next-line no-console
+                        console.debug("[ModalCrearConsulta] Autocomplete onChange selected:", v);
+                        field.onChange(v);
+                      }}
                       isOptionEqualToValue={(option, value) => {
                         if (!option || !value) return false;
                         return (option.idVeterinario && value.idVeterinario && option.idVeterinario === value.idVeterinario) || (option.id && value.id && option.id === value.id);
@@ -265,20 +331,41 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
                 <Typography fontSize="0.95rem" fontWeight={600} mb={1}>
                   Horarios disponibles
                 </Typography>
+
                 <Grid container spacing={1}>
                   {availableSlotsForDate.length === 0 ? (
                     <Grid item xs={12}>
-                      <Typography color="text.secondary">Selecciona veterinario y fecha para ver los horarios</Typography>
+                      <Typography color="text.secondary">
+                        Selecciona veterinario y fecha para ver los horarios
+                      </Typography>
                     </Grid>
                   ) : (
                     availableSlotsForDate.map((s) => (
                       <Grid item key={s.time}>
                         <Button
                           variant={s.time === horaSel ? "contained" : "outlined"}
-                          color={s.available ? "primary" : "inherit"}
+                          color={
+                            s.available
+                              ? "primary"
+                              : s.occupied
+                              ? "error"
+                              : "inherit"
+                          }
                           onClick={() => pickSlot(s)}
                           disabled={!s.available}
-                          sx={{ minWidth: 84, height: 40, textTransform: "none" }}
+                          sx={{
+                            minWidth: 84,
+                            height: 40,
+                            textTransform: "none",
+                            fontWeight: 600,
+                            color:
+                              s.time === horaSel
+                                ? "common.white"
+                                : s.available
+                                ? "text.primary"
+                                : "grey.700",
+                            borderColor: s.occupied ? "grey.300" : undefined,
+                          }}
                         >
                           {formatSlotLabel(s.time)}
                         </Button>
@@ -287,6 +374,7 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
                   )}
                 </Grid>
               </Grid>
+
 
               <Grid item xs={12}>
                 <TextField label="Hora seleccionada" fullWidth value={horaSel || ""} InputProps={{ readOnly: true }} sx={textFieldSx} />

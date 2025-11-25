@@ -3,14 +3,14 @@ from .models import (
     Dueno,
     Recepcionista,
     Mascota,
-    Historial,
     Consulta,
     Veterinario,
-    Comprobante,
+    # Comprobante removed — not used
 )
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from datetime import date
+from datetime import time as _time
 
 User = get_user_model()
 
@@ -54,6 +54,13 @@ class DuenoCreateSerializer(serializers.Serializer):
 
         # create user using email as identifier and create Dueno profile
         user = User.objects.create_user(email=email, password=password)
+        # persist telefono on User when provided
+        if telefono:
+            try:
+                user.telefono = telefono
+                user.save()
+            except Exception:
+                pass
         default_name = nombre or (email.split("@")[0] if email else "")
         dueno = Dueno.objects.create(user=user, telefono=telefono, nombre=default_name)
 
@@ -87,6 +94,12 @@ class DuenoSelfRegisterSerializer(serializers.Serializer):
         telefono = validated_data.get("telefono", None)
         nombre = validated_data.get("nombre", None)
         user = User.objects.create_user(email=email, password=password)
+        if telefono:
+            try:
+                user.telefono = telefono
+                user.save()
+            except Exception:
+                pass
         default_name = nombre or (email.split("@")[0] if email else "")
         dueno = Dueno.objects.create(user=user, telefono=telefono, nombre=default_name)
         return dueno
@@ -111,6 +124,12 @@ class RecepcionistaCreateSerializer(serializers.Serializer):
         telefono = validated_data.get("telefono", None)
         # create user and mark as staff
         user = User.objects.create_user(email=email, password=password)
+        # persist telefono on user when provided
+        if telefono:
+            try:
+                user.telefono = telefono
+            except Exception:
+                pass
         user.is_staff = True
         user.save()
 
@@ -146,8 +165,8 @@ class VeterinarioSerializer(serializers.ModelSerializer):
     telefono = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Veterinario
-        # include telefono derived from linked user for GET responses
-        fields = ("idVeterinario", "user", "nombre", "telefono")
+        # include telefono derived from linked user for GET responses and working hours
+        fields = ("idVeterinario", "user", "nombre", "telefono", "work_start", "work_end", "work_days")
 
     def get_telefono(self, obj):
         try:
@@ -159,15 +178,50 @@ class VeterinarioSerializer(serializers.ModelSerializer):
 
 
 class DuenoUpdateSerializer(serializers.ModelSerializer):
+    # allow updating profile fields plus linked user's email/password/telefono
+    email = serializers.EmailField(required=False, write_only=True)
+    password = serializers.CharField(required=False, write_only=True)
+    telefono = serializers.CharField(required=False, write_only=True)
+
     class Meta:
         model = Dueno
-        fields = ("nombre", "telefono")
+        fields = ("nombre", "telefono", "email", "password")
+
+    def update(self, instance, validated_data):
+        # Extract potential user fields
+        email = validated_data.pop("email", None)
+        password = validated_data.pop("password", None)
+        telefono = validated_data.get("telefono", None)
+
+        # Update Dueno instance fields
+        instance = super().update(instance, validated_data)
+
+        # Update linked user
+        try:
+            user = instance.user
+            changed = False
+            if email and user:
+                user.email = email
+                changed = True
+            if password and user:
+                user.set_password(password)
+                changed = True
+            if telefono is not None and user:
+                user.telefono = telefono
+                changed = True
+            if changed:
+                user.save()
+        except Exception:
+            pass
+
+        return instance
 
 
 class RecepcionistaUpdateSerializer(serializers.ModelSerializer):
     # allow updating profile fields plus email/password on the linked User
     email = serializers.EmailField(required=False, write_only=True)
     password = serializers.CharField(required=False, write_only=True)
+    telefono = serializers.CharField(required=False, write_only=True)
 
     class Meta:
         model = Recepcionista
@@ -177,6 +231,7 @@ class RecepcionistaUpdateSerializer(serializers.ModelSerializer):
         # Extract user fields
         email = validated_data.pop("email", None)
         password = validated_data.pop("password", None)
+        telefono = validated_data.get("telefono", None)
 
         # Update profile fields (nombre, telefono)
         instance = super().update(instance, validated_data)
@@ -191,6 +246,13 @@ class RecepcionistaUpdateSerializer(serializers.ModelSerializer):
             if password:
                 user.set_password(password)
                 changed = True
+            # also persist telefono on linked User if provided
+            if telefono is not None:
+                try:
+                    user.telefono = telefono
+                    changed = True
+                except Exception:
+                    pass
             if changed:
                 user.save()
         except Exception:
@@ -271,7 +333,12 @@ class VeterinarioCreateSerializer(serializers.Serializer):
                     pass
 
             default_name = nombre or (email.split("@")[0] if email else "")
-            vet = Veterinario.objects.create(user=user, nombre=default_name)
+            # Ensure default working hours when not provided: 09:00 - 14:00
+            try:
+                vet = Veterinario.objects.create(user=user, nombre=default_name, work_start=_time(9, 0), work_end=_time(14, 0))
+            except Exception:
+                # fallback to create without explicit times if DB constraints differ
+                vet = Veterinario.objects.create(user=user, nombre=default_name)
             return vet
         except IntegrityError as e:
             raise serializers.ValidationError({"detail": "Integrity error creating user/veterinario", "error": str(e)})
@@ -280,20 +347,37 @@ class VeterinarioCreateSerializer(serializers.Serializer):
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(required=False, write_only=True)
+    telefono = serializers.CharField(required=False, allow_blank=True)
+
     class Meta:
         model = User
-        fields = ("email",)
+        fields = ("email", "password", "telefono")
+
+    def update(self, instance, validated_data):
+        # Handle password specially
+        password = validated_data.pop("password", None)
+        telefono = validated_data.pop("telefono", None)
+
+        instance = super().update(instance, validated_data)
+
+        if password:
+            try:
+                instance.set_password(password)
+            except Exception:
+                pass
+        if telefono is not None:
+            try:
+                instance.telefono = telefono
+            except Exception:
+                pass
+        instance.save()
+        return instance
 
 
 class MascotaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mascota
-        fields = "__all__"
-
-
-class HistorialSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Historial
         fields = "__all__"
 
 
@@ -306,6 +390,12 @@ class ConsultaSerializer(serializers.ModelSerializer):
     # accept dueno id for appointment-type records
     dueno = serializers.PrimaryKeyRelatedField(queryset=Dueno.objects.all(), required=False, allow_null=True)
     hora = serializers.TimeField(required=False, allow_null=True)
+    # clinical fields
+    sintomas = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    diagnostico = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    tratamiento = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    notas = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    asistio = serializers.BooleanField(required=False)
 
     class Meta:
         model = Consulta
@@ -315,7 +405,11 @@ class ConsultaSerializer(serializers.ModelSerializer):
             "descripcion",
             "fecha",
             "hora",
-            "historial",
+            "sintomas",
+            "diagnostico",
+            "tratamiento",
+            "notas",
+            "asistio",
             "veterinario",
             "dueno",
             "mascota",
@@ -336,8 +430,9 @@ class ConsultaSerializer(serializers.ModelSerializer):
 
 class ComprobanteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Comprobante
-        fields = "__all__"
+        # Comprobante model removed; keep placeholder if needed later
+        model = None
+        fields = []
 
 
 class MeSummarySerializer(serializers.Serializer):

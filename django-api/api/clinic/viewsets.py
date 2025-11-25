@@ -2,11 +2,12 @@ from rest_framework import viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema_view, extend_schema
+from datetime import date, datetime
+from django.db.models import Q
 from .models import (
     Dueno,
     Recepcionista,
     Mascota,
-    Historial,
     Consulta,
     Veterinario,
     Comprobante,
@@ -18,7 +19,6 @@ from .serializers import (
     RecepcionistaSerializer,
     MeSummarySerializer,
     MascotaSerializer,
-    HistorialSerializer,
     ConsultaSerializer,
     VeterinarioSerializer,
     VeterinarioCreateSerializer,
@@ -132,7 +132,12 @@ class DuenoViewSet(viewsets.ModelViewSet):
             dueno_data = DuenoSerializer(dueno, context={"request": request}).data
             mascotas_qs = Mascota.objects.filter(dueno=dueno)
             mascotas_data = MascotaSerializer(mascotas_qs, many=True, context={"request": request}).data
-            citas_qs = Consulta.objects.filter(dueno=dueno).order_by("-fecha")[:5]
+            # upcoming consultas: not attended and fecha >= today (consider hora if present)
+            today = date.today()
+            now_time = datetime.now().time()
+            citas_qs = Consulta.objects.filter(dueno=dueno, asistio=False).filter(
+                Q(fecha__gt=today) | Q(fecha=today, hora__gte=now_time) | Q(hora__isnull=True)
+            ).order_by("fecha", "hora")[:5]
             citas_data = ConsultaSerializer(citas_qs, many=True, context={"request": request}).data
             return Response({"role": "dueno", "dueno": dueno_data, "mascotas": mascotas_data, "citas": citas_data}, status=200)
 
@@ -172,6 +177,35 @@ class DuenoViewSet(viewsets.ModelViewSet):
 
         # Fallback: unauthenticated or no role
         return Response({"role": "unknown", "dueno": {}, "mascotas": [], "citas": []}, status=200)
+
+    @extend_schema(tags=["Dueños"], summary="Citas pasadas atendidas del dueño autenticado")
+    @action(detail=False, methods=["get"], url_path="me/past-citas", permission_classes=[IsAuthenticated])
+    def me_past_citas(self, request):
+        user = request.user
+        if not hasattr(user, "dueno_profile") or user.dueno_profile is None:
+            return Response([], status=200)
+        dueno = user.dueno_profile
+        today = date.today()
+        now_time = datetime.now().time()
+        # Past and attended: fecha < today OR (fecha == today and hora < now)
+        past_q = Q(fecha__lt=today) | (Q(fecha=today) & Q(hora__lt=now_time))
+        consultas = Consulta.objects.filter(dueno=dueno, asistio=True).filter(past_q).order_by("-fecha", "-hora")
+        serializer = ConsultaSerializer(consultas, many=True, context={"request": request})
+        return Response(serializer.data, status=200)
+
+    @extend_schema(tags=["Dueños"], summary="Citas futuras no atendidas del dueño autenticado")
+    @action(detail=False, methods=["get"], url_path="me/future-citas", permission_classes=[IsAuthenticated])
+    def me_future_citas(self, request):
+        user = request.user
+        if not hasattr(user, "dueno_profile") or user.dueno_profile is None:
+            return Response([], status=200)
+        dueno = user.dueno_profile
+        today = date.today()
+        now_time = datetime.now().time()
+        future_q = Q(fecha__gt=today) | (Q(fecha=today) & Q(hora__gte=now_time)) | Q(hora__isnull=True)
+        consultas = Consulta.objects.filter(dueno=dueno, asistio=False).filter(future_q).order_by("fecha", "hora")
+        serializer = ConsultaSerializer(consultas, many=True, context={"request": request})
+        return Response(serializer.data, status=200)
 
 
 @extend_schema_view(
@@ -226,6 +260,37 @@ class RecepcionistaViewSet(viewsets.ModelViewSet):
         serializer.save()
         out = RecepcionistaSerializer(recep, context={"request": request})
         return Response(out.data, status=200)
+
+    @extend_schema(tags=["Recepcionistas"], summary="Resumen del recepcionista autenticado")
+    @action(detail=False, methods=["get"], url_path="me/summary", permission_classes=[IsAuthenticated])
+    def me_summary(self, request):
+        """Return a small summary for the authenticated recepcionista: profile, counts and recent mascotas."""
+        user = request.user
+        if not hasattr(user, "recepcionista_profile") or user.recepcionista_profile is None:
+            return Response({}, status=200)
+
+        rec = user.recepcionista_profile
+        profile = RecepcionistaSerializer(rec, context={"request": request}).data
+
+        # counts and recent items
+        total_duenos = Dueno.objects.filter(registrado_por_recepcionista=rec).count()
+        recent_mascotas_qs = Mascota.objects.filter(registrada_por_recepcionista=rec).order_by("-idMascota")[:5]
+        recent_mascotas = MascotaSerializer(recent_mascotas_qs, many=True, context={"request": request}).data
+
+        # recent consultas across the clinic (limit 5) to give context to recepcionista
+        recent_consultas_qs = Consulta.objects.all().order_by("-fecha", "-hora")[:5]
+        recent_consultas = ConsultaSerializer(recent_consultas_qs, many=True, context={"request": request}).data
+
+        return Response(
+            {
+                "role": "recepcionista",
+                "profile": profile,
+                "total_duenos_registered": total_duenos,
+                "recent_mascotas": recent_mascotas,
+                "recent_consultas": recent_consultas,
+            },
+            status=200,
+        )
 
 
 @extend_schema_view(
@@ -291,6 +356,124 @@ class VeterinarioViewSet(viewsets.ModelViewSet):
         serializer.save()
         out = VeterinarioSerializer(vet, context={"request": request})
         return Response(out.data, status=200)
+
+    @extend_schema(tags=["Veterinarios"], summary="Resumen del veterinario autenticado")
+    @action(detail=False, methods=["get"], url_path="me/summary", permission_classes=[IsAuthenticated])
+    def me_summary(self, request):
+        """Return a small summary for the authenticated veterinarian: profile, today's consultas and availability."""
+        user = request.user
+        if not hasattr(user, "veterinario_profile") or user.veterinario_profile is None:
+            return Response({}, status=200)
+
+        vet = user.veterinario_profile
+        profile = VeterinarioSerializer(vet, context={"request": request}).data
+
+        today = date.today()
+        # consultas for today
+        today_consultas_qs = Consulta.objects.filter(veterinario=vet, fecha=today).order_by("hora")
+        today_consultas = ConsultaSerializer(today_consultas_qs, many=True, context={"request": request}).data
+
+        # upcoming not attended consultas count
+        upcoming_count = Consulta.objects.filter(veterinario=vet, fecha__gte=today, asistio=False).count()
+
+        # compute simple availability for today based on work_start/work_end
+        available_slots = []
+        if vet.work_start and vet.work_end:
+            from datetime import datetime as _dt, timedelta as _td
+
+            start_dt = _dt.combine(today, vet.work_start)
+            end_dt = _dt.combine(today, vet.work_end)
+            cur = start_dt
+            while cur < end_dt:
+                hora_only = cur.time()
+                exists = Consulta.objects.filter(veterinario=vet, fecha=today, hora=hora_only).exists()
+                if not exists:
+                    available_slots.append(hora_only.strftime("%H:%M"))
+                cur = cur + _td(hours=1)
+
+        recent_consultas_qs = Consulta.objects.filter(veterinario=vet).order_by("-fecha", "-hora")[:5]
+        recent_consultas = ConsultaSerializer(recent_consultas_qs, many=True, context={"request": request}).data
+
+        return Response(
+            {
+                "role": "veterinario",
+                "profile": profile,
+                "today_consultas": today_consultas,
+                "upcoming_consultas_count": upcoming_count,
+                "available_slots_today": available_slots,
+                "recent_consultas": recent_consultas,
+            },
+            status=200,
+        )
+
+    @extend_schema(tags=["Veterinarios"], summary="Obtener veterinarios con disponibilidad para una fecha")
+    @action(detail=False, methods=["get"], url_path="with-availability", permission_classes=[AllowAny])
+    def with_availability(self, request):
+        # Optional query param: fecha=YYYY-MM-DD (default: today)
+        fecha_str = request.query_params.get("fecha")
+        try:
+            fecha = date.fromisoformat(fecha_str) if fecha_str else date.today()
+        except Exception:
+            from rest_framework.exceptions import ValidationError
+
+            raise ValidationError({"fecha": "Invalid date format, expected YYYY-MM-DD"})
+
+        vets = self.queryset.all()
+        out = []
+        for v in vets:
+            item = {"idVeterinario": v.idVeterinario, "nombre": v.nombre, "work_start": v.work_start, "work_end": v.work_end, "work_days": v.work_days}
+            slots = []
+            if v.work_start and v.work_end:
+                # build hourly slots between start and end
+                from datetime import datetime as _dt, timedelta as _td
+
+                start_dt = _dt.combine(fecha, v.work_start)
+                end_dt = _dt.combine(fecha, v.work_end)
+                cur = start_dt
+                while cur < end_dt:
+                    # Check if a Consulta exists at this fecha+hora for this vet
+                    hora_only = cur.time()
+                    exists = Consulta.objects.filter(veterinario=v, fecha=fecha, hora=hora_only).exists()
+                    if not exists:
+                        slots.append(hora_only.strftime("%H:%M"))
+                    cur = cur + _td(hours=1)
+            item["available_slots"] = slots
+            out.append(item)
+        return Response(out, status=200)
+
+    @extend_schema(tags=["Veterinarios"], summary="Consultas de un veterinario")
+    @action(detail=True, methods=["get"], url_path="consultas", permission_classes=[IsAuthenticated])
+    def consultas(self, request, pk=None):
+        # Return all consultas for the given veterinarian (read-only).
+        # Access restricted to authenticated users (IsAuthenticated).
+        # Optional query params: start_date, end_date, mascota_id
+        try:
+            vet_obj = Veterinario.objects.get(pk=pk)
+        except Veterinario.DoesNotExist:
+            from rest_framework.exceptions import NotFound
+
+            raise NotFound({"detail": "Veterinario not found"})
+
+        qs = Consulta.objects.filter(veterinario_id=pk)
+        start = request.query_params.get("start_date")
+        end = request.query_params.get("end_date")
+        mascota_id = request.query_params.get("mascota_id")
+        if start:
+            qs = qs.filter(fecha__gte=start)
+        if end:
+            qs = qs.filter(fecha__lte=end)
+        if mascota_id:
+            qs = qs.filter(mascota_id=mascota_id)
+
+        qs = qs.order_by("fecha", "hora")
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            # Use ConsultaSerializer explicitly to serialize Consulta objects
+            serializer = ConsultaSerializer(page, many=True, context={"request": request})
+            return self.get_paginated_response(serializer.data)
+
+        serializer = ConsultaSerializer(qs, many=True, context={"request": request})
+        return Response(serializer.data, status=200)
 
 
 @extend_schema_view(
@@ -385,19 +568,6 @@ class MascotaViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-@extend_schema_view(
-    list=extend_schema(tags=["Consultas"], summary="Listar historiales"),
-    retrieve=extend_schema(tags=["Consultas"], summary="Obtener historial"),
-    create=extend_schema(tags=["Consultas"], summary="Crear historial"),
-    update=extend_schema(tags=["Consultas"], summary="Actualizar historial"),
-    partial_update=extend_schema(tags=["Consultas"], summary="Actualizar parcialmente historial"),
-    destroy=extend_schema(tags=["Consultas"], summary="Eliminar historial"),
-)
-class HistorialViewSet(viewsets.ModelViewSet):
-    queryset = Historial.objects.all()
-    serializer_class = HistorialSerializer
-    permission_classes = (AllowAny,)
-
 
 @extend_schema_view(
     list=extend_schema(tags=["Consultas"], summary="Listar consultas"),
@@ -412,7 +582,57 @@ class ConsultaViewSet(viewsets.ModelViewSet):
     serializer_class = ConsultaSerializer
     permission_classes = (AllowAny,)
 
-    @action(detail=False, methods=["get"], url_path="user-recent", permission_classes=[IsAuthenticated])
+    def list(self, request, *args, **kwargs):
+        """Support listing consultas and also retrieving a mascota's historial via ?mascota_id=."""
+        mascota_id = request.query_params.get("mascota_id")
+        if mascota_id:
+            try:
+                mascota = Mascota.objects.get(pk=mascota_id)
+            except Mascota.DoesNotExist:
+                from rest_framework.exceptions import NotFound
+
+                raise NotFound({"detail": "Mascota not found"})
+
+            user = request.user
+            allowed = False
+            if hasattr(user, "dueno_profile") and mascota.dueno_id == user.dueno_profile.pk:
+                allowed = True
+            if hasattr(user, "recepcionista_profile"):
+                allowed = True
+            if hasattr(user, "veterinario_profile"):
+                allowed = True
+            if user.is_superuser:
+                allowed = True
+
+            if not allowed:
+                from rest_framework.exceptions import PermissionDenied
+
+                raise PermissionDenied({"detail": "Not allowed to view this mascota's historial"})
+
+            consultas = self.queryset.filter(mascota=mascota).order_by("-fecha", "-hora")
+            serializer = self.get_serializer(consultas, many=True, context={"request": request})
+            return Response(serializer.data, status=200)
+
+        return super().list(request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        # Accept `mascota` key from frontend (map to mascota_id)
+        if data.get("mascota") and not data.get("mascota_id"):
+            data["mascota_id"] = data.get("mascota")
+
+        # If authenticated owner, default dueno to the logged-in owner's profile
+        user = request.user
+        if hasattr(user, "dueno_profile") and not data.get("dueno"):
+            data["dueno"] = user.dueno_profile.pk
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        obj = serializer.save()
+        out = self.get_serializer(obj, context={"request": request})
+        return Response(out.data, status=201)
+
+    @action(detail=False, methods=["get"], url_path="user/recent", permission_classes=[IsAuthenticated])
     def user_recent(self, request):
         """Return the 5 most recent consultas for the authenticated owner's mascotas."""
         user = request.user
@@ -424,61 +644,13 @@ class ConsultaViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(consultas, many=True, context={"request": request})
         return Response(serializer.data, status=200)
 
-    @action(detail=False, methods=["get"], url_path="historial", permission_classes=[IsAuthenticated])
-    def historial(self, request):
-        """Return full history (all consultas) for a given mascota.
-
-        Query params: ?mascota_id=<id>
-        Only the owner, a recepcionista, a linked veterinarian, or admin can view.
-        """
-        mascota_id = request.query_params.get("mascota_id")
-        if not mascota_id:
-            return Response({"detail": "mascota_id query parameter is required"}, status=400)
-
-        try:
-            mascota = Mascota.objects.get(pk=mascota_id)
-        except Mascota.DoesNotExist:
-            from rest_framework.exceptions import NotFound
-
-            raise NotFound({"detail": "Mascota not found"})
-
-        user = request.user
-        # Permissions: allow owner, recepcionista, veterinario (any), or admin
-        allowed = False
-        if hasattr(user, "dueno_profile") and mascota.dueno_id == user.dueno_profile.pk:
-            allowed = True
-        if hasattr(user, "recepcionista_profile"):
-            allowed = True
-        if hasattr(user, "veterinario_profile"):
-            allowed = True
-        if user.is_superuser:
-            allowed = True
-
-        if not allowed:
-            from rest_framework.exceptions import PermissionDenied
-
-            raise PermissionDenied({"detail": "Not allowed to view this mascota's historial"})
-
-        consultas = self.queryset.filter(mascota=mascota).order_by("-fecha", "-hora")
-        serializer = self.get_serializer(consultas, many=True, context={"request": request})
-        return Response(serializer.data, status=200)
+    
 
 
 # CitaViewSet removed — Consulta now represents both appointments and clinical consultations.
 
 
-@extend_schema_view(
-    list=extend_schema(tags=["Comprobantes"], summary="Listar comprobantes"),
-    retrieve=extend_schema(tags=["Comprobantes"], summary="Obtener comprobante"),
-    create=extend_schema(tags=["Comprobantes"], summary="Crear comprobante"),
-    update=extend_schema(tags=["Comprobantes"], summary="Actualizar comprobante"),
-    partial_update=extend_schema(tags=["Comprobantes"], summary="Actualizar parcialmente comprobante"),
-    destroy=extend_schema(tags=["Comprobantes"], summary="Eliminar comprobante"),
-)
-class ComprobanteViewSet(viewsets.ModelViewSet):
-    queryset = Comprobante.objects.all()
-    serializer_class = ComprobanteSerializer
-    permission_classes = (AllowAny,)
+# Comprobante model and endpoints removed — not used in current design
 
 
 @extend_schema_view(

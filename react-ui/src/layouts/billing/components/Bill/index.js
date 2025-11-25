@@ -25,11 +25,27 @@ import SuiTypography from "components/SuiTypography";
 import SuiButton from "components/SuiButton";
 
 function Bill({ consulta, onEdit, onDelete, noGutter }) {
-  const name = consulta?.motivo || "-";
   const mascotaName = consulta?.mascota?.nombre || (typeof consulta?.mascota === "string" ? consulta.mascota : "-");
   const fecha = consulta?.fecha || "";
   const hora = consulta?.hora || "";
+  const motivo = consulta?.motivo || "-";
   const descripcion = consulta?.descripcion || "";
+  const vetName = consulta?.veterinario?.nombre || (typeof consulta?.veterinario === "string" ? consulta.veterinario : "-");
+
+  function formatDateLongSpanish(rawDate) {
+    if (!rawDate) return "";
+    try {
+      const d = new Date(rawDate);
+      if (Number.isNaN(d.getTime())) return rawDate;
+      const opts = { weekday: "long", day: "numeric", month: "long" };
+      const s = d.toLocaleDateString("es-ES", opts);
+      return s.replace(/,?\s*\d{4}/, "");
+    } catch (e) {
+      return rawDate;
+    }
+  }
+
+  const title = fecha ? `Consulta para el ${formatDateLongSpanish(fecha)}` : "Consulta";
 
   return (
     <SuiBox
@@ -51,8 +67,8 @@ function Bill({ consulta, onEdit, onDelete, noGutter }) {
           flexDirection={{ xs: "column", sm: "row" }}
           mb={2}
         >
-          <SuiTypography variant="button" fontWeight="medium" textTransform="capitalize">
-            {name}
+          <SuiTypography variant="button" fontWeight="medium" textTransform="none">
+            {title}
           </SuiTypography>
 
           <SuiBox display="flex" alignItems="center" mt={{ xs: 2, sm: 0 }} ml={{ xs: -1.5, sm: 0 }}>
@@ -66,6 +82,16 @@ function Bill({ consulta, onEdit, onDelete, noGutter }) {
             </SuiButton>
           </SuiBox>
         </SuiBox>
+
+        {hora && (
+          <SuiBox mb={1} lineHeight={0}>
+            <SuiTypography variant="caption" textColor="text">
+              Hora:&nbsp;&nbsp;&nbsp;
+              <SuiTypography variant="caption" fontWeight="medium">{hora}</SuiTypography>
+            </SuiTypography>
+          </SuiBox>
+        )}
+
         <SuiBox mb={1} lineHeight={0}>
           <SuiTypography variant="caption" textColor="text">
             Mascota:&nbsp;&nbsp;&nbsp;
@@ -74,30 +100,35 @@ function Bill({ consulta, onEdit, onDelete, noGutter }) {
             </SuiTypography>
           </SuiTypography>
         </SuiBox>
+
         <SuiBox mb={1} lineHeight={0}>
           <SuiTypography variant="caption" textColor="text">
-            Fecha:&nbsp;&nbsp;&nbsp;
+            Motivo:&nbsp;&nbsp;&nbsp;
             <SuiTypography variant="caption" fontWeight="medium">
-              {fecha}
+              {motivo}
             </SuiTypography>
           </SuiTypography>
         </SuiBox>
-        {hora && (
-          <SuiBox mb={1} lineHeight={0}>
-            <SuiTypography variant="caption" textColor="text">
-              Hora:&nbsp;&nbsp;&nbsp;
-              <SuiTypography variant="caption" fontWeight="medium">
-                {hora}
-              </SuiTypography>
+
+        <SuiBox mb={1} lineHeight={0}>
+          <SuiTypography variant="caption" textColor="text">
+            Descripción:&nbsp;&nbsp;&nbsp;
+            <SuiTypography variant="caption" fontWeight="medium">
+              {descripcion}
             </SuiTypography>
-          </SuiBox>
-        )}
-        <SuiTypography variant="caption" textColor="text">
-          Descripción:&nbsp;&nbsp;&nbsp;
-          <SuiTypography variant="caption" fontWeight="medium">
-            {descripcion}
           </SuiTypography>
-        </SuiTypography>
+        </SuiBox>
+
+        <SuiBox mb={1} lineHeight={0}>
+          <SuiTypography variant="caption" textColor="text">
+            Veterinario:&nbsp;&nbsp;&nbsp;
+            <SuiTypography variant="caption" fontWeight="medium">
+              {vetName}
+            </SuiTypography>
+          </SuiTypography>
+        </SuiBox>
+
+        
       </SuiBox>
     </SuiBox>
   );

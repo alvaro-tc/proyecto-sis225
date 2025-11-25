@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from datetime import time
 
 
 class Recepcionista(models.Model):
@@ -53,6 +54,12 @@ class Veterinario(models.Model):
         blank=True,
     )
     nombre = models.CharField(max_length=255)
+    # Working hours (optional) for availability computations
+    # Default working hours: 09:00 - 14:00
+    work_start = models.TimeField(null=True, blank=True, default=time(9, 0))
+    work_end = models.TimeField(null=True, blank=True, default=time(14, 0))
+    # Comma-separated week day names or numbers (e.g. "Mon,Tue,Wed")
+    work_days = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.nombre
@@ -80,14 +87,7 @@ class Mascota(models.Model):
         return f"{self.nombre} ({self.especie})"
 
 
-class Historial(models.Model):
-    idHistorial = models.AutoField(primary_key=True)
-    mascota = models.OneToOneField(
-        "api_clinic.Mascota", on_delete=models.CASCADE, related_name="historial"
-    )
-
-    def __str__(self):
-        return f"Historial de {self.mascota.nombre}"
+# Historial model intentionally removed — consultations are linked directly to Mascota
 
 
 class Consulta(models.Model):
@@ -97,9 +97,12 @@ class Consulta(models.Model):
     # Make fecha editable so a Consulta can represent either an appointment or a clinical
     # consultation. Do not auto-populate — migrations will handle existing rows.
     fecha = models.DateField()
-    historial = models.ForeignKey(
-        "api_clinic.Historial", on_delete=models.CASCADE, related_name="consultas"
-    )
+    # Clinical fields
+    sintomas = models.TextField(blank=True, null=True)
+    diagnostico = models.TextField(blank=True, null=True)
+    tratamiento = models.TextField(blank=True, null=True)
+    notas = models.TextField(blank=True, null=True)
+    asistio = models.BooleanField(default=False)
     veterinario = models.ForeignKey(
         "api_clinic.Veterinario",
         on_delete=models.PROTECT,
@@ -150,3 +153,5 @@ class Comprobante(models.Model):
             return f"Comprobante {self.idCom} - Consulta {self.cita.idConsulta}"
         except Exception:
             return f"Comprobante {self.idCom} - Consulta {getattr(self.cita, 'pk', None)}"
+
+# Comprobante model removed — see migrations that delete the table

@@ -24,7 +24,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
 // Billing page components (repurposed for Consultas)
-import Invoices from "layouts/billing/components/Invoices";
+import Invoices from "layouts/billing/components/InvoicesNew";
 import BillingInformation from "layouts/billing/components/BillingInformation";
 
 function Billing() {

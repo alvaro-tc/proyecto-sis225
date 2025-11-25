@@ -111,6 +111,7 @@ function Overview() {
       .list("duenos/me/summary")
       .then((data) => {
         if (!mounted) return;
+        console.log("Fetched profile summary:", data);
         setSummary(data);
       })
       .catch((err) => {
@@ -298,9 +299,29 @@ function Overview() {
         );
       }
 
+  function getProfileName(summary) {
+    if (!summary) return undefined;
+    // try common places for name across roles
+    return (
+      summary?.dueno?.nombre ||
+      summary?.veterinario?.nombre ||
+      summary?.recepcionista?.nombre ||
+      summary?.user?.name ||
+      summary?.user?.email ||
+      summary?.nombre ||
+      undefined
+    );
+  }
+
+  function getProfileAvatar(summary) {
+    return (
+      summary?.dueno?.avatar || summary?.dueno?.foto || summary?.veterinario?.avatar || summary?.veterinario?.foto || undefined
+    );
+  }
+
   return (
     <DashboardLayout>
-      <Header name={summary?.dueno?.nombre} role={summary?.role} avatar={(summary?.dueno?.avatar || summary?.dueno?.foto) || undefined} />
+      <Header name={getProfileName(summary)} role={summary?.role} avatar={getProfileAvatar(summary)} />
       <SuiBox py={3}>
         <ProfileSummary summary={summary} loading={loadingSummary} error={summaryError} />
       </SuiBox>
