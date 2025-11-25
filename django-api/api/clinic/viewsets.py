@@ -71,7 +71,7 @@ class DuenoViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         dueno = serializer.save()
         out_serializer = DuenoSerializer(dueno, context={"request": request})
-        return Response(out_serializer.data, status=201)
+        return Response({"role": "dueno", "dueno": out_serializer.data}, status=201)
 
     @extend_schema(tags=["Dueños"], summary="Obtener o actualizar perfil del dueño autenticado")
     @action(detail=False, methods=["get", "put", "patch"], url_path="me", permission_classes=[IsAuthenticated])
@@ -239,7 +239,7 @@ class RecepcionistaViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         recep = serializer.save()
         out_serializer = RecepcionistaSerializer(recep, context={"request": request})
-        return Response(out_serializer.data, status=201)
+        return Response({"role": "recepcionista", "recepcionista": out_serializer.data}, status=201)
 
     @action(detail=False, methods=["get", "put", "patch"], url_path="me", permission_classes=[IsAuthenticated])
     def me(self, request):
@@ -325,7 +325,7 @@ class VeterinarioViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             vet = serializer.save()
             out_serializer = VeterinarioSerializer(vet, context={"request": request})
-            return Response(out_serializer.data, status=201)
+            return Response({"role": "veterinario", "veterinario": out_serializer.data}, status=201)
         except Exception as e:
             # Print traceback to server console for debugging, and return a safe error
             import traceback

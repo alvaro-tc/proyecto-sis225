@@ -42,6 +42,7 @@ import HistorialVeterinario from "layouts/historial-veterinario";
 import RecepcionistasLayout from "layouts/recepcionistas";
 import Billing from "layouts/billing";
 import Profile from "layouts/profile";
+import RegistrarConsulta from "layouts/registrar-consulta";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import SignOut from "layouts/authentication/sign-out";
@@ -65,6 +66,7 @@ const routes = [
     component: MascotasLayout,
     noCollapse: true,
     protected: true,
+    roles: ["dueno", "admin", "recepcionista"],
   },
   {
     type: "collapse",
@@ -97,6 +99,19 @@ const routes = [
     component: Billing,
     noCollapse: true,
     protected: true,
+    roles: ["dueno", "admin", "recepcionista"],
+  },
+
+  {
+    type: "collapse",
+    name: "Registrar Consulta",
+    key: "registrar-consulta",
+    route: "/registrar-consulta",
+    icon: <CreditCard size="12px" />,
+    component: RegistrarConsulta,
+    noCollapse: true,
+    protected: true,
+    roles: ["veterinario"],
   },
   {
     type: "none",

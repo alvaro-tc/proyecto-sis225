@@ -73,7 +73,7 @@ ROOT_URLCONF = "core.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -181,6 +181,17 @@ SPECTACULAR_SETTINGS = {
         {"name": "Perfil", "description": "Endpoints para obtener/editar el perfil autenticado"},
     ],
 }
+
+# Static files dirs so our custom redoc assets are found in DEBUG
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+# Optional OpenAPI extras for a nicer docs page
+SPECTACULAR_SETTINGS.update({
+    "CONTACT": {"name": "API Support", "email": "support@example.com"},
+    "LICENSE": {"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
+})
 
 # ##################################################################### #
 #  CORS 

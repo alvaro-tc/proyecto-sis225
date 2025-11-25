@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API Docs — React Soft Dashboard</title>
+  <link rel="stylesheet" href="/static/redoc.css">
+  <style>
+    /* Minimal inline fallback styling */
+    body { margin:0; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#f6f8fa; }
+    .header { display:flex; align-items:center; gap:16px; padding:24px; background: linear-gradient(90deg,#0f172a,#0b1220); color:#fff }
+    .logo { width:56px; height:56px; border-radius:8px; background:linear-gradient(135deg,#3b82f6,#7c3aed); display:flex; align-items:center; justify-content:center; font-weight:700 }
+    .container { max-width:1100px; margin:28px auto; background:#fff; border-radius:12px; box-shadow:0 10px 30px rgba(2,6,23,0.08); overflow:hidden }
+    .intro { padding:20px 28px; border-bottom:1px solid #eee }
+    .intro h1 { margin:0; font-size:20px }
+    .intro p { margin:6px 0 0; color:#555 }
+    .powered { font-size:12px; color:#9aa4b2 }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">RS</div>
+    <div>
+      <div style="font-size:18px;font-weight:700">React Soft Dashboard API</div>
+      <div style="font-size:13px;opacity:.85">Documentation</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="intro">
+      <h1>API Documentation</h1>
+      <p>Interactive API docs powered by ReDoc. Use the controls on the right to explore endpoints.</p>
+    </div>
+    <div id="redoc-container" style="height:75vh"></div>
+  </div>
+
+  <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+  <script>
+    // Load schema from Django spectacular endpoint
+    window.addEventListener('DOMContentLoaded', function(){
+      Redoc.init(window.location.origin + "{{ schema_url }}", {}, document.getElementById('redoc-container'))
+    })
+  </script>
+</body>
+</html>

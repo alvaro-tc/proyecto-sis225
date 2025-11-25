@@ -1,0 +1,17 @@
+/* Custom Redoc styling overrides */
+html,body { height:100%; }
+#redoc-container { padding: 24px 32px; }
+
+/* Improve code blocks and schema table legibility */
+.redoc-wrap .api-info { background: transparent }
+
+/* Tweak Redoc sidebar width and headers */
+.redoc .menu-content { max-width: 360px }
+
+/* General polished look */
+.redoc .menu-title { font-weight:700 }
+
+/* Ensure the docs scale nicely on narrow screens */
+@media (max-width:800px){
+  .container { margin:12px }
+}

@@ -3,7 +3,8 @@ from django.urls import path, include
 from django.shortcuts import redirect
 from django.conf import settings
 from django.conf.urls.static import static
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from .views import redoc_custom_view
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -12,9 +13,9 @@ urlpatterns = [
     # OpenAPI / Swagger / Redoc
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/schema/swagger-ui/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
-    path("api/schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
-    # Friendly docs URL for Redoc
-    path("docs/", SpectacularRedocView.as_view(url_name="schema"), name="redoc-ui"),
+    path("api/schema/redoc/", redoc_custom_view, name="redoc"),
+    # Friendly docs URL for Redoc (custom)
+    path("docs/", redoc_custom_view, name="redoc-ui"),
     # root redirects to docs
     path("", lambda request: redirect("redoc-ui")),
 ]

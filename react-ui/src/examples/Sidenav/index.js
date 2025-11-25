@@ -110,16 +110,51 @@ function Sidenav({ routes, ...rest }) {
     if (!u) return false;
     return !!(u.is_admin || u.is_staff || u.isSuperuser || u.isSuperUser || u.role === "admin" || (u.roles && u.roles.indexOf("admin") >= 0));
   };
+  // helper: tolerant role check (handles common synonyms like 'owner' / 'dueno')
+  const normalize = (s) => (s || "").toString().toLowerCase();
+  const roleAliases = {
+    dueno: ["dueno", "dueño", "dueño", "owner", "propietario", "propietaria"].map((s) => normalize(s)),
+    veterinario: ["veterinario", "vet"],
+    recepcionista: ["recepcionista", "receptionist"],
+    admin: ["admin", "administrator", "is_admin", "isstaff"],
+  };
+
+  const userHasRole = (expected) => {
+    if (!currentUser) return false;
+    const exp = normalize(expected);
+    const userRole = normalize(currentUser.role || (currentUser.roles && currentUser.roles[0]) || "");
+    // direct match
+    if (userRole && userRole === exp) return true;
+    // check aliases map
+    const aliases = roleAliases[exp] || [];
+    if (aliases.indexOf(userRole) >= 0) return true;
+    // check if user's roles array contains expected
+    if (Array.isArray(currentUser.roles)) {
+      if (currentUser.roles.map(normalize).indexOf(exp) >= 0) return true;
+      for (const r of currentUser.roles) {
+        const nr = normalize(r);
+        if (nr === exp) return true;
+        if ((roleAliases[exp] || []).indexOf(nr) >= 0) return true;
+      }
+    }
+    return false;
+  };
 
   const filteredRoutes = routes.filter((r) => {
     if (!r.roles || r.roles.length === 0) return true;
     // if user still loading, hide role-restricted routes until we know
     if (userLoading) return false;
+    // if route requires admin explicitly, keep previous admin detection
     if (r.roles.indexOf("admin") >= 0) return isAdminUser(currentUser);
-    // fallback: allow if user has a matching role string in r.roles
     if (!currentUser) return false;
-    return r.roles.some((role) => String(currentUser.role) === String(role));
+    return r.roles.some((role) => userHasRole(role));
   });
+
+  // Debug: print resolved current user and which routes remained after filtering
+  // eslint-disable-next-line no-console
+  console.debug("[Sidenav] currentUser:", currentUser);
+  // eslint-disable-next-line no-console
+  console.debug("[Sidenav] filtered route keys:", filteredRoutes.map((r) => r.key));
 
   // If current user is admin, show only the specific admin menu items
   // (Veterinarios, Recepcionistas, Perfil, Cerrar sesión).
@@ -127,6 +162,31 @@ function Sidenav({ routes, ...rest }) {
   let finalRoutes = filteredRoutes;
   if (!userLoading && isAdminUser(currentUser)) {
     finalRoutes = filteredRoutes.filter((r) => adminAllowedKeys.indexOf(r.key) >= 0);
+  }
+
+  // Ensure owners (dueno) always see Mascotas and Consultas
+  if (!userLoading && userHasRole && userHasRole("dueno")) {
+    const ensureKeys = ["mascotas-layout", "consultas-global"];
+    ensureKeys.forEach((k) => {
+      if (!finalRoutes.some((r) => r.key === k)) {
+        const found = routes.find((r) => r.key === k);
+        if (found) finalRoutes = [...finalRoutes, found];
+      }
+    });
+  }
+
+  // For owners, move Mascotas and Consultas to the top section (before account titles)
+  if (!userLoading && userHasRole && userHasRole("dueno")) {
+    const topKeys = ["mascotas-layout", "consultas-global"];
+    const topRoutes = [];
+    const otherRoutes = [];
+    finalRoutes.forEach((r) => {
+      if (topKeys.includes(r.key)) topRoutes.push(r);
+      else otherRoutes.push(r);
+    });
+    // remove duplicates and keep original order for topRoutes based on topKeys
+    const orderedTop = topKeys.map((k) => topRoutes.find((tr) => tr.key === k)).filter(Boolean);
+    finalRoutes = [...orderedTop, ...otherRoutes];
   }
 
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
