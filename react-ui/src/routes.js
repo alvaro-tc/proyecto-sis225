@@ -46,6 +46,10 @@ import RegistrarConsulta from "layouts/registrar-consulta";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import SignOut from "layouts/authentication/sign-out";
+// 
+import ReceptionDesk from "components/Reception/ReceptionDesk";
+//
+
 // Clinic pages
 // Clinic pages removed (not needed)
 
@@ -159,7 +163,19 @@ const routes = [
     component: SignOut,
     noCollapse: true,
   },
+ //
+  {
+    type: "collapse",
+    name: "Recepción",
+    key: "recepcion",
+    route: "/recepcion",
+    icon: <CustomerSupport size="12px" />, 
+    component: ReceptionDesk,
+    noCollapse: true,
+    protected: false, 
+  },
 
+  // 
   // Clinic routes removed
 ];
 
