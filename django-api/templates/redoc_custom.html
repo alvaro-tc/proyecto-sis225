@@ -4,7 +4,41 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>API Docs — React Soft Dashboard</title>
-  <link rel="stylesheet" href="/static/redoc.css">
+  {% load static %}
+  <!-- Inline fallback of redoc.css to avoid /static/ 404 in some dev setups -->
+  <style>
+/* Begin embedded redoc.css */
+html,body { height:100%; }
+#redoc-container { padding: 24px 32px; }
+
+/* Improve code blocks and schema table legibility */
+.redoc-wrap .api-info { background: transparent }
+
+/* Tweak Redoc sidebar width and headers */
+.redoc .menu-content { max-width: 360px }
+
+/* General polished look */
+.redoc .menu-title { font-weight:700 }
+
+/* Ensure the docs scale nicely on narrow screens */
+@media (max-width:800px){
+  .container { margin:12px }
+}
+
+/* Examples section */
+.examples { padding:20px 28px; border-top:1px solid #eee; background:#fbfcfd }
+.examples h2 { margin:0 0 8px; font-size:18px }
+.examples .powered { margin:0 0 12px; color:#6b7280 }
+.example-grid { display:flex; gap:12px; margin-top:8px }
+.example-card { flex:1; background:#fff; border-radius:8px; padding:12px; box-shadow:0 6px 18px rgba(2,6,23,0.04) }
+.example-card h3 { margin:0 0 8px; font-size:14px }
+.example-code { background:#0b1220; color:#e6eef8; padding:12px; border-radius:6px; overflow:auto; font-family:Menlo,Monaco,monospace; font-size:13px }
+
+@media (max-width:900px){
+  .example-grid { flex-direction:column }
+}
+/* End embedded redoc.css */
+  </style>
   <style>
     /* Minimal inline fallback styling */
     body { margin:0; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#f6f8fa; }
@@ -18,21 +52,7 @@
   </style>
 </head>
 <body>
-  <div class="header">
-    <div class="logo">RS</div>
-    <div>
-      <div style="font-size:18px;font-weight:700">React Soft Dashboard API</div>
-      <div style="font-size:13px;opacity:.85">Documentation</div>
-    </div>
-  </div>
-
-  <div class="container">
-    <div class="intro">
-      <h1>API Documentation</h1>
-      <p>Interactive API docs powered by ReDoc. Use the controls on the right to explore endpoints.</p>
-    </div>
-    <div id="redoc-container" style="height:75vh"></div>
-  </div>
+  <div id="redoc-container" style="height:100vh"></div>
 
   <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
   <script>

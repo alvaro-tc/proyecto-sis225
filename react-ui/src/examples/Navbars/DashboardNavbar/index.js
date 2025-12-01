@@ -30,7 +30,6 @@ import Icon from "@mui/material/Icon";
 
 // Soft UI Dashboard React components
 import SuiBox from "components/SuiBox";
-import SuiInput from "components/SuiInput";
 
 // Soft UI Dashboard React example components
 import Breadcrumbs from "examples/Breadcrumbs";
@@ -55,12 +54,8 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const route = useLocation().pathname.split("/").slice(1);
 
   useEffect(() => {
-    // Setting the navbar type
-    if (fixedNavbar) {
-      setNavbarType("sticky");
-    } else {
-      setNavbarType("static");
-    }
+    // Force the navbar to be static on all screen sizes so it scrolls away when the user scrolls.
+    setNavbarType("static");
 
     // A function that sets the transparent state of the navbar.
     function handleTransparentNavbar() {
@@ -70,22 +65,16 @@ function DashboardNavbar({ absolute, light, isMini }) {
       });
     }
 
-    /** 
-     The event listener that's calling the handleTransparentNavbar function when 
-     scrolling the window.
-    */
     window.addEventListener("scroll", handleTransparentNavbar);
-
-    // Call the handleTransparentNavbar function to set the state with the initial value.
+    // initialize transparency state
     handleTransparentNavbar();
 
-    // Remove event listener on cleanup
-    return () => window.removeEventListener("scroll", handleTransparentNavbar);
+    return () => {
+      window.removeEventListener("scroll", handleTransparentNavbar);
+    };
   }, [dispatch, fixedNavbar]);
 
   const handleMiniSidenav = () => dispatch({ type: "MINI_SIDENAV", value: !miniSidenav });
-  const handleConfiguratorOpen = () =>
-    dispatch({ type: "OPEN_CONFIGURATOR", value: !openConfigurator });
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
 
@@ -140,13 +129,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
         </SuiBox>
         {isMini ? null : (
           <SuiBox customClass={classes.navbar_row}>
-            <SuiBox pr={1}>
-              <SuiInput
-                placeholder="Type here..."
-                withIcon={{ icon: "search", direction: "left" }}
-                customClass={classes.navbar_input}
-              />
-            </SuiBox>
+            {/* search input removed by request */}
             <SuiBox
               color={light ? "white" : "inherit"}
               customClass={classes.navbar_section_desktop}
@@ -159,13 +142,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
               >
                 <Icon>{miniSidenav ? "menu_open" : "menu"}</Icon>
               </IconButton>
-              <IconButton
-                color="inherit"
-                className={classes.navbar_icon_button}
-                onClick={handleConfiguratorOpen}
-              >
-                <Icon>settings</Icon>
-              </IconButton>
+              {/* settings icon removed */}
               <IconButton
                 color="inherit"
                 className={classes.navbar_icon_button}

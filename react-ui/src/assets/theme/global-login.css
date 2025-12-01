@@ -1,0 +1,19 @@
+/* Global styles for the login page only */
+
+body.login-global, #root.login-global {
+  background-image: linear-gradient(135deg, #5c5b78 0% 33%, #8f83b0 33% 66%, #5c5b78 66% 100%) !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  min-height: 100vh !important;
+}
+
+/* Ensure the authentication image containers do not show any image */
+.auth-cover-image, .auth-cover-image-box {
+  background-image: none !important;
+}
+
+/* Title and description forced to white when needed */
+.auth-cover-header, .auth-cover-description {
+  color: #ffffff !important;
+}

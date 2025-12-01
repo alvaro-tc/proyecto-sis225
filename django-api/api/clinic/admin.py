@@ -10,8 +10,8 @@ from .models import (
 
 @admin.register(Dueno)
 class DuenoAdmin(admin.ModelAdmin):
-    list_display = ("idDueno", "user", "nombre", "telefono", "registrado_por_recepcionista")
-    search_fields = ("user__email",)
+    list_display = ("idDueno", "nombre", "telefono", "registrado_por_recepcionista")
+    search_fields = ("nombre",)
 
 
 @admin.register(Recepcionista)
@@ -33,7 +33,7 @@ class MascotaAdmin(admin.ModelAdmin):
 
 @admin.register(Consulta)
 class ConsultaAdmin(admin.ModelAdmin):
-    list_display = ("idConsulta", "motivo", "veterinario", "fecha", "asistio")
+    list_display = ("idConsulta", "motivo", "veterinario", "fecha")
     search_fields = ("motivo", "descripcion")
 
 

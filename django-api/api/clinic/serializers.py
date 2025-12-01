@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 from .models import (
     Dueno,
     Recepcionista,
@@ -22,47 +24,23 @@ class UserNestedSerializer(serializers.ModelSerializer):
 
 
 class DuenoSerializer(serializers.ModelSerializer):
-    # include nested user info for convenience in frontend
-    user = UserNestedSerializer(read_only=True)
-
     class Meta:
         model = Dueno
-        fields = ("idDueno", "user", "nombre", "telefono", "registrado_por_recepcionista")
+        fields = ("idDueno", "nombre", "telefono", "registrado_por_recepcionista")
 
 
 class DuenoCreateSerializer(serializers.Serializer):
-    # fields to create user+dueno together (username removed; derived from email/nombre)
-    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
-    telefono = serializers.CharField(max_length=50, required=False, allow_null=True, allow_blank=True)
     nombre = serializers.CharField(max_length=255, required=False, allow_null=True, allow_blank=True)
+    telefono = serializers.CharField(max_length=50, required=False, allow_null=True, allow_blank=True)
     registrado_por_recepcionista = serializers.IntegerField(required=False, allow_null=True)
 
-    def validate(self, data):
-        # ensure email not taken
-        email = data.get("email")
-        if email and User.objects.filter(email=email).exists():
-            raise serializers.ValidationError({"email": "Email already taken"})
-        return data
-
     def create(self, validated_data):
-        email = validated_data.get("email")
-        password = validated_data.get("password")
-        telefono = validated_data.get("telefono", None)
         nombre = validated_data.get("nombre", None)
+        telefono = validated_data.get("telefono", None)
         recep_id = validated_data.get("registrado_por_recepcionista", None)
 
-        # create user using email as identifier and create Dueno profile
-        user = User.objects.create_user(email=email, password=password)
-        # persist telefono on User when provided
-        if telefono:
-            try:
-                user.telefono = telefono
-                user.save()
-            except Exception:
-                pass
-        default_name = nombre or (email.split("@")[0] if email else "")
-        dueno = Dueno.objects.create(user=user, telefono=telefono, nombre=default_name)
+        default_name = nombre or ""
+        dueno = Dueno.objects.create(nombre=default_name, telefono=telefono)
 
         if recep_id:
             try:
@@ -76,32 +54,15 @@ class DuenoCreateSerializer(serializers.Serializer):
 
 
 class DuenoSelfRegisterSerializer(serializers.Serializer):
-    # minimal fields for a dueno to self-register
-    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
-    telefono = serializers.CharField(max_length=50, required=False, allow_null=True, allow_blank=True)
+    # minimal fields to create a Dueno (no linked User)
     nombre = serializers.CharField(max_length=255, required=False, allow_null=True, allow_blank=True)
-
-    def validate(self, data):
-        email = data.get("email")
-        if email and User.objects.filter(email=email).exists():
-            raise serializers.ValidationError({"email": "Email already taken"})
-        return data
+    telefono = serializers.CharField(max_length=50, required=False, allow_null=True, allow_blank=True)
 
     def create(self, validated_data):
-        email = validated_data.get("email")
-        password = validated_data.get("password")
-        telefono = validated_data.get("telefono", None)
         nombre = validated_data.get("nombre", None)
-        user = User.objects.create_user(email=email, password=password)
-        if telefono:
-            try:
-                user.telefono = telefono
-                user.save()
-            except Exception:
-                pass
-        default_name = nombre or (email.split("@")[0] if email else "")
-        dueno = Dueno.objects.create(user=user, telefono=telefono, nombre=default_name)
+        telefono = validated_data.get("telefono", None)
+        default_name = nombre or ""
+        dueno = Dueno.objects.create(nombre=default_name, telefono=telefono)
         return dueno
 
 
@@ -159,6 +120,9 @@ class RecepcionistaSerializer(serializers.ModelSerializer):
             pass
         return None
 
+    # Annotate schema type for spectacular
+    get_telefono = extend_schema_field(OpenApiTypes.STR)(get_telefono)
+
 
 class VeterinarioSerializer(serializers.ModelSerializer):
     user = UserNestedSerializer(read_only=True)
@@ -176,44 +140,18 @@ class VeterinarioSerializer(serializers.ModelSerializer):
             pass
         return None
 
+    # Annotate schema type for spectacular
+    get_telefono = extend_schema_field(OpenApiTypes.STR)(get_telefono)
+
 
 class DuenoUpdateSerializer(serializers.ModelSerializer):
-    # allow updating profile fields plus linked user's email/password/telefono
-    email = serializers.EmailField(required=False, write_only=True)
-    password = serializers.CharField(required=False, write_only=True)
-    telefono = serializers.CharField(required=False, write_only=True)
-
     class Meta:
         model = Dueno
-        fields = ("nombre", "telefono", "email", "password")
+        fields = ("nombre", "telefono")
 
     def update(self, instance, validated_data):
-        # Extract potential user fields
-        email = validated_data.pop("email", None)
-        password = validated_data.pop("password", None)
-        telefono = validated_data.get("telefono", None)
-
-        # Update Dueno instance fields
+        # Simple update: Dueno is not linked to User anymore
         instance = super().update(instance, validated_data)
-
-        # Update linked user
-        try:
-            user = instance.user
-            changed = False
-            if email and user:
-                user.email = email
-                changed = True
-            if password and user:
-                user.set_password(password)
-                changed = True
-            if telefono is not None and user:
-                user.telefono = telefono
-                changed = True
-            if changed:
-                user.save()
-        except Exception:
-            pass
-
         return instance
 
 
@@ -376,9 +314,32 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 
 class MascotaSerializer(serializers.ModelSerializer):
+    dueno_nombre = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Mascota
-        fields = "__all__"
+        fields = (
+            "idMascota",
+            "nombre",
+            "especie",
+            "raza",
+            "edad",
+            "dueno",
+            "dueno_nombre",
+        )
+
+    def get_dueno_nombre(self, obj):
+        try:
+            if obj.dueno:
+                return getattr(obj.dueno, "nombre", None)
+        except Exception:
+            pass
+        return None
+
+    # Annotate schema type for spectacular
+    from drf_spectacular.types import OpenApiTypes
+    from drf_spectacular.utils import extend_schema_field
+    get_dueno_nombre = extend_schema_field(OpenApiTypes.STR)(get_dueno_nombre)
 
 
 class ConsultaSerializer(serializers.ModelSerializer):
@@ -387,15 +348,10 @@ class ConsultaSerializer(serializers.ModelSerializer):
     mascota_id = serializers.PrimaryKeyRelatedField(
         queryset=Mascota.objects.all(), source="mascota", write_only=True, required=False
     )
-    # accept dueno id for appointment-type records
-    dueno = serializers.PrimaryKeyRelatedField(queryset=Dueno.objects.all(), required=False, allow_null=True)
     hora = serializers.TimeField(required=False, allow_null=True)
     # clinical fields
     sintomas = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-    diagnostico = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     tratamiento = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-    notas = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-    asistio = serializers.BooleanField(required=False)
 
     class Meta:
         model = Consulta
@@ -406,12 +362,8 @@ class ConsultaSerializer(serializers.ModelSerializer):
             "fecha",
             "hora",
             "sintomas",
-            "diagnostico",
             "tratamiento",
-            "notas",
-            "asistio",
             "veterinario",
-            "dueno",
             "mascota",
             "mascota_id",
         )
@@ -429,10 +381,8 @@ class ConsultaSerializer(serializers.ModelSerializer):
 
 
 class ComprobanteSerializer(serializers.ModelSerializer):
-    class Meta:
-        # Comprobante model removed; keep placeholder if needed later
-        model = None
-        fields = []
+    # Comprobante removed — placeholder removed
+    pass
 
 
 class MeSummarySerializer(serializers.Serializer):

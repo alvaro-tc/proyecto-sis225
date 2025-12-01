@@ -42,7 +42,9 @@ import HistorialVeterinario from "layouts/historial-veterinario";
 import RecepcionistasLayout from "layouts/recepcionistas";
 import Billing from "layouts/billing";
 import Profile from "layouts/profile";
+import DuenosLayout from "layouts/duenos";
 import RegistrarConsulta from "layouts/registrar-consulta";
+import RegistroConsulta from "layouts/registro-consulta";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import SignOut from "layouts/authentication/sign-out";
@@ -66,7 +68,7 @@ const routes = [
     component: MascotasLayout,
     noCollapse: true,
     protected: true,
-    roles: ["dueno", "admin", "recepcionista"],
+    roles: ["recepcionista", "admin"],
   },
   {
     type: "collapse",
@@ -92,27 +94,39 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "Dueños",
+    key: "duenos",
+    route: "/duenos",
+    icon: <Office size="12px" />,
+    component: DuenosLayout,
+    noCollapse: true,
+    protected: true,
+    roles: ["recepcionista"],
+  },
+  {
+    type: "collapse",
+    name: "Registro Consulta",
+    key: "registro-consulta",
+    route: "/registro-consulta",
+    icon: <CreditCard size="12px" />,
+    component: RegistroConsulta,
+    noCollapse: true,
+    protected: true,
+    roles: ["recepcionista"],
+  },
+  {
+    type: "collapse",
     name: "Consultas",
     key: "consultas-global",
     route: "/consultas",
-    icon: <CreditCard size="12px" />,
-    component: Billing,
-    noCollapse: true,
-    protected: true,
-    roles: ["dueno", "admin", "recepcionista"],
-  },
-
-  {
-    type: "collapse",
-    name: "Registrar Consulta",
-    key: "registrar-consulta",
-    route: "/registrar-consulta",
     icon: <CreditCard size="12px" />,
     component: RegistrarConsulta,
     noCollapse: true,
     protected: true,
     roles: ["veterinario"],
   },
+
+  
   {
     type: "none",
     name: "Historial Veterinario",

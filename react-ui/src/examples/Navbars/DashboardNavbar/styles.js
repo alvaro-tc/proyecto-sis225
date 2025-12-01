@@ -30,8 +30,8 @@ export default makeStyles(
           transparentNavbar || absolute ? "none" : navbarBoxShadow,
         backdropFilter: ({ transparentNavbar, absolute }) =>
           transparentNavbar || absolute ? "none" : `saturate(200%) blur(${pxToRem(30)})`,
-        backgroundColor: ({ transparentNavbar, absolute }) =>
-          transparentNavbar || absolute ? transparent.main : rgba(white.main, 0.8),
+        // Always keep the navbar background transparent to avoid switching to white
+        backgroundColor: transparent.main,
 
         color: ({ transparentNavbar, light }) => {
           let color;
@@ -48,6 +48,7 @@ export default makeStyles(
         },
         top: ({ absolute }) => (absolute ? 0 : pxToRem(12)),
         minHeight: pxToRem(75),
+        
         display: "grid",
         alignItems: "center",
         borderRadius: borderRadius.xl,
@@ -73,6 +74,8 @@ export default makeStyles(
             padding: `${pxToRem(4)} ${pxToRem(16)}`,
           },
         },
+
+        
       },
 
       navbar_container: {

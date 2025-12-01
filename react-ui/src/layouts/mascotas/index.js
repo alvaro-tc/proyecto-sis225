@@ -19,11 +19,12 @@ import Card from "@mui/material/Card";
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import ModalMascota from "./ModalMascota";
 import ModalEditarMascota from "./ModalEditarMascota";
+import ModalEliminarMascota from "./ModalEliminarMascota";
 import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import { useHistory } from "react-router-dom";
+import DeleteIcon from "@mui/icons-material/Delete";
 import SuiBox from "components/SuiBox";
+import SuiAvatar from "components/SuiAvatar";
 import SuiTypography from "components/SuiTypography";
 import SuiButton from "components/SuiButton";
 import { useAuth } from "../../auth-context/auth.context";
@@ -42,7 +43,6 @@ import petsIcon from "assets/images/pets.svg";
 function Mascotas() {
   const classes = styles();
   const auth = useAuth(); // moved to top-level hook usage
-  const history = useHistory();
 
   // modal/form delegated to ModalMascota component
 
@@ -51,12 +51,15 @@ function Mascotas() {
   // new: track fetched pets to show empty message
   const [petsCount, setPetsCount] = useState(null);
   const [loadingPets, setLoadingPets] = useState(true);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
 
   useEffect(() => {
     let mounted = true;
     setLoadingPets(true);
     clinicApi
-      .list("mascotas/user")
+      .list("mascotas/with-dueno")
       .then((data) => {
         if (!mounted) return;
         if (Array.isArray(data)) setPetsCount(data.length);
@@ -76,6 +79,7 @@ function Mascotas() {
 
   const columns = [
     { name: "Nombre", align: "left" },
+    { name: "Dueno", align: "left" },
     { name: "Raza", align: "left" },
     { name: "Edad", align: "center" },
     { name: "action", align: "center" },
@@ -87,8 +91,19 @@ function Mascotas() {
       const especie = (m.especie || "").toLowerCase();
       let img = petsIcon;
 
+      // Resolve owner name defensively. Backend may return `dueno` as object, or as name fields, or as id.
+      const ownerName =
+        (m.dueno && (m.dueno.nombre || m.dueno.name)) ||
+        m.dueno_nombre ||
+        m.duenoName ||
+        (m.owner && (m.owner.nombre || m.owner.name)) ||
+        (typeof m.dueno === "string" && m.dueno) ||
+        "-";
+      const ownerInitial = ownerName && String(ownerName).trim().length > 0 ? String(ownerName).trim()[0].toUpperCase() : "?";
+
       return {
         Nombre: [img, m.nombre || "-"],
+        Dueno: [<SuiAvatar size="sm" variant="rounded">{ownerInitial}</SuiAvatar>, ownerName],
         Raza: (
           <SuiBox display="flex" flexDirection="column">
             <SuiTypography variant="button" fontWeight="medium" textColor="dark" sx={{ fontSize: "0.95rem" }}>
@@ -101,12 +116,12 @@ function Mascotas() {
         ),
         Edad: m.edad != null ? String(m.edad) : "",
         action: (
-          <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", alignItems: "center" }}>
             <IconButton size="small" onClick={() => openEdit(m.idMascota || m.id)}>
               <EditIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" onClick={() => history.push(`/historial-veterinario/${m.idMascota || m.id}`)}>
-              <VisibilityIcon fontSize="small" />
+            <IconButton size="small" onClick={() => confirmDelete(m)} style={{ marginLeft: 8 }}>
+              <DeleteIcon fontSize="small" />
             </IconButton>
           </div>
         ),
@@ -118,22 +133,35 @@ function Mascotas() {
   async function handleSaveMascota(data) {
     const especie = data.especieSel === "Otro" ? data.especieOtro : data.especieSel;
     if (!data.nombre || !especie) throw new Error("Nombre y especie son obligatorios");
+    // prefer dueno provided by modal; fallback to authenticated user if available
+    let duenoId = null;
+    if (data.dueno) {
+      if (typeof data.dueno === "object") {
+        duenoId = data.dueno.id || data.dueno.idDueno || data.dueno.pk || data.dueno.dueno || null;
+      } else {
+        duenoId = Number(data.dueno);
+      }
+    }
+    if (!duenoId) {
+      try {
+        const user = auth && auth.user ? auth.user : null;
+        if (user) {
+          const possibleId = user.idDueno || user.id || user.user || user.pk || null;
+          if (possibleId) duenoId = possibleId;
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+    if (!duenoId) throw new Error("Debes seleccionar un dueño");
+
     const payload = {
       nombre: data.nombre,
       especie,
       raza: data.raza || null,
       edad: data.edad !== "" && data.edad != null ? Number(data.edad) : null,
+      dueno: Number(duenoId),
     };
-
-    try {
-      const user = auth && auth.user ? auth.user : null;
-      if (user) {
-        const possibleId = user.idDueno || user.id || user.user || user.pk || null;
-        if (possibleId) payload.dueno = possibleId;
-      }
-    } catch (err) {
-      // ignore
-    }
 
     const res = await clinicApi.create("mascotas", payload);
     setReload((r) => r + 1);
@@ -179,6 +207,33 @@ function Mascotas() {
     return res;
   }
 
+  function confirmDelete(m) {
+    setItemToDelete(m);
+    setDeleteError(null);
+    setDeleteOpen(true);
+  }
+
+  async function performDelete() {
+    if (!itemToDelete) return;
+    const id = itemToDelete.idMascota || itemToDelete.id;
+    try {
+      await clinicApi.remove("mascotas", id);
+      setDeleteOpen(false);
+      setItemToDelete(null);
+      setReload((r) => r + 1);
+    } catch (err) {
+      console.error("Error eliminando mascota:", err);
+      let msg = "No fue posible eliminar la mascota.";
+      if (err && err.body) {
+        if (err.body.message) msg = err.body.message;
+        else if (typeof err.body === "string") msg = err.body;
+        else if (err.body._raw) msg = err.body._raw;
+      }
+      setDeleteError(msg || "La mascota está ligada a una o más citas y no puede eliminarse.");
+      // Keep modal open and show the error message
+    }
+  }
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -186,7 +241,7 @@ function Mascotas() {
         <SuiBox mb={3}>
           <Card>
             <SuiBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
-              <SuiTypography variant="h6">Tus Mascotas</SuiTypography>
+              <SuiTypography variant="h6">Mascotas</SuiTypography>
               <SuiButton variant="gradient" buttonColor="dark" onClick={() => setOpen(true)}>
                 Agregar
               </SuiButton>
@@ -213,7 +268,7 @@ function Mascotas() {
                   </SuiButton>
                 </SuiBox>
               ) : (
-                <Table columns={columns} apiResource="mascotas/user" rowMapper={rowMapper} />
+                <Table columns={columns} apiResource="mascotas/with-dueno" rowMapper={rowMapper} />
               )}
             </SuiBox>
           </Card>
@@ -223,6 +278,18 @@ function Mascotas() {
         <ModalMascota open={open} onClose={() => setOpen(false)} onSave={handleSaveMascota} />
         {/* Modal de edición */}
         <ModalEditarMascota open={editOpen} onClose={() => setEditOpen(false)} onSave={handleUpdateMascota} initialData={editingData} />
+        {/* Modal para confirmar/eliminar mascota (muestra error si está ligada a citas) */}
+        <ModalEliminarMascota
+          open={deleteOpen}
+          onClose={() => {
+            setDeleteOpen(false);
+            setItemToDelete(null);
+            setDeleteError(null);
+          }}
+          onConfirm={performDelete}
+          item={itemToDelete}
+          errorMessage={deleteError}
+        />
 
       </SuiBox>
       <Footer />

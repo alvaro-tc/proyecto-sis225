@@ -18,6 +18,8 @@ import PropTypes from "prop-types";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 // Soft UI Dashboard React components
 import SuiBox from "components/SuiBox";
@@ -32,28 +34,39 @@ import Footer from "layouts/authentication/components/Footer";
 
 // Custom styles for the Baise
 import styles from "layouts/authentication/components/CoverLayout/styles";
+import loginDog from "assets/images/login-dog.png";
 
 // Soft UI Dashboard React page layout routes
 import routes from "routes";
 
 function CoverLayout({ color, header, title, description, image, top, children }) {
   const classes = styles({ image });
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const titleStyle = color === "white" ? { color: "#ffffff" } : {};
 
   return (
-    <PageLayout background="white">
-      <DefaultNavbar routes={routes} />
+    <PageLayout background="">
+      <DefaultNavbar routes={routes} transparent light />
       <Grid container justifyContent="center" className={classes.coverLayout}>
-        <Grid item xs={11} sm={8} md={5} xl={3}>
+        <Grid item xs={11} sm={8} md={6} xl={4}>
           <SuiBox mt={top}>
             <SuiBox pt={3} px={3}>
               {!header ? (
                 <>
                   <SuiBox mb={1}>
-                    <SuiTypography variant="h3" fontWeight="bold" textColor={color} textGradient>
+                    <SuiTypography
+                      variant="h3"
+                      fontWeight="bold"
+                      textColor={color}
+                      textGradient={color !== "white"}
+                      style={titleStyle}
+                    >
                       {title}
                     </SuiTypography>
                   </SuiBox>
-                  <SuiTypography variant="body2" fontWeight="regular" textColor="text">
+                  <SuiTypography variant="body2" fontWeight="regular" textColor="text" style={titleStyle}>
                     {description}
                   </SuiTypography>
                 </>
@@ -64,16 +77,33 @@ function CoverLayout({ color, header, title, description, image, top, children }
             <SuiBox p={3}>{children}</SuiBox>
           </SuiBox>
         </Grid>
-        <Grid item xs={12} md={5}>
-          <SuiBox
-            display={{ xs: "none", md: "block" }}
-            position="relative"
-            right={{ md: "-12rem", xl: "-16rem" }}
-            customClass={classes.coverLayout_imageBox}
-          >
-            <SuiBox customClass={classes.coverLayout_image} />
-          </SuiBox>
-        </Grid>
+        {image && image !== "DIAGONAL_GRADIENT" ? (
+          <Grid item xs={12} md={5}>
+            <SuiBox
+              display={{ xs: "none", md: "block" }}
+              position="relative"
+              right={{ md: "-12rem", xl: "-16rem" }}
+              customClass={classes.coverLayout_imageBox}
+            >
+              <SuiBox customClass={classes.coverLayout_image} />
+            </SuiBox>
+          </Grid>
+        ) : null}
+
+        {image === "DIAGONAL_GRADIENT" && !isMobile ? (
+          <Grid item xs={12} md={5}>
+            <SuiBox
+              display={{ xs: "none", md: "block" }}
+              position="relative"
+              right={{ md: "-2rem", xl: "-4rem" }}
+              customClass={classes.coverLayout_dogBox}
+            >
+              <SuiBox customClass={classes.coverLayout_dogCircle}>
+                <img src={loginDog} alt="dog" className={classes.coverLayout_dogImage} />
+              </SuiBox>
+            </SuiBox>
+          </Grid>
+        ) : null}
       </Grid>
       <Footer />
     </PageLayout>
@@ -85,7 +115,7 @@ CoverLayout.defaultProps = {
   header: "",
   title: "",
   description: "",
-  color: "info",
+  color: "white",
   top: 20,
 };
 
@@ -100,6 +130,7 @@ CoverLayout.propTypes = {
     "error",
     "dark",
     "light",
+    "white",
   ]),
   header: PropTypes.node,
   title: PropTypes.string,

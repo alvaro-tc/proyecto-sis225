@@ -102,7 +102,7 @@ export default function ReusableModal({ open, onClose, title, fields, initialVal
       </DialogTitle>
       <DialogContent sx={{ pt: 2 }}>
         <form id="reusable-modal-form" onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
+          <Grid container spacing={1}>
             {(fields || []).map((f) => (
               <Grid item xs={12} sm={12} key={f.name}>
                 {f.type === "select" ? (

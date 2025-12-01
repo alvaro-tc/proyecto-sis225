@@ -45,8 +45,8 @@ export default {
   },
 
   primary: {
-    main: "#cb0c9f",
-    focus: "#ad0a87",
+    main: "#aba8f4",
+    focus: "#8f8be6",
   },
 
   secondary: {
@@ -55,8 +55,8 @@ export default {
   },
 
   info: {
-    main: "#17c1e8",
-    focus: "#3acaeb",
+    main: "#b6bee7",
+    focus: "#9fa6d9",
   },
 
   success: {
@@ -107,8 +107,8 @@ export default {
     },
 
     info: {
-      main: "#2152ff",
-      state: "#21d4fd",
+      main: "#9fa6d9",
+      state: "#b6bee7",
     },
 
     success: {
@@ -292,7 +292,7 @@ export default {
   },
 
   inputColors: {
-    borderColor: { main: "#d2d6da", focus: "#35d1f5" },
+    borderColor: { main: "#6b6c70", focus: "#35d1f5" },
     boxShadow: "#81e3f9",
     error: "#fd5c70",
     success: "#66d432",

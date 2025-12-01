@@ -1,7 +1,8 @@
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import action
-from drf_spectacular.utils import extend_schema_view, extend_schema
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 from datetime import date, datetime
 from django.db.models import Q
 from .models import (
@@ -10,7 +11,6 @@ from .models import (
     Mascota,
     Consulta,
     Veterinario,
-    Comprobante,
 )
 from .serializers import (
     DuenoSerializer,
@@ -23,9 +23,9 @@ from .serializers import (
     VeterinarioSerializer,
     VeterinarioCreateSerializer,
     RecepcionistaCreateSerializer,
-    ComprobanteSerializer,
 )
 from rest_framework.response import Response
+from rest_framework import serializers
 
 
 @extend_schema_view(
@@ -81,129 +81,60 @@ class DuenoViewSet(viewsets.ModelViewSet):
         GET  -> returns the Dueno profile
         PUT/PATCH -> updates the Dueno profile (only `nombre` and `telefono` for owners)
         """
-        user = request.user
-        if not hasattr(user, "dueno_profile") or user.dueno_profile is None:
-            return Response({}, status=200)
+        # Dueno is no longer linked to a User account. This `me` endpoint is not applicable.
+        from rest_framework.exceptions import NotAcceptable
 
-        dueno = user.dueno_profile
-
-        if request.method == "GET":
-            serializer = DuenoSerializer(dueno, context={"request": request})
-            return Response(serializer.data, status=200)
-
-        # Update path
-        from .serializers import DuenoUpdateSerializer
-
-        partial = request.method == "PATCH"
-        serializer = DuenoUpdateSerializer(dueno, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        out = DuenoSerializer(dueno, context={"request": request})
-        return Response(out.data, status=200)
+        raise NotAcceptable({"detail": "Dueno is not a user account; use owner CRUD endpoints instead."})
 
     @extend_schema(responses=MeSummarySerializer, tags=["Dueños"], summary="Resumen del dueño autenticado")
     @action(detail=False, methods=["get"], url_path="me/summary", permission_classes=[IsAuthenticated])
     def me_summary(self, request):
         """Return combined data for the authenticated owner: dueno profile, mascotas and 5 recent citas."""
+        # Since Dueno objects are no longer linked to User accounts, this endpoint will
+        # provide a recepcionista/veterinario/admin oriented summary when applicable.
         user = request.user
-        # Determine role: dueno, recepcionista, veterinario, admin, or other
-        role = None
-        if hasattr(user, "dueno_profile") and user.dueno_profile is not None:
-            role = "dueno"
-        elif hasattr(user, "recepcionista_profile") and user.recepcionista_profile is not None:
-            role = "recepcionista"
-        elif user.is_superuser:
-            role = "admin"
-        else:
-            # try to heuristically detect a Veterinario linked by name
-            try:
-                # try matching vet by the local-part of the user's email (fallback)
-                email = getattr(user, "email", "") or ""
-                local = email.split("@")[0] if "@" in email else email
-                vet = Veterinario.objects.filter(nombre__iexact=local).first()
-            except Exception:
-                vet = None
-            if vet:
-                role = "veterinario"
-
-        # If the requester is a dueno -> return their own dueno summary
-        if role == "dueno":
-            dueno = user.dueno_profile
-            dueno_data = DuenoSerializer(dueno, context={"request": request}).data
-            mascotas_qs = Mascota.objects.filter(dueno=dueno)
-            mascotas_data = MascotaSerializer(mascotas_qs, many=True, context={"request": request}).data
-            # upcoming consultas: not attended and fecha >= today (consider hora if present)
-            today = date.today()
-            now_time = datetime.now().time()
-            citas_qs = Consulta.objects.filter(dueno=dueno, asistio=False).filter(
-                Q(fecha__gt=today) | Q(fecha=today, hora__gte=now_time) | Q(hora__isnull=True)
-            ).order_by("fecha", "hora")[:5]
-            citas_data = ConsultaSerializer(citas_qs, many=True, context={"request": request}).data
-            return Response({"role": "dueno", "dueno": dueno_data, "mascotas": mascotas_data, "citas": citas_data}, status=200)
-
-        # For recepcionista / veterinario / admin: allow querying a specific dueño via ?dueno_id=
-        dueno_id = request.query_params.get("dueno_id") or request.query_params.get("target_dueno")
-        if dueno_id and role in ("recepcionista", "veterinario", "admin"):
-            try:
-                dueno = Dueno.objects.get(pk=dueno_id)
-            except Dueno.DoesNotExist:
-                from rest_framework.exceptions import NotFound
-
-                raise NotFound({"detail": "Dueno not found"})
-
-            dueno_data = DuenoSerializer(dueno, context={"request": request}).data
-            mascotas_qs = Mascota.objects.filter(dueno=dueno)
-            mascotas_data = MascotaSerializer(mascotas_qs, many=True, context={"request": request}).data
-            citas_qs = Consulta.objects.filter(dueno=dueno).order_by("-fecha")[:5]
-            citas_data = ConsultaSerializer(citas_qs, many=True, context={"request": request}).data
-            return Response({"role": role, "requested_for": "dueno", "dueno": dueno_data, "mascotas": mascotas_data, "citas": citas_data}, status=200)
-
-        # Otherwise return a role-specific summary/profile for the authenticated user
         from .serializers import RecepcionistaSerializer, VeterinarioSerializer
 
-        if role == "recepcionista":
+        if hasattr(user, "recepcionista_profile") and user.recepcionista_profile is not None:
             profile = RecepcionistaSerializer(user.recepcionista_profile, context={"request": request}).data
             return Response({"role": "recepcionista", "profile": profile, "mascotas": [], "citas": []}, status=200)
 
-        if role == "veterinario":
-            # If a Veterinario matched earlier, return its data
-            vet_obj = vet if "vet" in locals() else None
-            vet_data = VeterinarioSerializer(vet_obj, context={"request": request}).data if vet_obj else {}
+        if hasattr(user, "veterinario_profile") and user.veterinario_profile is not None:
+            vet = user.veterinario_profile
+            vet_data = VeterinarioSerializer(vet, context={"request": request}).data
             return Response({"role": "veterinario", "profile": vet_data, "mascotas": [], "citas": []}, status=200)
 
-        if role == "admin":
-            # Return basic admin info
+        if user.is_superuser:
             return Response({"role": "admin", "profile": {"id": user.id, "email": user.email}}, status=200)
 
-        # Fallback: unauthenticated or no role
-        return Response({"role": "unknown", "dueno": {}, "mascotas": [], "citas": []}, status=200)
+        return Response({"role": "unknown", "profile": {}, "mascotas": [], "citas": []}, status=200)
 
     @extend_schema(tags=["Dueños"], summary="Citas pasadas atendidas del dueño autenticado")
     @action(detail=False, methods=["get"], url_path="me/past-citas", permission_classes=[IsAuthenticated])
     def me_past_citas(self, request):
-        user = request.user
-        if not hasattr(user, "dueno_profile") or user.dueno_profile is None:
+        # Dueno is no longer a User. Accept a `dueno_id` query param to fetch past consultas for an owner.
+        dueno_id = request.query_params.get("dueno_id")
+        if not dueno_id:
             return Response([], status=200)
-        dueno = user.dueno_profile
+
         today = date.today()
         now_time = datetime.now().time()
-        # Past and attended: fecha < today OR (fecha == today and hora < now)
         past_q = Q(fecha__lt=today) | (Q(fecha=today) & Q(hora__lt=now_time))
-        consultas = Consulta.objects.filter(dueno=dueno, asistio=True).filter(past_q).order_by("-fecha", "-hora")
+        consultas = Consulta.objects.filter(mascota__dueno_id=dueno_id).filter(past_q).order_by("-fecha", "-hora")
         serializer = ConsultaSerializer(consultas, many=True, context={"request": request})
         return Response(serializer.data, status=200)
 
     @extend_schema(tags=["Dueños"], summary="Citas futuras no atendidas del dueño autenticado")
     @action(detail=False, methods=["get"], url_path="me/future-citas", permission_classes=[IsAuthenticated])
     def me_future_citas(self, request):
-        user = request.user
-        if not hasattr(user, "dueno_profile") or user.dueno_profile is None:
+        dueno_id = request.query_params.get("dueno_id")
+        if not dueno_id:
             return Response([], status=200)
-        dueno = user.dueno_profile
+
         today = date.today()
         now_time = datetime.now().time()
         future_q = Q(fecha__gt=today) | (Q(fecha=today) & Q(hora__gte=now_time)) | Q(hora__isnull=True)
-        consultas = Consulta.objects.filter(dueno=dueno, asistio=False).filter(future_q).order_by("fecha", "hora")
+        consultas = Consulta.objects.filter(mascota__dueno_id=dueno_id).filter(future_q).order_by("fecha", "hora")
         serializer = ConsultaSerializer(consultas, many=True, context={"request": request})
         return Response(serializer.data, status=200)
 
@@ -487,45 +418,66 @@ class VeterinarioViewSet(viewsets.ModelViewSet):
 class MascotaViewSet(viewsets.ModelViewSet):
     queryset = Mascota.objects.all()
     serializer_class = MascotaSerializer
-    # Only authenticated users can create a Mascota; owners will create for themselves
+    # Allow authenticated users to create mascotas by providing a `dueno` id
     permission_classes = (IsAuthenticated,)
+    http_method_names = ["get", "post", "put", "patch", "delete", "head", "options"]
 
     def create(self, request, *args, **kwargs):
-        user = request.user
-        # ensure the authenticated user has a Dueno profile
-        if not hasattr(user, "dueno_profile"):
-            # Auto-create a Dueno profile for the authenticated user so they can
-            # create mascotas right away (self-registration flow)
-            from .models import Dueno
-
-            default_nombre = ""
-            if getattr(user, "email", None):
-                default_nombre = user.email.split("@")[0]
-            dueno = Dueno.objects.create(user=user, nombre=default_nombre)
-        else:
-            dueno = user.dueno_profile
-
+        # Creating a Mascota requires an explicit `dueno` (owner) id in the payload
+        # and must be performed by a recepcionista (or superuser).
         data = request.data.copy()
-        # set dueno to the logged in owner's PK so frontend doesn't need to send it
-        data["dueno"] = dueno.pk
+        if not data.get("dueno"):
+            from rest_framework.exceptions import ValidationError
+
+            raise ValidationError({"dueno": "dueno id is required when creating a mascota"})
+
+        user = request.user
+        is_recepcionista = hasattr(user, "recepcionista_profile") and user.recepcionista_profile is not None
+        if not (is_recepcionista or user.is_superuser):
+            from rest_framework.exceptions import PermissionDenied
+
+            raise PermissionDenied({"detail": "Only recepcionistas or admin can create mascotas."})
 
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         mascota = serializer.save()
+
+        # Record who registered the mascota (recepcionista)
+        try:
+            if is_recepcionista:
+                mascota.registrada_por_recepcionista = user.recepcionista_profile
+                mascota.save()
+        except Exception:
+            pass
+
         out_serializer = MascotaSerializer(mascota, context={"request": request})
         return Response(out_serializer.data, status=201)
 
     @action(detail=False, methods=["get"], url_path="user", permission_classes=[IsAuthenticated])
     def user(self, request):
-        """Return mascotas for the logged-in owner (based on request.user.dueno_profile)."""
+        """Return mascotas for a given owner. Use `?dueno_id=<id>` to fetch an owner's mascotas."""
         user = request.user
-        if not hasattr(user, "dueno_profile") or user.dueno_profile is None:
-            # No dueno profile -> return empty list
-            return Response([], status=200)
+        # Dueno objects are not linked to User accounts. Support fetching by `dueno_id` query param.
+        dueno_id = request.query_params.get("dueno_id")
+        if dueno_id:
+            mascotas = self.queryset.filter(dueno_id=dueno_id)
+            serializer = self.get_serializer(mascotas, many=True, context={"request": request})
+            return Response(serializer.data, status=200)
 
-        dueno = user.dueno_profile
-        mascotas = self.queryset.filter(dueno=dueno)
-        serializer = self.get_serializer(mascotas, many=True, context={"request": request})
+        # If the requester is staff, return all mascotas as a fallback
+        if hasattr(user, "recepcionista_profile") or user.is_superuser:
+            mascotas = self.queryset.all()
+            serializer = self.get_serializer(mascotas, many=True, context={"request": request})
+            return Response(serializer.data, status=200)
+
+        return Response([], status=200)
+
+    @extend_schema(tags=["Mascotas"], summary="Listar mascotas con nombre de dueño")
+    @action(detail=False, methods=["get"], url_path="with-dueno", permission_classes=[IsAuthenticated])
+    def with_dueno(self, request):
+        """Return all mascotas including their owner's `nombre` as `dueno_nombre`."""
+        qs = self.queryset.select_related("dueno").all()
+        serializer = self.get_serializer(qs, many=True, context={"request": request})
         return Response(serializer.data, status=200)
 
     def _is_allowed_to_modify(self, user, mascota):
@@ -534,8 +486,8 @@ class MascotaViewSet(viewsets.ModelViewSet):
             return True
         if hasattr(user, "recepcionista_profile"):
             return True
-        if hasattr(user, "dueno_profile") and mascota.dueno_id == user.dueno_profile.pk:
-            return True
+        # Owners are no longer User accounts; owner-based modification must be performed
+        # by staff using the `dueno_id` and the proper endpoints.
         return False
 
     def update(self, request, *args, **kwargs):
@@ -594,17 +546,8 @@ class ConsultaViewSet(viewsets.ModelViewSet):
                 raise NotFound({"detail": "Mascota not found"})
 
             user = request.user
-            allowed = False
-            if hasattr(user, "dueno_profile") and mascota.dueno_id == user.dueno_profile.pk:
-                allowed = True
-            if hasattr(user, "recepcionista_profile"):
-                allowed = True
-            if hasattr(user, "veterinario_profile"):
-                allowed = True
-            if user.is_superuser:
-                allowed = True
-
-            if not allowed:
+            # Authorization: since Dueno is no longer a User, only staff and vets/admin are allowed
+            if not (hasattr(user, "recepcionista_profile") or hasattr(user, "veterinario_profile") or user.is_superuser):
                 from rest_framework.exceptions import PermissionDenied
 
                 raise PermissionDenied({"detail": "Not allowed to view this mascota's historial"})
@@ -621,10 +564,11 @@ class ConsultaViewSet(viewsets.ModelViewSet):
         if data.get("mascota") and not data.get("mascota_id"):
             data["mascota_id"] = data.get("mascota")
 
-        # If authenticated owner, default dueno to the logged-in owner's profile
-        user = request.user
-        if hasattr(user, "dueno_profile") and not data.get("dueno"):
-            data["dueno"] = user.dueno_profile.pk
+        # No Dueno-user association exists anymore; ensure mascota is provided
+        if not data.get("mascota_id"):
+            from rest_framework.exceptions import ValidationError
+
+            raise ValidationError({"mascota": "mascota_id is required"})
 
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -636,11 +580,12 @@ class ConsultaViewSet(viewsets.ModelViewSet):
     def user_recent(self, request):
         """Return the 5 most recent consultas for the authenticated owner's mascotas."""
         user = request.user
-        if not hasattr(user, "dueno_profile") or user.dueno_profile is None:
+        # With Dueno not linked to User, require a dueno_id query param or return empty
+        dueno_id = request.query_params.get("dueno_id")
+        if not dueno_id:
             return Response([], status=200)
 
-        dueno = user.dueno_profile
-        consultas = self.queryset.filter(mascota__dueno=dueno).order_by("-fecha")[:5]
+        consultas = self.queryset.filter(mascota__dueno_id=dueno_id).order_by("-fecha")[:5]
         serializer = self.get_serializer(consultas, many=True, context={"request": request})
         return Response(serializer.data, status=200)
 
@@ -658,6 +603,7 @@ class ConsultaViewSet(viewsets.ModelViewSet):
     update=extend_schema(tags=["Perfil"], summary="Actualizar perfil autenticado"),
     partial_update=extend_schema(tags=["Perfil"], summary="Actualizar parcialmente perfil autenticado"),
 )
+@extend_schema(parameters=[OpenApiParameter(name="id", location=OpenApiParameter.PATH, required=True, type=OpenApiTypes.INT)])
 class ProfileViewSet(viewsets.ViewSet):
     """Unified profile endpoint. GET/PUT/PATCH on `/profile/me` will return or update
     the profile corresponding to the authenticated user based on role.
@@ -669,10 +615,14 @@ class ProfileViewSet(viewsets.ViewSet):
     """
 
     permission_classes = (IsAuthenticated,)
+    # Provide a fallback serializer so drf-spectacular can inspect the viewset
+    class _ProfileFallbackSerializer(serializers.Serializer):
+        role = serializers.CharField(read_only=True, required=False)
+
+    serializer_class = _ProfileFallbackSerializer
 
     def _get_role(self, user):
-        if hasattr(user, "dueno_profile") and user.dueno_profile is not None:
-            return "dueno"
+        # Dueno objects are not linked to User accounts in the current design
         if hasattr(user, "recepcionista_profile") and user.recepcionista_profile is not None:
             return "recepcionista"
         if hasattr(user, "veterinario_profile") and user.veterinario_profile is not None:
@@ -685,8 +635,6 @@ class ProfileViewSet(viewsets.ViewSet):
         """GET /profile/me"""
         user = request.user
         role = self._get_role(user)
-        if role == "dueno":
-            return Response(DuenoSerializer(user.dueno_profile, context={"request": request}).data)
         if role == "recepcionista":
             return Response(RecepcionistaSerializer(user.recepcionista_profile, context={"request": request}).data)
         if role == "veterinario":
@@ -699,13 +647,6 @@ class ProfileViewSet(viewsets.ViewSet):
         """PATCH /profile/me"""
         user = request.user
         role = self._get_role(user)
-        if role == "dueno":
-            obj = user.dueno_profile
-            serializer = DuenoUpdateSerializer(obj, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(DuenoSerializer(obj, context={"request": request}).data)
-
         if role == "recepcionista":
             obj = user.recepcionista_profile
             serializer = RecepcionistaUpdateSerializer(obj, data=request.data, partial=True)

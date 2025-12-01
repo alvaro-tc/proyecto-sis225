@@ -126,7 +126,7 @@ export default function ModalVerConsulta({ open, onClose, consultaId }) {
       <Divider />
 
       {/* CONTENIDO */}
-      <DialogContent sx={{ py: 4 }}>
+      <DialogContent sx={{ pt: 0, pl: 0, pr: 4, pb: 4 }}>
         {loading ? (
           <Grid container justifyContent="center" sx={{ py: 4 }}>
             <CircularProgress />
@@ -134,9 +134,9 @@ export default function ModalVerConsulta({ open, onClose, consultaId }) {
         ) : error ? (
           <Typography color="error">{error}</Typography>
         ) : consulta ? (
-          <Grid container spacing={4}>
+          <Grid container spacing={1}>
             {/* ---------------- COLUMNA IZQUIERDA ---------------- */}
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={4} sx={{ pl: 0, pt: 0 }}>
               {/* --- CARD MASCOTA --- */}
               <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
                 <Box display="flex" flexDirection="column" alignItems="center">
@@ -167,7 +167,7 @@ export default function ModalVerConsulta({ open, onClose, consultaId }) {
             </Grid>
 
             {/* ---------------- COLUMNA DERECHA ---------------- */}
-            <Grid item xs={12} md={8}>
+            <Grid item xs={12} md={8} sx={{ pl: 0, pt: 0 }}>
               {/* --- DETALLES DE CITA --- */}
               <Card sx={{ p: 3, borderRadius: 3, boxShadow: 3 }}>
                 <SuiTypography variant="h6" fontWeight={700} sx={{ mb: 2 }}>

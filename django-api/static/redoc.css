@@ -15,3 +15,16 @@ html,body { height:100%; }
 @media (max-width:800px){
   .container { margin:12px }
 }
+
+/* Examples section */
+.examples { padding:20px 28px; border-top:1px solid #eee; background:#fbfcfd }
+.examples h2 { margin:0 0 8px; font-size:18px }
+.examples .powered { margin:0 0 12px; color:#6b7280 }
+.example-grid { display:flex; gap:12px; margin-top:8px }
+.example-card { flex:1; background:#fff; border-radius:8px; padding:12px; box-shadow:0 6px 18px rgba(2,6,23,0.04) }
+.example-card h3 { margin:0 0 8px; font-size:14px }
+.example-code { background:#0b1220; color:#e6eef8; padding:12px; border-radius:6px; overflow:auto; font-family:Menlo,Monaco,monospace; font-size:13px }
+
+@media (max-width:900px){
+  .example-grid { flex-direction:column }
+}

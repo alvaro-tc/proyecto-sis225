@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 
 import {
@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import SuiButton from "components/SuiButton";
+import clinicApi from "api/clinic";
 
 const ESPECIES = ["Perro", "Gato", "Loro", "Otro"];
 
@@ -38,24 +39,54 @@ export default function ModalMascota({ open, onClose, onSave }) {
       especieOtro: "",
       raza: "",
       edad: "",
+      dueno: null,
     },
   });
 
   const especieSel = watch("especieSel");
   const [submitError, setSubmitError] = useState("");
+  const [owners, setOwners] = useState([]);
+  const [loadingOwners, setLoadingOwners] = useState(false);
   // controla apertura del autocomplete para que se abra al click en cualquier parte
   const [speciesOpen, setSpeciesOpen] = useState(false);
 
   const submit = async (data) => {
     setSubmitError("");
     try {
-      await onSave?.(data);
+      // normalize dueno: if the autocomplete returns an object, send the id
+      const normalized = { ...data };
+      if (normalized.dueno && typeof normalized.dueno === "object") {
+        normalized.dueno = normalized.dueno.id || normalized.dueno.idDueno || normalized.dueno.pk || normalized.dueno.dueno || null;
+      }
+      await onSave?.(normalized);
       reset();
       onClose?.();
     } catch (err) {
       setSubmitError(err?.message || "Error al guardar");
     }
   };
+
+  useEffect(() => {
+    let mounted = true;
+    setLoadingOwners(true);
+    clinicApi
+      .list("duenos")
+      .then((data) => {
+        if (!mounted) return;
+        if (Array.isArray(data)) setOwners(data);
+        else setOwners([]);
+      })
+      .catch((err) => {
+        console.warn("Error fetching duenos:", err);
+        if (mounted) setOwners([]);
+      })
+      .finally(() => {
+        if (mounted) setLoadingOwners(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // common sx para TextField
   const textFieldSx = {
@@ -94,18 +125,20 @@ export default function ModalMascota({ open, onClose, onSave }) {
 
       <form onSubmit={handleSubmit(submit)}>
         <DialogContent sx={{ pt: 2 }}>
-          <Grid container spacing={3}>
+          <Grid container spacing={1}>
             {/* Nombre */}
             <Grid item xs={12}>
+              <Typography sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}>
+                Nombre
+              </Typography>
               <TextField
-                label="Nombre"
+                placeholder="Nombre"
                 fullWidth
                 size="small"
                 {...register("nombre", { required: "El nombre es obligatorio" })}
                 error={!!errors.nombre}
                 helperText={errors.nombre?.message}
                 sx={textFieldSx}
-                InputLabelProps={{ shrink: true }}
               />
             </Grid>
 
@@ -115,38 +148,42 @@ export default function ModalMascota({ open, onClose, onSave }) {
                 name="especieSel"
                 control={control}
                 render={({ field }) => (
-                  <Autocomplete
-                    options={ESPECIES}
-                    size="small"
-                    value={field.value}
-                    onChange={(_, value) => field.onChange(value ?? "")}
-                    open={speciesOpen}
-                    onOpen={() => setSpeciesOpen(true)}
-                    onClose={() => setSpeciesOpen(false)}
-                    openOnFocus
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Especie"
-                        InputLabelProps={{ shrink: true }}
-                        // evita que el usuario escriba; solo selección desde la lista
-                        inputProps={{ ...params.inputProps, readOnly: true }}
-                        onClick={() => setSpeciesOpen(true)}
-                        sx={{
-                          // mantener la apariencia general pero reducir altura específica
-                          ...textFieldSx,
-                          "& .MuiOutlinedInput-root": { minHeight: 54 },
-                          "& .MuiInputBase-input": { fontSize: INPUT_FONT, padding: "10px 12px" },
-                        }}
-                      />
-                    )}
-                    popupIcon={<ArrowDropDownIcon sx={{ fontSize: 22 }} />}
-                    disableClearable
-                    sx={{
-                      // reducir la altura del root del Autocomplete solo para especie
-                      "& .MuiAutocomplete-inputRoot": { fontSize: INPUT_FONT, minHeight: 44, alignItems: "center" },
-                    }}
-                  />
+                  <>
+                    <Typography sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}>
+                      Especie
+                    </Typography>
+                    <Autocomplete
+                      options={ESPECIES}
+                      size="small"
+                      value={field.value}
+                      onChange={(_, value) => field.onChange(value ?? "")}
+                      open={speciesOpen}
+                      onOpen={() => setSpeciesOpen(true)}
+                      onClose={() => setSpeciesOpen(false)}
+                      openOnFocus
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Especie"
+                          // evita que el usuario escriba; solo selección desde la lista
+                          inputProps={{ ...params.inputProps, readOnly: true }}
+                          onClick={() => setSpeciesOpen(true)}
+                          sx={{
+                            // mantener la apariencia general pero reducir altura específica
+                            ...textFieldSx,
+                            "& .MuiOutlinedInput-root": { minHeight: 54 },
+                            "& .MuiInputBase-input": { fontSize: INPUT_FONT, padding: "10px 12px" },
+                          }}
+                        />
+                      )}
+                      popupIcon={<ArrowDropDownIcon sx={{ fontSize: 22 }} />}
+                      disableClearable
+                      sx={{
+                        // reducir la altura del root del Autocomplete solo para especie
+                        "& .MuiAutocomplete-inputRoot": { fontSize: INPUT_FONT, minHeight: 44, alignItems: "center" },
+                      }}
+                    />
+                  </>
                 )}
               />
             </Grid>
@@ -154,8 +191,11 @@ export default function ModalMascota({ open, onClose, onSave }) {
             {/* Campo "Otro" si corresponde */}
             {especieSel === "Otro" && (
               <Grid item xs={12}>
+                <Typography sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}>
+                  Otra especie
+                </Typography>
                 <TextField
-                  label="Otra especie"
+                  placeholder="Otra especie"
                   fullWidth
                   size="small"
                   {...register("especieOtro", {
@@ -164,33 +204,75 @@ export default function ModalMascota({ open, onClose, onSave }) {
                   error={!!errors.especieOtro}
                   helperText={errors.especieOtro?.message}
                   sx={textFieldSx}
-                  InputLabelProps={{ shrink: true }}
                 />
               </Grid>
             )}
 
             {/* Raza */}
             <Grid item xs={12}>
+              <Typography sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}>
+                Raza
+              </Typography>
               <TextField
-                label="Raza"
+                placeholder="Raza"
                 fullWidth
                 size="small"
                 {...register("raza")}
                 sx={textFieldSx}
-                InputLabelProps={{ shrink: true }}
               />
             </Grid>
 
             {/* Edad */}
             <Grid item xs={12}>
+              <Typography sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}>
+                Edad
+              </Typography>
               <TextField
-                label="Edad"
+                placeholder="Edad"
                 type="number"
                 fullWidth
                 size="small"
                 {...register("edad", { valueAsNumber: true })}
                 sx={textFieldSx}
-                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+
+            {/* Dueño */}
+            <Grid item xs={12}>
+              <Controller
+                name="dueno"
+                control={control}
+                rules={{ required: "Selecciona un dueño" }}
+                render={({ field }) => (
+                  <>
+                    <Typography sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}>
+                      Dueño
+                    </Typography>
+                    <Autocomplete
+                      options={owners}
+                      getOptionLabel={(opt) => (opt && (opt.nombre || opt.dueno_nombre || opt.name)) || String(opt || "")}
+                      isOptionEqualToValue={(option, value) => {
+                        if (!option || !value) return false;
+                        const oid = option.id || option.idDueno || option.pk || option.dueno;
+                        const vid = value.id || value.idDueno || value.pk || value.dueno;
+                        return oid && vid ? String(oid) === String(vid) : option === value;
+                      }}
+                      size="small"
+                      value={field.value || null}
+                      onChange={(_, value) => field.onChange(value)}
+                      loading={loadingOwners}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Dueño"
+                          error={!!errors.dueno}
+                          helperText={errors.dueno?.message}
+                          sx={textFieldSx}
+                        />
+                      )}
+                    />
+                  </>
+                )}
               />
             </Grid>
 

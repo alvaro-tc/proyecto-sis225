@@ -49,6 +49,13 @@ export default {
   html: {
     scrollBehavior: "smooth",
   },
+  "body, #root": {
+    backgroundColor: "#c7c3ff",
+    backgroundRepeat: "no-repeat",
+    backgroundAttachment: "fixed",
+    backgroundSize: "cover",
+    minHeight: "100vh",
+  },
   "*, *::before, *::after": {
     margin: 0,
     padding: 0,
@@ -271,6 +278,9 @@ export default {
   },
   ".bg-gradient-dark": {
     backgroundImage: `${linearGradient(gradients.dark.main, gradients.dark.state)} !important`,
+  },
+  ".MuiDrawer-paper, .MuiDrawer-paperAnchorLeft, .MuiPaper-root.MuiDrawer-paper": {
+    backgroundColor: "#b3b0e6 !important",
   },
   ".border-0": {
     border: `${borderWidth[0]} solid ${borderColor} !important`,

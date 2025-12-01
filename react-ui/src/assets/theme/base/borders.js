@@ -28,7 +28,7 @@ import pxToRem from "assets/theme/functions/pxToRem";
 const { grey } = colors;
 
 export default {
-  borderColor: grey[300],
+  borderColor: "#6b6c70",
 
   borderWidth: {
     0: 0,

@@ -27,7 +27,7 @@ export default makeStyles(
     return {
       collapse_item: {
         background: ({ active }) => (active ? white.main : transparent.main),
-        color: ({ active }) => (active ? dark.main : text.main),
+        color: ({ active }) => (active ? dark.main : white.main),
         display: "flex",
         alignItems: "center",
         width: "100%",
@@ -61,8 +61,8 @@ export default makeStyles(
 
           return light.main;
         },
-        minWidth: pxToRem(32),
-        minHeight: pxToRem(32),
+        minWidth: pxToRem(40),
+        minHeight: pxToRem(40),
         borderRadius: borderRadius.md,
         display: "grid",
         placeItems: "center",
@@ -92,11 +92,14 @@ export default makeStyles(
 
         "& svg, svg g": {
           fill: ({ active }) => (active ? white.main : gradients.dark.state),
+          width: pxToRem(18),
+          height: pxToRem(18),
         },
       },
 
       collapse_icon: {
         color: ({ active }) => (active ? white.main : gradients.dark.state),
+        fontSize: pxToRem(18),
       },
 
       collapse_text: {
@@ -117,8 +120,9 @@ export default makeStyles(
 
         "& span": {
           fontWeight: ({ active }) => (active ? fontWeightMedium : fontWeightRegular),
-          fontSize: size.sm,
+          fontSize: pxToRem(14),
           lineHeight: 0,
+          color: ({ active }) => (active ? dark.main : white.main),
         },
       },
     };

@@ -40,7 +40,7 @@ function BasicLayout({ title, description, image, children }) {
   const classes = styles({ image });
 
   return (
-    <PageLayout>
+    <PageLayout background="">
       <DefaultNavbar routes={routes} transparent light />
       <SuiBox customClass={classes.basicLayout}>
         <Grid container spacing={3} justifyContent="center" className="text-center">

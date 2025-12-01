@@ -109,28 +109,7 @@ export default function App() {
       return null;
     });
 
-  const configsButton = (
-    <SuiBox
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      width="3.5rem"
-      height="3.5rem"
-      backgroundColor="white"
-      boxShadow="sm"
-      borderRadius="50%"
-      position="fixed"
-      right="2rem"
-      bottom="2rem"
-      zIndex={99}
-      customClass="cursor-pointer"
-      onClick={handleConfiguratorOpen}
-    >
-      <Icon className=" text-dark" fontSize="default">
-        settings
-      </Icon>
-    </SuiBox>
-  );
+  // configsButton removed (no floating settings icon)
 
   return direction === "rtl" ? (
     <CacheProvider value={rtlCache}>
@@ -160,7 +139,6 @@ export default function App() {
           <>
             <Sidenav routes={routes} />
             <Configurator />
-            {configsButton}
           </>
         )}
         {layout === "vr" && <Configurator />}

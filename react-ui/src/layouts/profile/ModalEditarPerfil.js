@@ -129,7 +129,7 @@ export default function ModalEditarPerfil({ open, onClose, onSaved }) {
               <CircularProgress />
             </Grid>
           ) : (
-            <Grid container spacing={3}>
+            <Grid container spacing={1}>
               <Grid item xs={12}>
                 <TextField
                   label="Nombre completo"
@@ -138,7 +138,11 @@ export default function ModalEditarPerfil({ open, onClose, onSaved }) {
                   error={!!errors.nombre}
                   helperText={errors.nombre?.message}
                   InputLabelProps={{ shrink: true }}
-                  InputProps={{ style: { fontSize: 16 } }}
+                  sx={{
+                    "& .MuiInputLabel-root": { fontSize: "1.05rem", fontWeight: 400 },
+                    "& .MuiOutlinedInput-root": { minHeight: 48 },
+                    "& .MuiInputBase-input": { fontSize: 16 },
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -150,7 +154,11 @@ export default function ModalEditarPerfil({ open, onClose, onSaved }) {
                   error={!!errors.email}
                   helperText={errors.email?.message}
                   InputLabelProps={{ shrink: true }}
-                  InputProps={{ style: { fontSize: 16 } }}
+                  sx={{
+                    "& .MuiInputLabel-root": { fontSize: "1.05rem", fontWeight: 400 },
+                    "& .MuiOutlinedInput-root": { minHeight: 48 },
+                    "& .MuiInputBase-input": { fontSize: 16 },
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -162,7 +170,11 @@ export default function ModalEditarPerfil({ open, onClose, onSaved }) {
                   error={!!errors.password}
                   helperText={errors.password?.message}
                   InputLabelProps={{ shrink: true }}
-                  InputProps={{ style: { fontSize: 16 } }}
+                  sx={{
+                    "& .MuiInputLabel-root": { fontSize: "1.05rem", fontWeight: 400 },
+                    "& .MuiOutlinedInput-root": { minHeight: 48 },
+                    "& .MuiInputBase-input": { fontSize: 16 },
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -173,7 +185,11 @@ export default function ModalEditarPerfil({ open, onClose, onSaved }) {
                   error={!!errors.telefono}
                   helperText={errors.telefono?.message}
                   InputLabelProps={{ shrink: true }}
-                  InputProps={{ style: { fontSize: 16 } }}
+                  sx={{
+                    "& .MuiInputLabel-root": { fontSize: "1.05rem", fontWeight: 400 },
+                    "& .MuiOutlinedInput-root": { minHeight: 48 },
+                    "& .MuiInputBase-input": { fontSize: 16 },
+                  }}
                 />
               </Grid>
               {submitError && (

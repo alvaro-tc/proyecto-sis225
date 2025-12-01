@@ -21,13 +21,7 @@ class Recepcionista(models.Model):
 class Dueno(models.Model):
     idDueno = models.AutoField(primary_key=True)
     # Cada dueño es también un usuario (puede loguearse)
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="dueno_profile",
-        null=True,
-        blank=True,
-    )
+    # Note: Dueno is no longer linked to a User account.
     nombre = models.CharField(max_length=255, blank=True, null=True)
     telefono = models.CharField(max_length=50, blank=True, null=True)
     # Si este campo es NULL, se asume que el dueño se registró a sí mismo
@@ -97,12 +91,9 @@ class Consulta(models.Model):
     # Make fecha editable so a Consulta can represent either an appointment or a clinical
     # consultation. Do not auto-populate — migrations will handle existing rows.
     fecha = models.DateField()
-    # Clinical fields
+    # Clinical fields (simplified)
     sintomas = models.TextField(blank=True, null=True)
-    diagnostico = models.TextField(blank=True, null=True)
     tratamiento = models.TextField(blank=True, null=True)
-    notas = models.TextField(blank=True, null=True)
-    asistio = models.BooleanField(default=False)
     veterinario = models.ForeignKey(
         "api_clinic.Veterinario",
         on_delete=models.PROTECT,
@@ -116,14 +107,8 @@ class Consulta(models.Model):
         on_delete=models.CASCADE,
         related_name="consultas",
     )
-    # Optional: when a record represents an appointment it may reference the dueno
-    dueno = models.ForeignKey(
-        "api_clinic.Dueno",
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
-        related_name="consultas",
-    )
+    # Link consulta directly to a Mascota and Veterinario for querying
+    # `dueno` relationship was removed — Dueno is not a User-linked profile anymore
     # Optional time for appointments
     hora = models.TimeField(null=True, blank=True)
 
@@ -133,25 +118,5 @@ class Consulta(models.Model):
 
 # Cita model removed: appointments are now represented by Consulta.
 
-
-class Comprobante(models.Model):
-    idCom = models.AutoField(primary_key=True)
-    # now link comprobantes to Consulta records (appointments/consultas unified)
-    cita = models.OneToOneField(
-        "api_clinic.Consulta",
-        on_delete=models.CASCADE,
-        related_name="comprobante",
-    )
-    dueno = models.ForeignKey(
-        "api_clinic.Dueno", on_delete=models.CASCADE, related_name="comprobantes"
-    )
-    creado_en = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        # referencia la consulta asociada (antes era Cita)
-        try:
-            return f"Comprobante {self.idCom} - Consulta {self.cita.idConsulta}"
-        except Exception:
-            return f"Comprobante {self.idCom} - Consulta {getattr(self.cita, 'pk', None)}"
 
 # Comprobante model removed — see migrations that delete the table

@@ -3,8 +3,13 @@ info:
   title: React Soft Dashboard Django API
   version: 1.0.0
   description: OpenAPI schema for the Django backend used by the React soft dashboard.
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
 paths:
-  
   /api/clinic/consultas:
     get:
       operationId: api_clinic_consultas_list
@@ -14,6 +19,7 @@ paths:
       tags:
       - Consultas
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '200':
@@ -42,6 +48,7 @@ paths:
               $ref: '#/components/schemas/Consulta'
         required: true
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '201':
@@ -64,6 +71,7 @@ paths:
       tags:
       - Consultas
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '200':
@@ -97,6 +105,7 @@ paths:
               $ref: '#/components/schemas/Consulta'
         required: true
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '200':
@@ -129,6 +138,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedConsulta'
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '200':
@@ -150,6 +160,7 @@ paths:
       tags:
       - Consultas
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '204':
@@ -161,6 +172,8 @@ paths:
         mascotas.
       tags:
       - api
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -175,6 +188,7 @@ paths:
       tags:
       - Dueños
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '200':
@@ -201,8 +215,8 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/DuenoSelfRegister'
-        required: true
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '201':
@@ -225,6 +239,7 @@ paths:
       tags:
       - Dueños
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '200':
@@ -257,6 +272,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Dueno'
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '200':
@@ -289,6 +305,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedDueno'
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '200':
@@ -310,6 +327,7 @@ paths:
       tags:
       - Dueños
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '204':
@@ -325,6 +343,8 @@ paths:
       summary: Obtener o actualizar perfil del dueño autenticado
       tags:
       - Dueños
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -353,6 +373,8 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/Dueno'
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -381,6 +403,8 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/PatchedDueno'
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -394,6 +418,8 @@ paths:
       summary: Citas futuras no atendidas del dueño autenticado
       tags:
       - Dueños
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -407,6 +433,8 @@ paths:
       summary: Citas pasadas atendidas del dueño autenticado
       tags:
       - Dueños
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -422,6 +450,8 @@ paths:
       summary: Resumen del dueño autenticado
       tags:
       - Dueños
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -435,6 +465,8 @@ paths:
       summary: Listar mascotas
       tags:
       - Mascotas
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -461,6 +493,8 @@ paths:
             schema:
               $ref: '#/components/schemas/Mascota'
         required: true
+      security:
+      - ActiveSessionAuth: []
       responses:
         '201':
           content:
@@ -481,6 +515,8 @@ paths:
         required: true
       tags:
       - Mascotas
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -512,6 +548,8 @@ paths:
             schema:
               $ref: '#/components/schemas/Mascota'
         required: true
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -542,6 +580,8 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/PatchedMascota'
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -561,15 +601,36 @@ paths:
         required: true
       tags:
       - Mascotas
+      security:
+      - ActiveSessionAuth: []
       responses:
         '204':
           description: No response body
   /api/clinic/mascotas/user:
     get:
       operationId: api_clinic_mascotas_user_retrieve
-      description: Return mascotas for the logged-in owner (based on request.user.dueno_profile).
+      description: Return mascotas for a given owner. Use `?dueno_id=<id>` to fetch
+        an owner's mascotas.
       tags:
       - api
+      security:
+      - ActiveSessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mascota'
+          description: ''
+  /api/clinic/mascotas/with-dueno:
+    get:
+      operationId: api_clinic_mascotas_with_dueno_retrieve
+      description: Return all mascotas including their owner's `nombre` as `dueno_nombre`.
+      summary: Listar mascotas con nombre de dueño
+      tags:
+      - Mascotas
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -586,13 +647,19 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - Perfil
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_ProfileFallback'
+          description: ''
     put:
       operationId: api_clinic_profile_update
       description: |-
@@ -608,13 +675,30 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - Perfil
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_ProfileFallback'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/_ProfileFallback'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/_ProfileFallback'
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_ProfileFallback'
+          description: ''
     patch:
       operationId: api_clinic_profile_partial_update
       description: PATCH /profile/me
@@ -623,19 +707,38 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - Perfil
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patched_ProfileFallback'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Patched_ProfileFallback'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Patched_ProfileFallback'
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_ProfileFallback'
+          description: ''
   /api/clinic/recepcionistas:
     get:
       operationId: api_clinic_recepcionistas_list
       summary: Listar recepcionistas
       tags:
       - Recepcionistas
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -662,6 +765,8 @@ paths:
             schema:
               $ref: '#/components/schemas/RecepcionistaCreate'
         required: true
+      security:
+      - ActiveSessionAuth: []
       responses:
         '201':
           content:
@@ -682,6 +787,8 @@ paths:
         required: true
       tags:
       - Recepcionistas
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -712,6 +819,8 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/Recepcionista'
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -742,6 +851,8 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/PatchedRecepcionista'
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -761,6 +872,8 @@ paths:
         required: true
       tags:
       - Recepcionistas
+      security:
+      - ActiveSessionAuth: []
       responses:
         '204':
           description: No response body
@@ -771,6 +884,8 @@ paths:
         user.
       tags:
       - api
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -795,6 +910,8 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/Recepcionista'
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -819,6 +936,25 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/PatchedRecepcionista'
+      security:
+      - ActiveSessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recepcionista'
+          description: ''
+  /api/clinic/recepcionistas/me/summary:
+    get:
+      operationId: api_clinic_recepcionistas_me_summary_retrieve
+      description: 'Return a small summary for the authenticated recepcionista: profile,
+        counts and recent mascotas.'
+      summary: Resumen del recepcionista autenticado
+      tags:
+      - Recepcionistas
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -833,6 +969,7 @@ paths:
       tags:
       - Veterinarios
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '200':
@@ -861,6 +998,7 @@ paths:
               $ref: '#/components/schemas/VeterinarioCreate'
         required: true
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '201':
@@ -883,6 +1021,7 @@ paths:
       tags:
       - Veterinarios
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '200':
@@ -916,6 +1055,7 @@ paths:
               $ref: '#/components/schemas/Veterinario'
         required: true
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '200':
@@ -948,6 +1088,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedVeterinario'
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '200':
@@ -969,6 +1110,7 @@ paths:
       tags:
       - Veterinarios
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '204':
@@ -987,7 +1129,7 @@ paths:
       tags:
       - Veterinarios
       security:
-      - {}
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -1005,6 +1147,8 @@ paths:
         linked Veterinario (if any). If no Veterinario is linked to the user, returns empty.
       tags:
       - api
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -1033,6 +1177,8 @@ paths:
             schema:
               $ref: '#/components/schemas/Veterinario'
         required: true
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -1060,6 +1206,25 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/PatchedVeterinario'
+      security:
+      - ActiveSessionAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Veterinario'
+          description: ''
+  /api/clinic/veterinarios/me/summary:
+    get:
+      operationId: api_clinic_veterinarios_me_summary_retrieve
+      description: 'Return a small summary for the authenticated veterinarian: profile,
+        today''s consultas and availability.'
+      summary: Resumen del veterinario autenticado
+      tags:
+      - Veterinarios
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -1074,6 +1239,7 @@ paths:
       tags:
       - Veterinarios
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '200':
@@ -1202,6 +1368,7 @@ paths:
       tags:
       - api
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '200':
@@ -1228,13 +1395,36 @@ paths:
       operationId: api_users_checkSession_create
       tags:
       - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActiveSession'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ActiveSession'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ActiveSession'
+      security:
+      - ActiveSessionAuth: []
       responses:
         '201':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveSession'
+          description: ''
   /api/users/edit:
     post:
       operationId: api_users_edit_create
       summary: Crear usuario (admin)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
       tags:
       - Usuarios
       requestBody:
@@ -1249,6 +1439,8 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
         required: true
+      security:
+      - ActiveSessionAuth: []
       responses:
         '201':
           content:
@@ -1264,7 +1456,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - Usuarios
@@ -1280,6 +1472,8 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
         required: true
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -1293,7 +1487,7 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - api
@@ -1308,6 +1502,8 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/PatchedUser'
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
           content:
@@ -1333,6 +1529,7 @@ paths:
               $ref: '#/components/schemas/Login'
         required: true
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '201':
@@ -1346,9 +1543,26 @@ paths:
       operationId: api_users_logout_create
       tags:
       - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Logout'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Logout'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Logout'
+      security:
+      - ActiveSessionAuth: []
       responses:
         '201':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Logout'
+          description: ''
   /api/users/me:
     get:
       operationId: api_users_me_retrieve
@@ -1356,27 +1570,82 @@ paths:
       summary: Obtener y actualizar usuario autenticado (sin id)
       tags:
       - Usuarios
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+          description: ''
     put:
       operationId: api_users_me_update
       description: Return the authenticated user's data (no id required).
       summary: Obtener y actualizar usuario autenticado (sin id)
       tags:
       - Usuarios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CurrentUser'
+            examples:
+              ActualizarPerfilEjemplo:
+                value:
+                  email: nuevo@correo.com
+                  nombre: Juan Perez
+                  telefono: '+56912345678'
+                summary: Actualizar perfil ejemplo
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CurrentUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CurrentUser'
+        required: true
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+          description: ''
     patch:
       operationId: api_users_me_partial_update
       description: Return the authenticated user's data (no id required).
       summary: Obtener y actualizar usuario autenticado (sin id)
       tags:
       - Usuarios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCurrentUser'
+            examples:
+              ActualizarPerfilEjemplo:
+                value:
+                  email: nuevo@correo.com
+                  nombre: Juan Perez
+                  telefono: '+56912345678'
+                summary: Actualizar perfil ejemplo
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCurrentUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCurrentUser'
+      security:
+      - ActiveSessionAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+          description: ''
   /api/users/register:
     post:
       operationId: api_users_register_create
@@ -1395,6 +1664,7 @@ paths:
               $ref: '#/components/schemas/Register'
         required: true
       security:
+      - ActiveSessionAuth: []
       - {}
       responses:
         '201':
@@ -1405,6 +1675,15 @@ paths:
           description: ''
 components:
   schemas:
+    ActiveSession:
+      type: object
+      description: Minimal serializer used by ActiveSessionViewSet (for documentation).
+      properties:
+        token:
+          type: string
+          readOnly: true
+      required:
+      - token
     Consulta:
       type: object
       properties:
@@ -1427,22 +1706,11 @@ components:
         sintomas:
           type: string
           nullable: true
-        diagnostico:
-          type: string
-          nullable: true
         tratamiento:
           type: string
           nullable: true
-        notas:
-          type: string
-          nullable: true
-        asistio:
-          type: boolean
         veterinario:
           type: integer
-        dueno:
-          type: integer
-          nullable: true
         mascota:
           allOf:
           - $ref: '#/components/schemas/Mascota'
@@ -1456,15 +1724,35 @@ components:
       - mascota
       - motivo
       - veterinario
+    CurrentUser:
+      type: object
+      properties:
+        role:
+          type: string
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+          nullable: true
+        nombre:
+          type: string
+          nullable: true
+        telefono:
+          type: string
+          nullable: true
+        profile_id:
+          type: integer
+          nullable: true
+      required:
+      - email
+      - id
+      - role
     Dueno:
       type: object
       properties:
         idDueno:
           type: integer
-          readOnly: true
-        user:
-          allOf:
-          - $ref: '#/components/schemas/UserNested'
           readOnly: true
         nombre:
           type: string
@@ -1479,27 +1767,17 @@ components:
           nullable: true
       required:
       - idDueno
-      - user
     DuenoSelfRegister:
       type: object
       properties:
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          writeOnly: true
-        telefono:
-          type: string
-          nullable: true
-          maxLength: 50
         nombre:
           type: string
           nullable: true
           maxLength: 255
-      required:
-      - email
-      - password
+        telefono:
+          type: string
+          nullable: true
+          maxLength: 50
     Login:
       type: object
       properties:
@@ -1513,6 +1791,19 @@ components:
       required:
       - email
       - password
+    Logout:
+      type: object
+      description: Minimal serializer for logout view documentation.
+      properties:
+        success:
+          type: boolean
+          readOnly: true
+        msg:
+          type: string
+          readOnly: true
+      required:
+      - msg
+      - success
     Mascota:
       type: object
       properties:
@@ -1534,11 +1825,12 @@ components:
           nullable: true
         dueno:
           type: integer
-        registrada_por_recepcionista:
-          type: integer
-          nullable: true
+        dueno_nombre:
+          type: string
+          readOnly: true
       required:
       - dueno
+      - dueno_nombre
       - especie
       - idMascota
       - nombre
@@ -1569,7 +1861,6 @@ components:
       - dueno
       - mascotas
       - role
-    
     PatchedConsulta:
       type: object
       properties:
@@ -1592,22 +1883,11 @@ components:
         sintomas:
           type: string
           nullable: true
-        diagnostico:
-          type: string
-          nullable: true
         tratamiento:
           type: string
           nullable: true
-        notas:
-          type: string
-          nullable: true
-        asistio:
-          type: boolean
         veterinario:
           type: integer
-        dueno:
-          type: integer
-          nullable: true
         mascota:
           allOf:
           - $ref: '#/components/schemas/Mascota'
@@ -1615,15 +1895,31 @@ components:
         mascota_id:
           type: integer
           writeOnly: true
+    PatchedCurrentUser:
+      type: object
+      properties:
+        role:
+          type: string
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+          nullable: true
+        nombre:
+          type: string
+          nullable: true
+        telefono:
+          type: string
+          nullable: true
+        profile_id:
+          type: integer
+          nullable: true
     PatchedDueno:
       type: object
       properties:
         idDueno:
           type: integer
-          readOnly: true
-        user:
-          allOf:
-          - $ref: '#/components/schemas/UserNested'
           readOnly: true
         nombre:
           type: string
@@ -1657,9 +1953,9 @@ components:
           nullable: true
         dueno:
           type: integer
-        registrada_por_recepcionista:
-          type: integer
-          nullable: true
+        dueno_nombre:
+          type: string
+          readOnly: true
     PatchedRecepcionista:
       type: object
       properties:
@@ -1723,6 +2019,12 @@ components:
           type: string
           nullable: true
           maxLength: 100
+    Patched_ProfileFallback:
+      type: object
+      properties:
+        role:
+          type: string
+          readOnly: true
     Recepcionista:
       type: object
       properties:
@@ -1880,6 +2182,19 @@ components:
       required:
       - email
       - password
+    _ProfileFallback:
+      type: object
+      properties:
+        role:
+          type: string
+          readOnly: true
+      required:
+      - role
+  securitySchemes:
+    ActiveSessionAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 servers:
 - url: http://localhost:5000
   description: Local dev

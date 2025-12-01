@@ -25,7 +25,7 @@ function Footer() {
     <SuiBox component="footer" py={4}>
       <Grid container justifyContent="center">
         <Grid item xs={12} className="text-center">
-          <SuiTypography variant="body2" textColor="secondary">
+          <SuiTypography variant="body2" textColor="white">
             Grupo 5 - Sistemas de informacion
           </SuiTypography>
         </Grid>

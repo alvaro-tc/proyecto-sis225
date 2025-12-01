@@ -43,7 +43,7 @@ import SidenavCard from "examples/Sidenav/SidenavCard";
 import styles from "examples/Sidenav/styles/sidenav";
 
 // Images
-import SoftUILogo from "assets/images/logo-ct.png";
+import SoftUILogo from "assets/images/menu-dog.png";
 
 // Soft UI Dashboard React context
 import { useSoftUIController } from "context";
@@ -113,10 +113,9 @@ function Sidenav({ routes, ...rest }) {
   // helper: tolerant role check (handles common synonyms like 'owner' / 'dueno')
   const normalize = (s) => (s || "").toString().toLowerCase();
   const roleAliases = {
-    dueno: ["dueno", "dueño", "dueño", "owner", "propietario", "propietaria"].map((s) => normalize(s)),
-    veterinario: ["veterinario", "vet"],
-    recepcionista: ["recepcionista", "receptionist"],
-    admin: ["admin", "administrator", "is_admin", "isstaff"],
+    veterinario: ["veterinario", "vet"].map((s) => normalize(s)),
+    recepcionista: ["recepcionista", "receptionist", "reception"].map((s) => normalize(s)),
+    admin: ["admin", "administrator", "is_admin", "isstaff"].map((s) => normalize(s)),
   };
 
   const userHasRole = (expected) => {
@@ -164,27 +163,24 @@ function Sidenav({ routes, ...rest }) {
     finalRoutes = filteredRoutes.filter((r) => adminAllowedKeys.indexOf(r.key) >= 0);
   }
 
-  // Ensure owners (dueno) always see Mascotas and Consultas
-  if (!userLoading && userHasRole && userHasRole("dueno")) {
-    const ensureKeys = ["mascotas-layout", "consultas-global"];
+  // Ensure receptionists always see Mascotas and Registro Consulta
+  if (!userLoading && userHasRole && userHasRole("recepcionista")) {
+    const ensureKeys = ["mascotas-layout", "registro-consulta"];
     ensureKeys.forEach((k) => {
       if (!finalRoutes.some((r) => r.key === k)) {
         const found = routes.find((r) => r.key === k);
         if (found) finalRoutes = [...finalRoutes, found];
       }
     });
-  }
 
-  // For owners, move Mascotas and Consultas to the top section (before account titles)
-  if (!userLoading && userHasRole && userHasRole("dueno")) {
-    const topKeys = ["mascotas-layout", "consultas-global"];
+    // Move Mascotas and Registro Consulta to the top section (before account titles)
+    const topKeys = ["mascotas-layout", "registro-consulta"];
     const topRoutes = [];
     const otherRoutes = [];
     finalRoutes.forEach((r) => {
       if (topKeys.includes(r.key)) topRoutes.push(r);
       else otherRoutes.push(r);
     });
-    // remove duplicates and keep original order for topRoutes based on topKeys
     const orderedTop = topKeys.map((k) => topRoutes.find((tr) => tr.key === k)).filter(Boolean);
     finalRoutes = [...orderedTop, ...otherRoutes];
   }
@@ -240,6 +236,7 @@ function Sidenav({ routes, ...rest }) {
           fontWeight="bold"
           textTransform="uppercase"
           customClass={classes.sidenav_title}
+          textColor="white"
         >
           {title}
         </SuiTypography>
@@ -278,13 +275,23 @@ function Sidenav({ routes, ...rest }) {
         </SuiBox>
         <NavLink to="/">
           <SuiBox
-            component="img"
-            src={SoftUILogo}
-            alt="Clínica Veterinaria"
             customClass={classes.sidenav_logo}
+            style={{
+              backgroundColor: "#ffffff",
+              width: "40px",
+              height: "40px",
+              WebkitMaskImage: `url(${SoftUILogo})`,
+              WebkitMaskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskImage: `url(${SoftUILogo})`,
+              maskRepeat: "no-repeat",
+              maskPosition: "center",
+              maskSize: "contain",
+            }}
           />
           <SuiBox customClass={classes.sidenav_logoLabel}>
-            <SuiTypography component="h6" variant="button" fontWeight="medium">
+            <SuiTypography component="h6" variant="button" fontWeight="medium" textColor="white">
               Clínica Veterinaria
             </SuiTypography>
           </SuiBox>

@@ -89,10 +89,10 @@ export default function ModalEditarRecepcionista({ open, onClose, onSave, initia
   };
 
   const textFieldSx = {
-    "& .MuiInputLabel-root": { fontSize: LABEL_FONT },
+    "& .MuiInputLabel-root": { fontSize: LABEL_FONT, fontWeight: 400 },
     "& .MuiFormHelperText-root": { fontSize: "1.2rem" },
-    "& .MuiOutlinedInput-root": { minHeight: 52 },
-    "& .MuiInputBase-input": { fontSize: INPUT_FONT, padding: "16px 14px" },
+    "& .MuiOutlinedInput-root": { minHeight: 48 },
+    "& .MuiInputBase-input": { fontSize: INPUT_FONT, padding: "12px 12px" },
   };
 
   return (
@@ -105,7 +105,7 @@ export default function ModalEditarRecepcionista({ open, onClose, onSave, initia
 
       <form onSubmit={handleSubmit(submit)}>
         <DialogContent sx={{ pt: 2 }}>
-          <Grid container spacing={3}>
+          <Grid container spacing={1}>
             <Grid item xs={12}>
               <TextField
                 label="Email"

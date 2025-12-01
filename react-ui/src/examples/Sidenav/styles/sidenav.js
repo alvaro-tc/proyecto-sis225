@@ -28,13 +28,23 @@ export default makeStyles(
       sidenav: {
         boxShadow: xxl,
         border: "none",
+        // default background for the sidenav (applies on desktop when not transparent)
+        backgroundColor: ({ transparentSidenav }) =>
+          transparentSidenav ? transparent.main : "#b3b0e6",
+        boxShadow: ({ transparentSidenav }) => (transparentSidenav ? "none" : xxl),
+        marginBottom: ({ transparentSidenav }) => (transparentSidenav ? 0 : "inherit"),
+        left: "0",
+
+        // Ensure the Drawer paper uses the same background color (higher specificity)
+        "&.MuiPaper-root, &.MuiDrawer-paper, &.MuiDrawer-paperAnchorLeft": {
+          backgroundColor: ({ transparentSidenav }) =>
+            transparentSidenav ? transparent.main : "#b3b0e6 !important",
+        },
 
         [breakpoints.up("xl")]: {
+          // keep the same behaviour on xl (explicit for clarity)
           backgroundColor: ({ transparentSidenav }) =>
-            transparentSidenav ? transparent.main : white.main,
-          boxShadow: ({ transparentSidenav }) => (transparentSidenav ? "none" : xxl),
-          marginBottom: ({ transparentSidenav }) => (transparentSidenav ? 0 : "inherit"),
-          left: "0",
+            transparentSidenav ? transparent.main : "#b3b0e6",
         },
       },
 
@@ -50,29 +60,36 @@ export default makeStyles(
       },
 
       sidenav_logo: {
-        width: pxToRem(32),
+          width: pxToRem(40),
+        // ensure the logo sits nicely on the background
+        display: "block",
       },
 
       sidenav_logoLabel: {
-        marginLeft: pxToRem(4),
-        fontWeight: fontWeightMedium,
-        wordSpacing: pxToRem(-1),
-        transition: transitions.create("opacity", {
-          easing: transitions.easing.easeInOut,
-          duration: transitions.duration.standard,
-        }),
+          marginLeft: pxToRem(6),
+          fontWeight: fontWeightMedium,
+          wordSpacing: pxToRem(-1),
+          fontSize: pxToRem(16),
+          transition: transitions.create("opacity", {
+            easing: transitions.easing.easeInOut,
+            duration: transitions.duration.standard,
+          }),
+          color: white.main,
 
-        [breakpoints.up("xl")]: {
-          opacity: ({ miniSidenav }) => (miniSidenav ? 0 : 1),
+          [breakpoints.up("xl")]: {
+            opacity: ({ miniSidenav }) => (miniSidenav ? 0 : 1),
+          },
+
         },
-      },
 
       sidenav_title: {
-        display: "block",
-        opacity: 0.6,
-        paddingLeft: pxToRem(24),
-        margin: `${pxToRem(16)} 0 ${pxToRem(8)} ${pxToRem(8)}`,
-      },
+          display: "block",
+          color: white.main,
+          opacity: 0.9,
+          paddingLeft: pxToRem(24),
+          margin: `${pxToRem(16)} 0 ${pxToRem(8)} ${pxToRem(8)}`,
+          fontSize: pxToRem(13),
+        },
 
       marginTopNone: {
         marginTop: 0,

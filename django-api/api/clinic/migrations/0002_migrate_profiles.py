@@ -87,7 +87,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='dueno',
             name='user',
-            field=models.OneToOneField(null=True, blank=True, on_delete=django.db.models.deletion.CASCADE, related_name='dueno_profile', to='api_user.user'),
+            field=models.OneToOneField(null=True, blank=True, on_delete=django.db.models.deletion.CASCADE, to='api_user.user'),
         ),
         migrations.RunPython(create_users_for_profiles, reverse_code=noop_reverse),
         # Remove old fields used to hold name/email (we migrated their data to User)

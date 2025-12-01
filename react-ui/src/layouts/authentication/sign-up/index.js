@@ -35,7 +35,7 @@ import Separator from "layouts/authentication/components/Separator";
 // Images
 import AuthApi from "../../../api/auth";
 import { useHistory } from "react-router-dom";
-import curved6 from "assets/images/curved-images/curved-6.jpg";
+// no background image for sign-up; global diagonal background will show
 
 function SignUp() {
   const history = useHistory();
@@ -88,7 +88,7 @@ function SignUp() {
     <BasicLayout
       title="Clínica Veterinaria - Registro"
       description="Crea una cuenta para gestionar citas y fichas de mascotas."
-      image={curved6}
+      image={""}
     >
       <Card>
         <SuiBox p={3} mb={1} textAlign="center">

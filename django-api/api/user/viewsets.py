@@ -1,6 +1,6 @@
 from api.user.serializers import UserSerializer
 from api.user.models import User
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
@@ -18,6 +18,17 @@ from api.clinic.serializers import (
 )
 
 
+# Serializer used to document the current_user endpoint
+class CurrentUserSerializer(serializers.Serializer):
+    role = serializers.CharField()
+    id = serializers.IntegerField()
+    email = serializers.EmailField(allow_null=True)
+    nombre = serializers.CharField(allow_null=True, required=False)
+    telefono = serializers.CharField(allow_null=True, required=False)
+    profile_id = serializers.IntegerField(allow_null=True, required=False)
+
+
+
 @extend_schema(
     tags=["Usuarios"],
     summary="Obtener y actualizar usuario autenticado (sin id)",
@@ -28,6 +39,8 @@ from api.clinic.serializers import (
             request_only=True,
         )
     ],
+    responses=CurrentUserSerializer,
+    request=CurrentUserSerializer,
 )
 @api_view(["GET", "PUT", "PATCH"])  # return and update the authenticated user
 @permission_classes([IsAuthenticated])
@@ -35,11 +48,9 @@ def current_user(request):
     """Return the authenticated user's data (no id required)."""
     user = request.user
 
-    # determine role
+    # determine role (Note: owners are not users in the current design)
     role = None
-    if hasattr(user, "dueno_profile") and user.dueno_profile is not None:
-        role = "dueno"
-    elif hasattr(user, "recepcionista_profile") and user.recepcionista_profile is not None:
+    if hasattr(user, "recepcionista_profile") and user.recepcionista_profile is not None:
         role = "recepcionista"
     elif hasattr(user, "veterinario_profile") and user.veterinario_profile is not None:
         role = "veterinario"
@@ -57,14 +68,9 @@ def current_user(request):
         "profile_id": None,
     }
 
-    # enrich with profile fields
+    # enrich with profile fields for staff roles; owners are represented by Dueno objects
     try:
-        if role == "dueno":
-            du = user.dueno_profile
-            payload["nombre"] = du.nombre or (user.email.split("@")[0] if getattr(user, "email", None) else "")
-            payload["telefono"] = du.telefono or getattr(user, "telefono", None)
-            payload["profile_id"] = getattr(du, "idDueno", None) or getattr(du, "pk", None)
-        elif role == "recepcionista":
+        if role == "recepcionista":
             rec = user.recepcionista_profile
             payload["nombre"] = rec.nombre or (user.email.split("@")[0] if getattr(user, "email", None) else "")
             payload["telefono"] = rec.telefono or getattr(user, "telefono", None)
@@ -72,14 +78,11 @@ def current_user(request):
         elif role == "veterinario":
             vet = user.veterinario_profile
             payload["nombre"] = vet.nombre or (user.email.split("@")[0] if getattr(user, "email", None) else "")
-            # prefer telefono stored on User (veterinario profile doesn't have telefono field)
             payload["telefono"] = getattr(user, "telefono", None)
             payload["profile_id"] = getattr(vet, "idVeterinario", None) or getattr(vet, "pk", None)
         elif role == "admin":
-            # admin: include telefono if present on user
             payload["telefono"] = getattr(user, "telefono", None)
     except Exception:
-        # If any profile access fails, return basic payload
         pass
 
     # Handle updates (PUT/PATCH)
@@ -98,15 +101,7 @@ def current_user(request):
         except Exception:
             pass
 
-        # Then update role-specific profile fields if present
-        if role == "dueno" and hasattr(user, "dueno_profile"):
-            du = user.dueno_profile
-            profile_serializer = DuenoUpdateSerializer(du, data=request.data, partial=partial)
-            profile_serializer.is_valid(raise_exception=True)
-            profile_serializer.save()
-            payload["nombre"] = du.nombre or (user.email.split("@")[0] if getattr(user, "email", None) else "")
-            payload["telefono"] = du.telefono
-
+        # Then update role-specific profile fields if present (staff roles only)
         if role == "recepcionista" and hasattr(user, "recepcionista_profile"):
             rec = user.recepcionista_profile
             profile_serializer = RecepcionistaUpdateSerializer(rec, data=request.data, partial=partial)
@@ -126,13 +121,8 @@ def current_user(request):
         payload["email"] = user.email
         payload["telefono"] = getattr(user, "telefono", payload.get("telefono"))
 
-        # Ensure profile_id / nombre reflect updated profile after save
+        # Ensure profile_id / nombre reflect updated profile after save (staff roles)
         try:
-            if role == "dueno" and hasattr(user, "dueno_profile") and user.dueno_profile:
-                du = user.dueno_profile
-                payload["nombre"] = du.nombre or payload.get("nombre")
-                payload["telefono"] = du.telefono or payload.get("telefono")
-                payload["profile_id"] = getattr(du, "idDueno", None) or getattr(du, "pk", None)
             if role == "recepcionista" and hasattr(user, "recepcionista_profile") and user.recepcionista_profile:
                 rec = user.recepcionista_profile
                 payload["nombre"] = rec.nombre or payload.get("nombre")
@@ -151,10 +141,14 @@ def current_user(request):
     return Response(payload)
 
 
+# (CurrentUserSerializer defined above)
+
+
 @extend_schema_view(
     create=extend_schema(tags=["Usuarios"], summary="Crear usuario (admin)"),
     update=extend_schema(tags=["Usuarios"], summary="Actualizar usuario"),
 )
+@extend_schema(parameters=[OpenApiParameter(name="id", location=OpenApiParameter.PATH, required=True, type=OpenApiTypes.INT)])
 class UserViewSet(
     viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.UpdateModelMixin
 ):
