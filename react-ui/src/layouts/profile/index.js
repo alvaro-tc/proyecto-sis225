@@ -21,7 +21,6 @@ import Card from "@mui/material/Card";
 import SuiBox from "components/SuiBox";
 import SuiTypography from "components/SuiTypography";
 
-
 // Soft UI Dashboard React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import Footer from "examples/Footer";
@@ -36,7 +35,6 @@ import Header from "layouts/profile/components/Header";
 // PlatformSettings removed from layout (not necessary)
 
 // Data
-
 
 // Images (projects removed)
 import petsIcon from "assets/images/pets.svg";
@@ -131,64 +129,64 @@ function Overview() {
   }, []);
 
   function ProfileSummary({ summary, loading, error }) {
+    return (
+      <SuiBox mt={5} mb={3}>
+        <Grid container spacing={3} justifyContent="center">
+          <Grid item xs={12} md={10} xl={8}>
+            {(() => {
+              // Build info object with nicer labels and hide work fields for 'recepcionista'
+              const info = {};
+              info["Rol"] = summary?.role || "-";
+              info["Email"] = summary?.email || summary?.user?.email || "-";
+              info["Nombre"] = summary?.nombre || summary?.user?.name || "-";
+              info["Teléfono"] = summary?.telefono || "-";
+              if (typeof summary?.profile_id !== "undefined")
+                info["Profile ID"] = summary?.profile_id ?? "-";
 
-        return (
-          <SuiBox mt={5} mb={3}>
-            <Grid container spacing={3} justifyContent="center">
-                <Grid item xs={12} md={10} xl={8}>
-                {(() => {
-                  // Build info object with nicer labels and hide work fields for 'recepcionista'
-                  const info = {};
-                  info["Rol"] = summary?.role || "-";
-                  info["Email"] = summary?.email || summary?.user?.email || "-";
-                  info["Nombre"] = summary?.nombre || summary?.user?.name || "-";
-                  info["Teléfono"] = summary?.telefono || "-";
-                  if (typeof summary?.profile_id !== "undefined") info["Profile ID"] = summary?.profile_id ?? "-";
+              const isRecepcionista = String(summary?.role || "").toLowerCase() === "recepcionista";
+              if (!isRecepcionista) {
+                // only show work schedule fields for non-receptionists
+                info["Hora inicio"] = summary?.work_start || "-";
+                info["Hora fin"] = summary?.work_end || "-";
+                info["Días de trabajo"] = summary?.work_days || "-";
+              }
 
-                  const isRecepcionista = String((summary?.role || "")).toLowerCase() === "recepcionista";
-                  if (!isRecepcionista) {
-                    // only show work schedule fields for non-receptionists
-                    info["Hora inicio"] = summary?.work_start || "-";
-                    info["Hora fin"] = summary?.work_end || "-";
-                    info["Días de trabajo"] = summary?.work_days || "-";
-                  }
+              return (
+                <ProfileInfoCard
+                  title="Perfil"
+                  description={summary ? "Perfil del usuario autenticado" : "Detalle del usuario"}
+                  info={info}
+                  action={{ onClick: () => setEditProfileOpen(true), tooltip: "Editar perfil" }}
+                />
+              );
+            })()}
+          </Grid>
+        </Grid>
+      </SuiBox>
+    );
+  }
 
-                  return (
-                    <ProfileInfoCard
-                      title="Perfil"
-                      description={summary ? "Perfil del usuario autenticado" : "Detalle del usuario"}
-                      info={info}
-                      action={{ onClick: () => setEditProfileOpen(true), tooltip: "Editar perfil" }}
-                    />
-                  );
-                })()}
-              </Grid>
-            </Grid>
-          </SuiBox>
-        );
-      }
+  function getImageForEspecie(especie) {
+    // Return imported petsIcon for consistency
+    return petsIcon;
+  }
 
-      function getImageForEspecie(especie) {
-        // Return imported petsIcon for consistency
-        return petsIcon;
-      }
-
-      function ProfileLoadingCard({ title }) {
-        return (
-          <Card className="h-100">
-            <SuiBox pt={2} px={2}>
-              <SuiTypography variant="h6" fontWeight="medium">
-                {title}
-              </SuiTypography>
-            </SuiBox>
-            <SuiBox p={2}>
-              <SuiTypography variant="body2" textColor="text">
-                Cargando...
-              </SuiTypography>
-            </SuiBox>
-          </Card>
-        );
-      }
+  function ProfileLoadingCard({ title }) {
+    return (
+      <Card className="h-100">
+        <SuiBox pt={2} px={2}>
+          <SuiTypography variant="h6" fontWeight="medium">
+            {title}
+          </SuiTypography>
+        </SuiBox>
+        <SuiBox p={2}>
+          <SuiTypography variant="body2" textColor="text">
+            Cargando...
+          </SuiTypography>
+        </SuiBox>
+      </Card>
+    );
+  }
 
   function getProfileName(summary) {
     if (!summary) return undefined;
@@ -206,13 +204,21 @@ function Overview() {
 
   function getProfileAvatar(summary) {
     return (
-      summary?.dueno?.avatar || summary?.dueno?.foto || summary?.veterinario?.avatar || summary?.veterinario?.foto || undefined
+      summary?.dueno?.avatar ||
+      summary?.dueno?.foto ||
+      summary?.veterinario?.avatar ||
+      summary?.veterinario?.foto ||
+      undefined
     );
   }
 
   return (
     <DashboardLayout>
-      <Header name={getProfileName(summary)} role={summary?.role} avatar={getProfileAvatar(summary)} />
+      <Header
+        name={getProfileName(summary)}
+        role={summary?.role}
+        avatar={getProfileAvatar(summary)}
+      />
       <SuiBox py={3}>
         <ProfileSummary summary={summary} loading={loadingSummary} error={summaryError} />
       </SuiBox>
@@ -224,7 +230,11 @@ function Overview() {
           fetchSummary();
         }}
       />
-      <ModalVerConsulta open={viewConsultaOpen} onClose={() => setViewConsultaOpen(false)} consultaId={viewConsultaId} />
+      <ModalVerConsulta
+        open={viewConsultaOpen}
+        onClose={() => setViewConsultaOpen(false)}
+        consultaId={viewConsultaId}
+      />
       <Footer />
     </DashboardLayout>
   );

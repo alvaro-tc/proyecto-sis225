@@ -28,7 +28,6 @@ import ModalEditarConsulta from "layouts/billing/components/ModalEditarConsulta"
 import { useEffect, useState } from "react";
 import clinicApi from "api/clinic";
 
-
 function BillingInformation() {
   const [consultas, setConsultas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,7 +58,9 @@ function BillingInformation() {
   const handleDelete = async (consulta) => {
     if (!consulta) return;
     try {
-      await clinicApi.request(`/api/clinic/consultas/${consulta.idConsulta || consulta.id}`, { method: "DELETE" });
+      await clinicApi.request(`/api/clinic/consultas/${consulta.idConsulta || consulta.id}`, {
+        method: "DELETE",
+      });
       fetchConsultas();
     } catch (err) {
       console.error("Error deleting consulta:", err);
@@ -87,7 +88,13 @@ function BillingInformation() {
             <SuiTypography variant="body2">Cargando consultas...</SuiTypography>
           ) : consultas && consultas.length > 0 ? (
             consultas.map((c, idx) => (
-              <Bill key={c.idConsulta || c.id || idx} consulta={c} onEdit={handleEdit} onDelete={handleDelete} noGutter={idx === consultas.length - 1} />
+              <Bill
+                key={c.idConsulta || c.id || idx}
+                consulta={c}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                noGutter={idx === consultas.length - 1}
+              />
             ))
           ) : (
             <SuiTypography variant="body2">No hay consultas registradas.</SuiTypography>
@@ -95,8 +102,23 @@ function BillingInformation() {
         </SuiBox>
       </SuiBox>
 
-      <ModalCrearConsulta open={openCreate} onClose={() => setOpenCreate(false)} onSaved={() => { setOpenCreate(false); fetchConsultas(); }} />
-      <ModalEditarConsulta open={openEdit} onClose={() => setOpenEdit(false)} consultaId={editId} onSaved={() => { setOpenEdit(false); fetchConsultas(); }} />
+      <ModalCrearConsulta
+        open={openCreate}
+        onClose={() => setOpenCreate(false)}
+        onSaved={() => {
+          setOpenCreate(false);
+          fetchConsultas();
+        }}
+      />
+      <ModalEditarConsulta
+        open={openEdit}
+        onClose={() => setOpenEdit(false)}
+        consultaId={editId}
+        onSaved={() => {
+          setOpenEdit(false);
+          fetchConsultas();
+        }}
+      />
     </Card>
   );
 }

@@ -39,7 +39,6 @@ import styles from "layouts/tables/styles";
 
 import petsIcon from "assets/images/pets.svg";
 
-
 function Mascotas() {
   const classes = styles();
   const auth = useAuth(); // moved to top-level hook usage
@@ -99,14 +98,27 @@ function Mascotas() {
         (m.owner && (m.owner.nombre || m.owner.name)) ||
         (typeof m.dueno === "string" && m.dueno) ||
         "-";
-      const ownerInitial = ownerName && String(ownerName).trim().length > 0 ? String(ownerName).trim()[0].toUpperCase() : "?";
+      const ownerInitial =
+        ownerName && String(ownerName).trim().length > 0
+          ? String(ownerName).trim()[0].toUpperCase()
+          : "?";
 
       return {
         Nombre: [img, m.nombre || "-"],
-        Dueno: [<SuiAvatar size="sm" variant="rounded">{ownerInitial}</SuiAvatar>, ownerName],
+        Dueno: [
+          <SuiAvatar size="sm" variant="rounded">
+            {ownerInitial}
+          </SuiAvatar>,
+          ownerName,
+        ],
         Raza: (
           <SuiBox display="flex" flexDirection="column">
-            <SuiTypography variant="button" fontWeight="medium" textColor="dark" sx={{ fontSize: "0.95rem" }}>
+            <SuiTypography
+              variant="button"
+              fontWeight="medium"
+              textColor="dark"
+              sx={{ fontSize: "0.95rem" }}
+            >
               {m.especie || "-"}
             </SuiTypography>
             <SuiTypography variant="caption" textColor="text" sx={{ fontSize: "0.85rem" }}>
@@ -277,7 +289,12 @@ function Mascotas() {
         {/* Modal externo: ModalMascota maneja formulario con react-hook-form */}
         <ModalMascota open={open} onClose={() => setOpen(false)} onSave={handleSaveMascota} />
         {/* Modal de edición */}
-        <ModalEditarMascota open={editOpen} onClose={() => setEditOpen(false)} onSave={handleUpdateMascota} initialData={editingData} />
+        <ModalEditarMascota
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          onSave={handleUpdateMascota}
+          initialData={editingData}
+        />
         {/* Modal para confirmar/eliminar mascota (muestra error si está ligada a citas) */}
         <ModalEliminarMascota
           open={deleteOpen}
@@ -290,7 +307,6 @@ function Mascotas() {
           item={itemToDelete}
           errorMessage={deleteError}
         />
-
       </SuiBox>
       <Footer />
     </DashboardLayout>

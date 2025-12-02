@@ -33,8 +33,7 @@ export default makeStyles(({ functions, borders }) => {
       marginRight: pxToRem(-128),
       borderBottomLeftRadius: borderRadius.lg,
       // ensure the diagonal gradient sits behind the image
-      backgroundImage:
-        "linear-gradient(135deg, #5c5b78 0% 33%, #8f83b0 33% 66%, #5c5b78 66% 100%)",
+      backgroundImage: "linear-gradient(135deg, #5c5b78 0% 33%, #8f83b0 33% 66%, #5c5b78 66% 100%)",
       backgroundRepeat: "no-repeat",
       backgroundSize: "cover",
     },

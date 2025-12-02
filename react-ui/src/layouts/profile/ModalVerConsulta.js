@@ -41,7 +41,9 @@ export default function ModalVerConsulta({ open, onClose, consultaId }) {
       }
 
       try {
-        const data = await clinicApi.request(`/api/clinic/consultas/${consultaId}`, { method: "GET" });
+        const data = await clinicApi.request(`/api/clinic/consultas/${consultaId}`, {
+          method: "GET",
+        });
         if (!mounted) return;
         setConsulta(data);
       } catch (err) {
@@ -160,8 +162,7 @@ export default function ModalVerConsulta({ open, onClose, consultaId }) {
                 </SuiTypography>
 
                 <SuiTypography>
-                  <strong>Nombre:</strong>{" "}
-                  {ownerInfo?.nombre || consulta.dueno?.nombre || "--"}
+                  <strong>Nombre:</strong> {ownerInfo?.nombre || consulta.dueno?.nombre || "--"}
                 </SuiTypography>
               </Card>
             </Grid>
@@ -184,9 +185,7 @@ export default function ModalVerConsulta({ open, onClose, consultaId }) {
 
                   <Grid item xs={12} sm={6}>
                     <Typography variant="caption">Fecha</Typography>
-                    <Typography fontWeight={700}>
-                      {formatDateLong(consulta.fecha)}
-                    </Typography>
+                    <Typography fontWeight={700}>{formatDateLong(consulta.fecha)}</Typography>
                   </Grid>
 
                   <Grid item xs={12} sm={6}>
@@ -196,9 +195,7 @@ export default function ModalVerConsulta({ open, onClose, consultaId }) {
 
                   <Grid item xs={12} sm={6}>
                     <Typography variant="caption">Veterinario</Typography>
-                    <Typography fontWeight={700}>
-                      {vetInfo?.nombre || "--"}
-                    </Typography>
+                    <Typography fontWeight={700}>{vetInfo?.nombre || "--"}</Typography>
                   </Grid>
                 </Grid>
               </Card>
@@ -256,7 +253,9 @@ export default function ModalVerConsulta({ open, onClose, consultaId }) {
                 <SuiTypography variant="h6" fontWeight={700} sx={{ mb: 1 }}>
                   Asistió
                 </SuiTypography>
-                <Typography>{typeof consulta.asistio === "boolean" ? (consulta.asistio ? "Sí" : "No") : "--"}</Typography>
+                <Typography>
+                  {typeof consulta.asistio === "boolean" ? (consulta.asistio ? "Sí" : "No") : "--"}
+                </Typography>
               </Card>
             </Grid>
           </Grid>

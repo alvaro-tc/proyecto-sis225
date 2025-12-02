@@ -80,28 +80,25 @@ function HistorialVeterinario() {
     { name: "action", align: "center" },
   ];
 
-  const rowMapper = useCallback(
-    (c) => {
-      const fecha = c.fecha || "";
-      const hora = c.hora || "";
-      const motivo = c.motivo || c.descripcion || "";
-      const vet = c.veterinario || (c.user && c.user.email) || "";
-      return {
-        Fecha: fecha,
-        Hora: hora,
-        Motivo: motivo,
-        Veterinario: vet,
-        action: (
-          <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-            <IconButton size="small">
-              <VisibilityIcon fontSize="small" />
-            </IconButton>
-          </div>
-        ),
-      };
-    },
-    []
-  );
+  const rowMapper = useCallback((c) => {
+    const fecha = c.fecha || "";
+    const hora = c.hora || "";
+    const motivo = c.motivo || c.descripcion || "";
+    const vet = c.veterinario || (c.user && c.user.email) || "";
+    return {
+      Fecha: fecha,
+      Hora: hora,
+      Motivo: motivo,
+      Veterinario: vet,
+      action: (
+        <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+          <IconButton size="small">
+            <VisibilityIcon fontSize="small" />
+          </IconButton>
+        </div>
+      ),
+    };
+  }, []);
 
   const title = pet ? `${pet.nombre || "Mascota"} - ${pet.especie || ""}` : "Historial veterinario";
 

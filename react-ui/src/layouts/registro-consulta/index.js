@@ -27,7 +27,7 @@ import clinicApi from "api/clinic";
 import { useSoftUIController } from "context";
 import styles from "layouts/tables/styles";
 import IconButton from "@mui/material/IconButton";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const SLOT_MINUTES = 30;
 
@@ -76,7 +76,7 @@ export default function RegistroConsulta() {
   function SimpleCalendar({ value, onChange }) {
     function parseISOToDate(iso) {
       if (!iso) return null;
-      const parts = String(iso).split('-');
+      const parts = String(iso).split("-");
       if (parts.length < 3) return null;
       const y = Number(parts[0]);
       const m = Number(parts[1]) - 1;
@@ -87,8 +87,8 @@ export default function RegistroConsulta() {
     function formatDateToISO(d) {
       if (!d) return "";
       const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
       return `${y}-${m}-${day}`;
     }
 
@@ -146,64 +146,148 @@ export default function RegistroConsulta() {
     }
 
     const monthName = viewDate.toLocaleString(undefined, { month: "long", year: "numeric" });
-    const months = Array.from({ length: 12 }).map((_, i) => new Date(0, i).toLocaleString(undefined, { month: 'long' }));
+    const months = Array.from({ length: 12 }).map((_, i) =>
+      new Date(0, i).toLocaleString(undefined, { month: "long" })
+    );
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: 11 }).map((_, i) => currentYear - 5 + i);
     const [showPicker, setShowPicker] = useState(false);
 
     return (
       <div className="simple-calendar" style={{ width: "100%" }}>
-        <div className="sc-header" style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
-          <div style={{ flex: '0 0 auto' }}>
-            <SuiButton aria-label="Mes anterior" variant="outlined" size="small" onClick={() => { prevMonth(); setShowPicker(false); }} style={{ minWidth: 36 }}>◀</SuiButton>
+        <div
+          className="sc-header"
+          style={{ display: "flex", alignItems: "center", marginBottom: 8 }}
+        >
+          <div style={{ flex: "0 0 auto" }}>
+            <SuiButton
+              aria-label="Mes anterior"
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                prevMonth();
+                setShowPicker(false);
+              }}
+              style={{ minWidth: 36 }}
+            >
+              ◀
+            </SuiButton>
           </div>
-          <div style={{ flex: '1 1 auto', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
+          <div
+            style={{
+              flex: "1 1 auto",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              position: "relative",
+            }}
+          >
             <div
               onClick={() => setShowPicker((s) => !s)}
               role="button"
               tabIndex={0}
-              style={{ fontSize: '0.98rem', fontWeight: 700, cursor: 'pointer', userSelect: 'none' }}
+              style={{
+                fontSize: "0.98rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                userSelect: "none",
+              }}
             >
               {monthName}
             </div>
             {showPicker ? (
-              <div style={{ position: 'absolute', top: 36, display: 'flex', gap: 8, background: '#fff', padding: 8, borderRadius: 6, boxShadow: '0 6px 18px rgba(0,0,0,0.08)' }}>
+              <div
+                style={{
+                  position: "absolute",
+                  top: 36,
+                  display: "flex",
+                  gap: 8,
+                  background: "#fff",
+                  padding: 8,
+                  borderRadius: 6,
+                  boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+                }}
+              >
                 <select
                   aria-label="Seleccionar mes"
                   value={viewDate.getMonth()}
-                  onChange={(e) => setViewDate(new Date(viewDate.getFullYear(), Number(e.target.value), 1))}
-                  style={{ fontSize: '0.9rem', padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.12)' }}
+                  onChange={(e) =>
+                    setViewDate(new Date(viewDate.getFullYear(), Number(e.target.value), 1))
+                  }
+                  style={{
+                    fontSize: "0.9rem",
+                    padding: "6px 8px",
+                    borderRadius: 6,
+                    border: "1px solid rgba(0,0,0,0.12)",
+                  }}
                 >
                   {months.map((m, i) => (
-                    <option key={m} value={i}>{m}</option>
+                    <option key={m} value={i}>
+                      {m}
+                    </option>
                   ))}
                 </select>
                 <select
                   aria-label="Seleccionar año"
                   value={viewDate.getFullYear()}
-                  onChange={(e) => setViewDate(new Date(Number(e.target.value), viewDate.getMonth(), 1))}
-                  style={{ fontSize: '0.9rem', padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.12)' }}
+                  onChange={(e) =>
+                    setViewDate(new Date(Number(e.target.value), viewDate.getMonth(), 1))
+                  }
+                  style={{
+                    fontSize: "0.9rem",
+                    padding: "6px 8px",
+                    borderRadius: 6,
+                    border: "1px solid rgba(0,0,0,0.12)",
+                  }}
                 >
                   {years.map((y) => (
-                    <option key={y} value={y}>{y}</option>
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
                   ))}
                 </select>
-                <SuiButton variant="outlined" size="small" onClick={() => setShowPicker(false)}>Cerrar</SuiButton>
+                <SuiButton variant="outlined" size="small" onClick={() => setShowPicker(false)}>
+                  Cerrar
+                </SuiButton>
               </div>
             ) : null}
           </div>
-          <div style={{ flex: '0 0 auto' }}>
-            <SuiButton aria-label="Mes siguiente" variant="outlined" size="small" onClick={() => { nextMonth(); setShowPicker(false); }} style={{ minWidth: 36 }}>▶</SuiButton>
+          <div style={{ flex: "0 0 auto" }}>
+            <SuiButton
+              aria-label="Mes siguiente"
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                nextMonth();
+                setShowPicker(false);
+              }}
+              style={{ minWidth: 36 }}
+            >
+              ▶
+            </SuiButton>
           </div>
         </div>
 
-        <div className="sc-weekdays" style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginBottom: 6 }}>
-          {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((d) => (
-            <div key={d} style={{ textAlign: 'center', fontSize: '0.72rem', color: '#666' }}>{d}</div>
+        <div
+          className="sc-weekdays"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(7, 1fr)",
+            gap: 6,
+            marginBottom: 6,
+          }}
+        >
+          {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
+            <div key={d} style={{ textAlign: "center", fontSize: "0.72rem", color: "#666" }}>
+              {d}
+            </div>
           ))}
         </div>
 
-        <div className="sc-grid" style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}>
+        <div
+          className="sc-grid"
+          style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}
+        >
           {matrix.flat().map((cell, idx) => {
             const isSelected = cell && toISO(cell) === value;
             const isToday = cell && toISO(cell) === toISO(new Date());
@@ -213,18 +297,18 @@ export default function RegistroConsulta() {
                 type="button"
                 onClick={() => cell && onChange(toISO(cell))}
                 disabled={!cell}
-                className={"sc-cell" + (isSelected ? ' selected' : '') + (isToday ? ' today' : '')}
+                className={"sc-cell" + (isSelected ? " selected" : "") + (isToday ? " today" : "")}
                 style={{
-                  width: '100%',
+                  width: "100%",
                   height: 36,
                   borderRadius: 6,
-                  border: isSelected ? '1px solid #333' : '1px solid rgba(0,0,0,0.08)',
-                  background: isSelected ? '#212121' : '#fff',
-                  color: isSelected ? '#fff' : (cell ? '#111' : '#aaa'),
-                  cursor: cell ? 'pointer' : 'default',
+                  border: isSelected ? "1px solid #333" : "1px solid rgba(0,0,0,0.08)",
+                  background: isSelected ? "#212121" : "#fff",
+                  color: isSelected ? "#fff" : cell ? "#111" : "#aaa",
+                  cursor: cell ? "pointer" : "default",
                 }}
               >
-                {cell ? cell.getDate() : ''}
+                {cell ? cell.getDate() : ""}
               </button>
             );
           })}
@@ -297,7 +381,13 @@ export default function RegistroConsulta() {
         // try endpoint that returns mascotas for owner; fallback to general list and filter
         const all = await clinicApi.list("mascotas/with-dueno");
         if (!mounted) return;
-        const filtered = Array.isArray(all) ? all.filter((m) => String(m.dueno) === String(ownerSel.id || ownerSel.idDueno || ownerSel.pk || ownerSel.dueno)) : [];
+        const filtered = Array.isArray(all)
+          ? all.filter(
+              (m) =>
+                String(m.dueno) ===
+                String(ownerSel.id || ownerSel.idDueno || ownerSel.pk || ownerSel.dueno)
+            )
+          : [];
         setMascotas(filtered);
       } catch (err) {
         console.warn("Error loading mascotas for owner", err);
@@ -316,12 +406,15 @@ export default function RegistroConsulta() {
       try {
         const id = vetSel.id || vetSel.idVeterinario || vetSel.idVet || vetSel.pk;
         // fetch all consultas for vet and filter by date
-        const res = await clinicApi.request(`/api/clinic/veterinarios/${id}/consultas`, { method: "GET" });
+        const res = await clinicApi.request(`/api/clinic/veterinarios/${id}/consultas`, {
+          method: "GET",
+        });
         if (!mounted) return;
         const arr = Array.isArray(res) ? res : [];
         // normalize consulta date fields and filter by date
         const byDate = arr.filter((c) => {
-          const f = c.fecha || (c.fechaHora ? String(c.fechaHora).split("T")[0] : null) || c.date || null;
+          const f =
+            c.fecha || (c.fechaHora ? String(c.fechaHora).split("T")[0] : null) || c.date || null;
           return f === date;
         });
         setConsultas(byDate);
@@ -340,7 +433,11 @@ export default function RegistroConsulta() {
     // build occupied minutes from consultas
     const occupied = new Set();
     consultas.forEach((c) => {
-      const hora = c.hora || (c.fechaHora ? (String(c.fechaHora).split("T")[1] || "").slice(0,5) : null) || c.time || "";
+      const hora =
+        c.hora ||
+        (c.fechaHora ? (String(c.fechaHora).split("T")[1] || "").slice(0, 5) : null) ||
+        c.time ||
+        "";
       if (!hora) return;
       const [hh, mm] = String(hora).split(":");
       const start = Number(hh) * 60 + Number(mm);
@@ -354,7 +451,11 @@ export default function RegistroConsulta() {
     const set = new Set();
     if (!consultas || consultas.length === 0) return set;
     consultas.forEach((c) => {
-      const hora = c.hora || (c.fechaHora ? (String(c.fechaHora).split("T")[1] || "").slice(0,5) : null) || c.time || "";
+      const hora =
+        c.hora ||
+        (c.fechaHora ? (String(c.fechaHora).split("T")[1] || "").slice(0, 5) : null) ||
+        c.time ||
+        "";
       if (!hora) return;
       const [hh, mm] = String(hora).split(":");
       const start = Number(hh) * 60 + Number(mm);
@@ -396,9 +497,9 @@ export default function RegistroConsulta() {
       const reserved = {
         fecha: date,
         hora: minutesToTime(selectedSlot),
-        veterinario: vetSel ? (vetSel.nombre || vetSel.name || "-") : "-",
-        dueno: ownerSel ? (ownerSel.nombre || ownerSel.name || "-") : "-",
-        mascota: mascotaSel ? (mascotaSel.nombre || mascotaSel.name || "-") : "-",
+        veterinario: vetSel ? vetSel.nombre || vetSel.name || "-" : "-",
+        dueno: ownerSel ? ownerSel.nombre || ownerSel.name || "-" : "-",
+        mascota: mascotaSel ? mascotaSel.nombre || mascotaSel.name || "-" : "-",
         motivo: motivo || "",
         descripcion: descripcion || "",
       };
@@ -436,7 +537,7 @@ export default function RegistroConsulta() {
                     <Autocomplete
                       options={veterinarios}
                       getOptionLabel={(o) => o && (o.nombre || o.name || (o.user && o.user.email))}
-                      value={vetSel}  
+                      value={vetSel}
                       onChange={(_, v) => setVetSel(v)}
                       freeSolo
                       popupIcon={<ExpandMoreIcon fontSize="small" />}
@@ -448,12 +549,12 @@ export default function RegistroConsulta() {
                           size="small"
                           autoFocus
                           fullWidth
-                          InputLabelProps={{ sx: { fontSize: '0.78rem' } }}
+                          InputLabelProps={{ sx: { fontSize: "0.78rem" } }}
                           inputProps={{
                             ...params.inputProps,
                             style: { fontSize: "0.78rem", padding: "8px 10px" },
                           }}
-                          sx={{ '& .MuiOutlinedInput-root': { minHeight: 44 } }}
+                          sx={{ "& .MuiOutlinedInput-root": { minHeight: 44 } }}
                         />
                       )}
                     />
@@ -472,11 +573,14 @@ export default function RegistroConsulta() {
                           variant="outlined"
                           size="small"
                           fullWidth
-                          InputLabelProps={{ sx: { fontSize: '0.78rem' } }}
-                          inputProps={{ ...params.inputProps, style: { fontSize: "0.78rem", padding: "8px 10px" } }}
+                          InputLabelProps={{ sx: { fontSize: "0.78rem" } }}
+                          inputProps={{
+                            ...params.inputProps,
+                            style: { fontSize: "0.78rem", padding: "8px 10px" },
+                          }}
                           disabled={!vetSel}
-                          helperText={!vetSel ? 'Selecciona un veterinario primero' : undefined}
-                          sx={{ '& .MuiOutlinedInput-root': { minHeight: 44 } }}
+                          helperText={!vetSel ? "Selecciona un veterinario primero" : undefined}
+                          sx={{ "& .MuiOutlinedInput-root": { minHeight: 44 } }}
                         />
                       )}
                     />
@@ -495,11 +599,14 @@ export default function RegistroConsulta() {
                           variant="outlined"
                           size="small"
                           fullWidth
-                          InputLabelProps={{ sx: { fontSize: '0.78rem' } }}
-                          inputProps={{ ...params.inputProps, style: { fontSize: "0.78rem", padding: "8px 10px" } }}
+                          InputLabelProps={{ sx: { fontSize: "0.78rem" } }}
+                          inputProps={{
+                            ...params.inputProps,
+                            style: { fontSize: "0.78rem", padding: "8px 10px" },
+                          }}
                           disabled={!vetSel}
-                          helperText={!vetSel ? 'Selecciona un veterinario primero' : undefined}
-                          sx={{ '& .MuiOutlinedInput-root': { minHeight: 44 } }}
+                          helperText={!vetSel ? "Selecciona un veterinario primero" : undefined}
+                          sx={{ "& .MuiOutlinedInput-root": { minHeight: 44 } }}
                         />
                       )}
                     />
@@ -514,24 +621,32 @@ export default function RegistroConsulta() {
                           <SuiButton
                             key={s}
                             variant={selectedSlot === s ? "contained" : "outlined"}
-                            buttonColor={selectedSlot === s ? "dark" : (occupied ? "secondary" : "info")}
+                            buttonColor={
+                              selectedSlot === s ? "dark" : occupied ? "secondary" : "info"
+                            }
                             size="small"
                             onClick={() => !occupied && vetSel && setSelectedSlot(s)}
                             disabled={occupied || !vetSel}
                             sx={{
                               textTransform: "none",
                               minWidth: 64,
-                              padding: '6px 8px',
-                              fontSize: '0.75rem',
+                              padding: "6px 8px",
+                              fontSize: "0.75rem",
                               ...(occupied
                                 ? {
-                                    color: '#ffffff',
-                                    borderColor: '#bdbdbd',
-                                    backgroundColor: '#bdbdbd',
-                                    pointerEvents: 'none',
-                                    '&.Mui-disabled': { backgroundColor: '#bdbdbd', color: '#ffffff', opacity: 1 },
+                                    color: "#ffffff",
+                                    borderColor: "#bdbdbd",
+                                    backgroundColor: "#bdbdbd",
+                                    pointerEvents: "none",
+                                    "&.Mui-disabled": {
+                                      backgroundColor: "#bdbdbd",
+                                      color: "#ffffff",
+                                      opacity: 1,
+                                    },
                                   }
-                                : (!vetSel ? { opacity: 0.65 } : {})),
+                                : !vetSel
+                                ? { opacity: 0.65 }
+                                : {}),
                             }}
                           >
                             {minutesToTime(s)}
@@ -541,19 +656,19 @@ export default function RegistroConsulta() {
                     </SuiBox>
                   </SuiBox>
 
-                    <SuiBox mt={3}>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        label="Motivo"
-                        value={motivo}
-                        onChange={(e) => setMotivo(e.target.value)}
-                        InputLabelProps={{ sx: { fontSize: '0.78rem' } }}
-                        inputProps={{ style: { fontSize: "0.78rem", padding: "8px 10px" } }}
-                        sx={{ '& .MuiOutlinedInput-root': { minHeight: 44 } }}
-                        disabled={!vetSel}
-                        helperText={!vetSel ? 'Selecciona un veterinario primero' : undefined}
-                      />
+                  <SuiBox mt={3}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Motivo"
+                      value={motivo}
+                      onChange={(e) => setMotivo(e.target.value)}
+                      InputLabelProps={{ sx: { fontSize: "0.78rem" } }}
+                      inputProps={{ style: { fontSize: "0.78rem", padding: "8px 10px" } }}
+                      sx={{ "& .MuiOutlinedInput-root": { minHeight: 44 } }}
+                      disabled={!vetSel}
+                      helperText={!vetSel ? "Selecciona un veterinario primero" : undefined}
+                    />
                   </SuiBox>
 
                   <SuiBox mt={2}>
@@ -565,19 +680,32 @@ export default function RegistroConsulta() {
                       label="Descripción"
                       value={descripcion}
                       onChange={(e) => setDescripcion(e.target.value)}
-                      InputLabelProps={{ sx: { fontSize: '0.78rem' } }}
+                      InputLabelProps={{ sx: { fontSize: "0.78rem" } }}
                       inputProps={{ style: { fontSize: "0.78rem", padding: "8px 10px" } }}
-                      sx={{ '& .MuiOutlinedInput-root': { minHeight: 80 } }}
+                      sx={{ "& .MuiOutlinedInput-root": { minHeight: 80 } }}
                       disabled={!vetSel}
-                      helperText={!vetSel ? 'Selecciona un veterinario primero' : undefined}
+                      helperText={!vetSel ? "Selecciona un veterinario primero" : undefined}
                     />
                   </SuiBox>
 
                   <SuiBox mt={2} display="flex" gap={1}>
-                    <SuiButton variant="outlined" buttonColor="secondary" onClick={() => { setSelectedSlot(null); setMotivo(""); setDescripcion(""); }}>
+                    <SuiButton
+                      variant="outlined"
+                      buttonColor="secondary"
+                      onClick={() => {
+                        setSelectedSlot(null);
+                        setMotivo("");
+                        setDescripcion("");
+                      }}
+                    >
                       Limpiar
                     </SuiButton>
-                    <SuiButton variant="gradient" buttonColor="dark" onClick={handleReserve} disabled={!vetSel}>
+                    <SuiButton
+                      variant="gradient"
+                      buttonColor="dark"
+                      onClick={handleReserve}
+                      disabled={!vetSel}
+                    >
                       Reservar cita
                     </SuiButton>
                   </SuiBox>
@@ -588,7 +716,10 @@ export default function RegistroConsulta() {
                   <SuiTypography variant="h6">Seleccionar fecha</SuiTypography>
                   <SuiBox mt={2}>
                     {/* hide any visible flatpickr input and show calendar inline filling container */}
-                    <div id="rc-calendar" style={{ display: "flex", justifyContent: "center", width: "100%" }}>
+                    <div
+                      id="rc-calendar"
+                      style={{ display: "flex", justifyContent: "center", width: "100%" }}
+                    >
                       <style>{`
                         /* SimpleCalendar overrides inside the rc-calendar container */
                         #rc-calendar .simple-calendar { width: 100%; }
@@ -601,119 +732,226 @@ export default function RegistroConsulta() {
                       <SimpleCalendar value={date} onChange={(d) => setDate(d)} />
                     </div>
                   </SuiBox>
-                    {/* Confirm dialog for reservation */}
-                    <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)} fullWidth maxWidth="xs">
-                      <DialogTitle>Confirmar reserva</DialogTitle>
-                      <DialogContent>
-                        {reserveError ? (
-                          <SuiTypography color="error">{reserveError}</SuiTypography>
-                        ) : (
-                          <SuiBox>
-                            <SuiTypography>¿Confirmas la reserva de la cita?</SuiTypography>
-                            <SuiBox mt={1}>
-                              <SuiTypography variant="caption">Fecha:</SuiTypography>
-                              <SuiTypography>{date}</SuiTypography>
-                            </SuiBox>
-                            <SuiBox mt={1}>
-                              <SuiTypography variant="caption">Hora:</SuiTypography>
-                              <SuiTypography>{selectedSlot ? minutesToTime(selectedSlot) : "—"}</SuiTypography>
-                            </SuiBox>
-                            <SuiBox mt={1}>
-                              <SuiTypography variant="caption">Veterinario:</SuiTypography>
-                              <SuiTypography>{vetSel ? (vetSel.nombre || vetSel.name || "-") : "—"}</SuiTypography>
-                            </SuiBox>
-                          </SuiBox>
-                        )}
-                      </DialogContent>
-                      <DialogActions>
-                        <SuiButton variant="outlined" buttonColor="secondary" onClick={() => setConfirmOpen(false)}>Cancelar</SuiButton>
-                        <SuiButton variant="gradient" buttonColor="dark" onClick={performReserve}>Confirmar</SuiButton>
-                      </DialogActions>
-                    </Dialog>
-
-                    {/* Success dialog (small modal) */}
-                    <Dialog open={successOpen} onClose={() => { setSuccessOpen(false); setReservedData(null); }} fullWidth maxWidth="xs">
-                      <DialogTitle>Consulta reservada</DialogTitle>
-                      <DialogContent>
+                  {/* Confirm dialog for reservation */}
+                  <Dialog
+                    open={confirmOpen}
+                    onClose={() => setConfirmOpen(false)}
+                    fullWidth
+                    maxWidth="xs"
+                  >
+                    <DialogTitle>Confirmar reserva</DialogTitle>
+                    <DialogContent>
+                      {reserveError ? (
+                        <SuiTypography color="error">{reserveError}</SuiTypography>
+                      ) : (
                         <SuiBox>
+                          <SuiTypography>¿Confirmas la reserva de la cita?</SuiTypography>
                           <SuiBox mt={1}>
                             <SuiTypography variant="caption">Fecha:</SuiTypography>
-                            <SuiTypography>{reservedData ? reservedData.fecha : date}</SuiTypography>
+                            <SuiTypography>{date}</SuiTypography>
                           </SuiBox>
                           <SuiBox mt={1}>
                             <SuiTypography variant="caption">Hora:</SuiTypography>
-                            <SuiTypography>{reservedData ? reservedData.hora : (selectedSlot ? minutesToTime(selectedSlot) : "—")}</SuiTypography>
+                            <SuiTypography>
+                              {selectedSlot ? minutesToTime(selectedSlot) : "—"}
+                            </SuiTypography>
                           </SuiBox>
                           <SuiBox mt={1}>
                             <SuiTypography variant="caption">Veterinario:</SuiTypography>
-                            <SuiTypography>{reservedData ? reservedData.veterinario : (vetSel ? (vetSel.nombre || vetSel.name || "-") : "—")}</SuiTypography>
+                            <SuiTypography>
+                              {vetSel ? vetSel.nombre || vetSel.name || "-" : "—"}
+                            </SuiTypography>
                           </SuiBox>
-                          <SuiBox mt={1}>
-                            <SuiTypography variant="caption">Dueño:</SuiTypography>
-                            <SuiTypography>{reservedData ? reservedData.dueno : (ownerSel ? (ownerSel.nombre || ownerSel.name || "-") : "—")}</SuiTypography>
-                          </SuiBox>
-                          <SuiBox mt={1}>
-                            <SuiTypography variant="caption">Mascota:</SuiTypography>
-                            <SuiTypography>{reservedData ? reservedData.mascota : (mascotaSel ? (mascotaSel.nombre || mascotaSel.name || "-") : "—")}</SuiTypography>
-                          </SuiBox>
-                          {reservedData && reservedData.motivo ? (
-                            <SuiBox mt={1}>
-                              <SuiTypography variant="caption">Motivo:</SuiTypography>
-                              <SuiTypography>{reservedData.motivo}</SuiTypography>
-                            </SuiBox>
-                          ) : null}
-                          {reservedData && reservedData.descripcion ? (
-                            <SuiBox mt={1}>
-                              <SuiTypography variant="caption">Descripción:</SuiTypography>
-                              <SuiTypography>{reservedData.descripcion}</SuiTypography>
-                            </SuiBox>
-                          ) : null}
                         </SuiBox>
-                      </DialogContent>
-                      <DialogActions>
-                        <SuiButton variant="gradient" buttonColor="dark" onClick={() => { setSuccessOpen(false); setReservedData(null); }}>Cerrar</SuiButton>
-                      </DialogActions>
-                    </Dialog>
+                      )}
+                    </DialogContent>
+                    <DialogActions>
+                      <SuiButton
+                        variant="outlined"
+                        buttonColor="secondary"
+                        onClick={() => setConfirmOpen(false)}
+                      >
+                        Cancelar
+                      </SuiButton>
+                      <SuiButton variant="gradient" buttonColor="dark" onClick={performReserve}>
+                        Confirmar
+                      </SuiButton>
+                    </DialogActions>
+                  </Dialog>
+
+                  {/* Success dialog (small modal) */}
+                  <Dialog
+                    open={successOpen}
+                    onClose={() => {
+                      setSuccessOpen(false);
+                      setReservedData(null);
+                    }}
+                    fullWidth
+                    maxWidth="xs"
+                  >
+                    <DialogTitle>Consulta reservada</DialogTitle>
+                    <DialogContent>
+                      <SuiBox>
+                        <SuiBox mt={1}>
+                          <SuiTypography variant="caption">Fecha:</SuiTypography>
+                          <SuiTypography>{reservedData ? reservedData.fecha : date}</SuiTypography>
+                        </SuiBox>
+                        <SuiBox mt={1}>
+                          <SuiTypography variant="caption">Hora:</SuiTypography>
+                          <SuiTypography>
+                            {reservedData
+                              ? reservedData.hora
+                              : selectedSlot
+                              ? minutesToTime(selectedSlot)
+                              : "—"}
+                          </SuiTypography>
+                        </SuiBox>
+                        <SuiBox mt={1}>
+                          <SuiTypography variant="caption">Veterinario:</SuiTypography>
+                          <SuiTypography>
+                            {reservedData
+                              ? reservedData.veterinario
+                              : vetSel
+                              ? vetSel.nombre || vetSel.name || "-"
+                              : "—"}
+                          </SuiTypography>
+                        </SuiBox>
+                        <SuiBox mt={1}>
+                          <SuiTypography variant="caption">Dueño:</SuiTypography>
+                          <SuiTypography>
+                            {reservedData
+                              ? reservedData.dueno
+                              : ownerSel
+                              ? ownerSel.nombre || ownerSel.name || "-"
+                              : "—"}
+                          </SuiTypography>
+                        </SuiBox>
+                        <SuiBox mt={1}>
+                          <SuiTypography variant="caption">Mascota:</SuiTypography>
+                          <SuiTypography>
+                            {reservedData
+                              ? reservedData.mascota
+                              : mascotaSel
+                              ? mascotaSel.nombre || mascotaSel.name || "-"
+                              : "—"}
+                          </SuiTypography>
+                        </SuiBox>
+                        {reservedData && reservedData.motivo ? (
+                          <SuiBox mt={1}>
+                            <SuiTypography variant="caption">Motivo:</SuiTypography>
+                            <SuiTypography>{reservedData.motivo}</SuiTypography>
+                          </SuiBox>
+                        ) : null}
+                        {reservedData && reservedData.descripcion ? (
+                          <SuiBox mt={1}>
+                            <SuiTypography variant="caption">Descripción:</SuiTypography>
+                            <SuiTypography>{reservedData.descripcion}</SuiTypography>
+                          </SuiBox>
+                        ) : null}
+                      </SuiBox>
+                    </DialogContent>
+                    <DialogActions>
+                      <SuiButton
+                        variant="gradient"
+                        buttonColor="dark"
+                        onClick={() => {
+                          setSuccessOpen(false);
+                          setReservedData(null);
+                        }}
+                      >
+                        Cerrar
+                      </SuiButton>
+                    </DialogActions>
+                  </Dialog>
 
                   <SuiBox mt={3}>
                     <SuiTypography variant="subtitle2">Comprobante (vista previa)</SuiTypography>
                     <Card sx={{ p: 2, mt: 1 }}>
                       <SuiBox display="flex" alignItems="center" gap={2} mb={2}>
-                        <SuiAvatar size="md" variant="rounded">C</SuiAvatar>
-                        <SuiBox sx={{ display: 'flex', flexDirection: 'column' }}>
-                          <SuiTypography variant="button" sx={{ fontWeight: 700, lineHeight: 1 }}>{'Clínica Veterinaria'}</SuiTypography>
-                          <SuiTypography variant="caption" sx={{ mt: 0.5 }}>{'Comprobante de cita'}</SuiTypography>
+                        <SuiAvatar size="md" variant="rounded">
+                          C
+                        </SuiAvatar>
+                        <SuiBox sx={{ display: "flex", flexDirection: "column" }}>
+                          <SuiTypography variant="button" sx={{ fontWeight: 700, lineHeight: 1 }}>
+                            {"Clínica Veterinaria"}
+                          </SuiTypography>
+                          <SuiTypography variant="caption" sx={{ mt: 0.5 }}>
+                            {"Comprobante de cita"}
+                          </SuiTypography>
                         </SuiBox>
                       </SuiBox>
 
                       <Divider sx={{ my: 1 }} />
 
-                      <SuiBox display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                        <SuiTypography variant="caption" sx={{ fontSize: '0.72rem' }}>Fecha:</SuiTypography>
-                        <SuiTypography variant="body2" sx={{ fontSize: '0.85rem' }}>{date}</SuiTypography>
+                      <SuiBox
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        mb={1}
+                      >
+                        <SuiTypography variant="caption" sx={{ fontSize: "0.72rem" }}>
+                          Fecha:
+                        </SuiTypography>
+                        <SuiTypography variant="body2" sx={{ fontSize: "0.85rem" }}>
+                          {date}
+                        </SuiTypography>
                       </SuiBox>
 
-                      <SuiBox display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                        <SuiTypography variant="caption" sx={{ fontSize: '0.72rem' }}>Hora:</SuiTypography>
-                        <SuiTypography variant="body2" sx={{ fontSize: '0.85rem' }}>{selectedSlot ? minutesToTime(selectedSlot) : "—"}</SuiTypography>
+                      <SuiBox
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        mb={1}
+                      >
+                        <SuiTypography variant="caption" sx={{ fontSize: "0.72rem" }}>
+                          Hora:
+                        </SuiTypography>
+                        <SuiTypography variant="body2" sx={{ fontSize: "0.85rem" }}>
+                          {selectedSlot ? minutesToTime(selectedSlot) : "—"}
+                        </SuiTypography>
                       </SuiBox>
 
-                      <SuiBox display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                        <SuiTypography variant="caption" sx={{ fontSize: '0.72rem' }}>Veterinario:</SuiTypography>
-                        <SuiTypography variant="body2" sx={{ fontSize: '0.85rem' }}>{vetSel ? (vetSel.nombre || vetSel.name || "-") : "—"}</SuiTypography>
+                      <SuiBox
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        mb={1}
+                      >
+                        <SuiTypography variant="caption" sx={{ fontSize: "0.72rem" }}>
+                          Veterinario:
+                        </SuiTypography>
+                        <SuiTypography variant="body2" sx={{ fontSize: "0.85rem" }}>
+                          {vetSel ? vetSel.nombre || vetSel.name || "-" : "—"}
+                        </SuiTypography>
                       </SuiBox>
 
-                      <SuiBox display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                        <SuiTypography variant="caption" sx={{ fontSize: '0.72rem' }}>Dueño:</SuiTypography>
-                        <SuiTypography variant="body2" sx={{ fontSize: '0.85rem' }}>{ownerSel ? (ownerSel.nombre || ownerSel.name || "-") : "—"}</SuiTypography>
+                      <SuiBox
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        mb={1}
+                      >
+                        <SuiTypography variant="caption" sx={{ fontSize: "0.72rem" }}>
+                          Dueño:
+                        </SuiTypography>
+                        <SuiTypography variant="body2" sx={{ fontSize: "0.85rem" }}>
+                          {ownerSel ? ownerSel.nombre || ownerSel.name || "-" : "—"}
+                        </SuiTypography>
                       </SuiBox>
 
-                      <SuiBox display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                        <SuiTypography variant="caption" sx={{ fontSize: '0.72rem' }}>Mascota:</SuiTypography>
-                        <SuiTypography variant="body2" sx={{ fontSize: '0.85rem' }}>{mascotaSel ? (mascotaSel.nombre || mascotaSel.name || "-") : "—"}</SuiTypography>
+                      <SuiBox
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        mb={1}
+                      >
+                        <SuiTypography variant="caption" sx={{ fontSize: "0.72rem" }}>
+                          Mascota:
+                        </SuiTypography>
+                        <SuiTypography variant="body2" sx={{ fontSize: "0.85rem" }}>
+                          {mascotaSel ? mascotaSel.nombre || mascotaSel.name || "-" : "—"}
+                        </SuiTypography>
                       </SuiBox>
-
-                      
                     </Card>
                   </SuiBox>
                 </Grid>

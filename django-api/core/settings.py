@@ -34,8 +34,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY', default='insecure-S#perS3crEt_007')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(env("DEBUG", default=0))
+# Production: disable debug by default. Use environment variables to enable only when needed.
+DEBUG = False
 
 ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOSTS", default="*").split(" ")
 

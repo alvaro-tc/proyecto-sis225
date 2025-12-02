@@ -20,23 +20,35 @@ export default function ModalEliminarMascota({ open, onClose, onConfirm, item, e
         <Typography variant="body1" sx={{ mt: 1 }}>
           {errorMessage ? (
             <>
-              <strong>{name}</strong> no se puede eliminar porque está vinculada a una o más citas médicas.
+              <strong>{name}</strong> no se puede eliminar porque está vinculada a una o más citas
+              médicas.
               <br />
               {errorMessage}
             </>
           ) : (
             <>
-              ¿Estás seguro que deseas eliminar a <strong>{name}</strong>? Esta acción no se puede deshacer.
+              ¿Estás seguro que deseas eliminar a <strong>{name}</strong>? Esta acción no se puede
+              deshacer.
             </>
           )}
         </Typography>
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
-        <SuiButton variant="outlined" buttonColor="secondary" onClick={onClose} sx={{ minWidth: 100 }}>
+        <SuiButton
+          variant="outlined"
+          buttonColor="secondary"
+          onClick={onClose}
+          sx={{ minWidth: 100 }}
+        >
           Cerrar
         </SuiButton>
         {!errorMessage && (
-          <SuiButton variant="gradient" buttonColor="error" onClick={() => onConfirm && onConfirm(item)} sx={{ minWidth: 100 }}>
+          <SuiButton
+            variant="gradient"
+            buttonColor="error"
+            onClick={() => onConfirm && onConfirm(item)}
+            sx={{ minWidth: 100 }}
+          >
             Eliminar
           </SuiButton>
         )}

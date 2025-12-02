@@ -79,14 +79,20 @@ function Veterinarios() {
       let img = vetIcon;
 
       const name = m.nombre || (m.user && (m.user.nombre || m.user.email || "")) || "-";
-      const initial = name && String(name).trim().length > 0 ? String(name).trim()[0].toUpperCase() : "?";
+      const initial =
+        name && String(name).trim().length > 0 ? String(name).trim()[0].toUpperCase() : "?";
       const idVal = m.id || m.idVeterinario || m.idDueno || m.id || "";
       return {
         ID: idVal,
-        Nombre: [<SuiAvatar size="sm" variant="rounded">{initial}</SuiAvatar>, name],
+        Nombre: [
+          <SuiAvatar size="sm" variant="rounded">
+            {initial}
+          </SuiAvatar>,
+          name,
+        ],
         Email: m.email || (m.user && m.user.email) || "",
-        "Teléfono": m.telefono || (m.user && m.user.telefono) || "",
-            action: (
+        Teléfono: m.telefono || (m.user && m.user.telefono) || "",
+        action: (
           <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
             <IconButton size="small" onClick={() => openEdit(idVal)}>
               <EditIcon fontSize="small" />
@@ -123,7 +129,8 @@ function Veterinarios() {
 
   async function confirmDelete() {
     if (!deletingItem) return;
-    const id = deletingItem.id || deletingItem.idVeterinario || deletingItem.idDueno || deletingItem;
+    const id =
+      deletingItem.id || deletingItem.idVeterinario || deletingItem.idDueno || deletingItem;
     await handleDeleteVeterinario(id);
     closeDeleteModal();
   }
@@ -219,10 +226,23 @@ function Veterinarios() {
           </Card>
         </SuiBox>
 
-        <ModalVeterinario open={open} onClose={() => setOpen(false)} onSave={handleSaveVeterinario} />
-        <ModalEditarVeterinario open={editOpen} onClose={() => setEditOpen(false)} onSave={handleUpdateVeterinario} id={editingId} />
-        <ModalEliminarVeterinario open={deleteOpen} onClose={closeDeleteModal} onConfirm={confirmDelete} item={deletingItem} />
-
+        <ModalVeterinario
+          open={open}
+          onClose={() => setOpen(false)}
+          onSave={handleSaveVeterinario}
+        />
+        <ModalEditarVeterinario
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          onSave={handleUpdateVeterinario}
+          id={editingId}
+        />
+        <ModalEliminarVeterinario
+          open={deleteOpen}
+          onClose={closeDeleteModal}
+          onConfirm={confirmDelete}
+          item={deletingItem}
+        />
       </SuiBox>
       <Footer />
     </DashboardLayout>

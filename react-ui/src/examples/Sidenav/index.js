@@ -108,7 +108,14 @@ function Sidenav({ routes, ...rest }) {
   // Filter routes by role (if route.roles is set, require current user to match)
   const isAdminUser = (u) => {
     if (!u) return false;
-    return !!(u.is_admin || u.is_staff || u.isSuperuser || u.isSuperUser || u.role === "admin" || (u.roles && u.roles.indexOf("admin") >= 0));
+    return !!(
+      u.is_admin ||
+      u.is_staff ||
+      u.isSuperuser ||
+      u.isSuperUser ||
+      u.role === "admin" ||
+      (u.roles && u.roles.indexOf("admin") >= 0)
+    );
   };
   // helper: tolerant role check (handles common synonyms like 'owner' / 'dueno')
   const normalize = (s) => (s || "").toString().toLowerCase();
@@ -121,7 +128,9 @@ function Sidenav({ routes, ...rest }) {
   const userHasRole = (expected) => {
     if (!currentUser) return false;
     const exp = normalize(expected);
-    const userRole = normalize(currentUser.role || (currentUser.roles && currentUser.roles[0]) || "");
+    const userRole = normalize(
+      currentUser.role || (currentUser.roles && currentUser.roles[0]) || ""
+    );
     // direct match
     if (userRole && userRole === exp) return true;
     // check aliases map
@@ -153,7 +162,10 @@ function Sidenav({ routes, ...rest }) {
   // eslint-disable-next-line no-console
   console.debug("[Sidenav] currentUser:", currentUser);
   // eslint-disable-next-line no-console
-  console.debug("[Sidenav] filtered route keys:", filteredRoutes.map((r) => r.key));
+  console.debug(
+    "[Sidenav] filtered route keys:",
+    filteredRoutes.map((r) => r.key)
+  );
 
   // If current user is admin, show only the specific admin menu items
   // (Veterinarios, Recepcionistas, Perfil, Cerrar sesión).
@@ -186,67 +198,59 @@ function Sidenav({ routes, ...rest }) {
   }
 
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
-  const renderRoutes = finalRoutes.map(({ type, name, icon, title, noCollapse, key, route, href }) => {
-    let returnValue;
+  const renderRoutes = finalRoutes.map(
+    ({ type, name, icon, title, noCollapse, key, route, href }) => {
+      let returnValue;
 
-    if (type === "collapse") {
-      // Determine active state by route (preferred) or fallback to the old key comparison
-      const isActive = () => {
-        try {
-          if (route) {
-            const normalizedRoute = route.replace(/\/$/, "");
-            return pathname === normalizedRoute || pathname.startsWith(`${normalizedRoute}/`);
+      if (type === "collapse") {
+        // Determine active state by route (preferred) or fallback to the old key comparison
+        const isActive = () => {
+          try {
+            if (route) {
+              const normalizedRoute = route.replace(/\/$/, "");
+              return pathname === normalizedRoute || pathname.startsWith(`${normalizedRoute}/`);
+            }
+          } catch (e) {
+            // ignore
           }
-        } catch (e) {
-          // ignore
-        }
-        return key === collapseName;
-      };
+          return key === collapseName;
+        };
 
-      returnValue = href ? (
-        <Link
-          href={href}
-          key={key}
-          target="_blank"
-          rel="noreferrer"
-          className={classes.sidenav_navlink}
-        >
-          <SidenavCollapse
-            name={name}
-            icon={icon}
-            active={isActive()}
-            noCollapse={noCollapse}
-          />
-        </Link>
-      ) : (
-        <NavLink to={route} key={key} className={classes.sidenav_navlink}>
-          <SidenavCollapse
-            name={name}
-            icon={icon}
-            active={isActive()}
-            noCollapse={noCollapse}
-          />
-        </NavLink>
-      );
-    } else if (type === "title") {
-      returnValue = (
-        <SuiTypography
-          key={key}
-          variant="caption"
-          fontWeight="bold"
-          textTransform="uppercase"
-          customClass={classes.sidenav_title}
-          textColor="white"
-        >
-          {title}
-        </SuiTypography>
-      );
-    } else if (type === "divider") {
-      returnValue = <Divider key={key} />;
+        returnValue = href ? (
+          <Link
+            href={href}
+            key={key}
+            target="_blank"
+            rel="noreferrer"
+            className={classes.sidenav_navlink}
+          >
+            <SidenavCollapse name={name} icon={icon} active={isActive()} noCollapse={noCollapse} />
+          </Link>
+        ) : (
+          <NavLink to={route} key={key} className={classes.sidenav_navlink}>
+            <SidenavCollapse name={name} icon={icon} active={isActive()} noCollapse={noCollapse} />
+          </NavLink>
+        );
+      } else if (type === "title") {
+        returnValue = (
+          <SuiTypography
+            key={key}
+            variant="caption"
+            fontWeight="bold"
+            textTransform="uppercase"
+            customClass={classes.sidenav_title}
+            textColor="white"
+          >
+            {title}
+          </SuiTypography>
+        );
+      } else if (type === "divider") {
+        returnValue = <Divider key={key} />;
+      }
+
+      return returnValue;
     }
-
-    return returnValue;
-  });
+  );
 
   return (
     <Drawer

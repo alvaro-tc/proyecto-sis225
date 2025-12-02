@@ -25,7 +25,7 @@ import SuiBox from "components/SuiBox";
 import SuiTypography from "components/SuiTypography";
 import SuiAvatar from "components/SuiAvatar";
 
-// Soft UI Dashboard PRO React example components 
+// Soft UI Dashboard PRO React example components
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
 // Soft UI Dashboard PRO React icons
@@ -59,7 +59,14 @@ function Header({ name, role, avatar }) {
             />
           </Grid>
           <Grid item>
-            <SuiBox height="100%" mt={0.5} lineHeight={1} display="flex" alignItems="center" gap={1}>
+            <SuiBox
+              height="100%"
+              mt={0.5}
+              lineHeight={1}
+              display="flex"
+              alignItems="center"
+              gap={1}
+            >
               <SuiBox>
                 <SuiTypography variant="h5" fontWeight="medium">
                   {name || "Nombre Apellido"}
@@ -68,7 +75,6 @@ function Header({ name, role, avatar }) {
                   {role || ""}
                 </SuiTypography>
               </SuiBox>
-              
             </SuiBox>
           </Grid>
           {/* removed App/Message/Settings tabs for clinic UI */}

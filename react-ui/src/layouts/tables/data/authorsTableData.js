@@ -56,7 +56,13 @@ export default {
         </SuiTypography>
       ),
       action: (
-        <SuiTypography component="a" href="#" variant="caption" textColor="secondary" fontWeight="medium">
+        <SuiTypography
+          component="a"
+          href="#"
+          variant="caption"
+          textColor="secondary"
+          fontWeight="medium"
+        >
           Edit
         </SuiTypography>
       ),
@@ -70,7 +76,13 @@ export default {
         </SuiTypography>
       ),
       action: (
-        <SuiTypography component="a" href="#" variant="caption" textColor="secondary" fontWeight="medium">
+        <SuiTypography
+          component="a"
+          href="#"
+          variant="caption"
+          textColor="secondary"
+          fontWeight="medium"
+        >
           Edit
         </SuiTypography>
       ),
@@ -84,7 +96,13 @@ export default {
         </SuiTypography>
       ),
       action: (
-        <SuiTypography component="a" href="#" variant="caption" textColor="secondary" fontWeight="medium">
+        <SuiTypography
+          component="a"
+          href="#"
+          variant="caption"
+          textColor="secondary"
+          fontWeight="medium"
+        >
           Edit
         </SuiTypography>
       ),

@@ -48,7 +48,7 @@ export default makeStyles(
         },
         top: ({ absolute }) => (absolute ? 0 : pxToRem(12)),
         minHeight: pxToRem(75),
-        
+
         display: "grid",
         alignItems: "center",
         borderRadius: borderRadius.xl,
@@ -74,8 +74,6 @@ export default makeStyles(
             padding: `${pxToRem(4)} ${pxToRem(16)}`,
           },
         },
-
-        
       },
 
       navbar_container: {

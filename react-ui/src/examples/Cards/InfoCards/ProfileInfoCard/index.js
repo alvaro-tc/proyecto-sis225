@@ -72,7 +72,13 @@ function ProfileInfoCard({ title, description, info, action }) {
           {title}
         </SuiTypography>
         {action && action.onClick ? (
-          <SuiTypography component="button" onClick={action.onClick} variant="body2" textColor="secondary" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+          <SuiTypography
+            component="button"
+            onClick={action.onClick}
+            variant="body2"
+            textColor="secondary"
+            style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
+          >
             <Tooltip title={action.tooltip} placement="top">
               <Icon>edit</Icon>
             </Tooltip>
@@ -94,9 +100,7 @@ function ProfileInfoCard({ title, description, info, action }) {
         <SuiBox opacity={0.3}>
           <Divider />
         </SuiBox>
-        <SuiBox>
-          {renderItems}
-        </SuiBox>
+        <SuiBox>{renderItems}</SuiBox>
       </SuiBox>
     </Card>
   );

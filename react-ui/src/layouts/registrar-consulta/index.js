@@ -57,8 +57,10 @@ export default function RegistrarConsulta() {
         if (!mounted) return;
         const vets = await clinicApi.list("veterinarios");
         if (!mounted) return;
-        const found = Array.isArray(vets) ? vets.find((v) => (v.user && (v.user.id === user.id || v.user.email === user.email))) : null;
-        const id = found ? (found.idVeterinario || found.id) : null;
+        const found = Array.isArray(vets)
+          ? vets.find((v) => v.user && (v.user.id === user.id || v.user.email === user.email))
+          : null;
+        const id = found ? found.idVeterinario || found.id : null;
         if (id) {
           setVetId(id);
           setApiResource(`veterinarios/${id}/consultas`);
@@ -82,37 +84,74 @@ export default function RegistrarConsulta() {
     { name: "action", align: "center" },
   ];
 
-  const rowMapper = useCallback((c) => {
-    const idVal = c.idConsulta || c.id || "";
-    const fecha = c.fecha || (c.fechaHora ? String(c.fechaHora).split("T")[0] : "");
-    const hora = c.hora || (c.fechaHora ? (String(c.fechaHora).split("T")[1] || "").slice(0,5) : "");
-    const mascotaName = c.mascota && (c.mascota.nombre || c.mascota.nombreMascota || (c.mascota.user && (c.mascota.user.nombre || c.mascota.user.email))) || "-";
+  const rowMapper = useCallback(
+    (c) => {
+      const idVal = c.idConsulta || c.id || "";
+      const fecha = c.fecha || (c.fechaHora ? String(c.fechaHora).split("T")[0] : "");
+      const hora =
+        c.hora || (c.fechaHora ? (String(c.fechaHora).split("T")[1] || "").slice(0, 5) : "");
+      const mascotaName =
+        (c.mascota &&
+          (c.mascota.nombre ||
+            c.mascota.nombreMascota ||
+            (c.mascota.user && (c.mascota.user.nombre || c.mascota.user.email)))) ||
+        "-";
 
-    // determine asistio state: 1/true -> green, 0/false -> red, null/undefined -> blue
-    const asistioVal = c.asistio;
-    const iconColor = asistioVal === 1 || asistioVal === true ? "success.main" : (asistioVal === 0 || asistioVal === false ? "error.main" : "info.main");
+      // determine asistio state: 1/true -> green, 0/false -> red, null/undefined -> blue
+      const asistioVal = c.asistio;
+      const iconColor =
+        asistioVal === 1 || asistioVal === true
+          ? "success.main"
+          : asistioVal === 0 || asistioVal === false
+          ? "error.main"
+          : "info.main";
 
-    const mascotaIdVal = c.mascota && (c.mascota.idMascota || c.mascota.id) || c.mascota || null;
+      const mascotaIdVal =
+        (c.mascota && (c.mascota.idMascota || c.mascota.id)) || c.mascota || null;
 
-    return {
-      Fecha: fecha,
-      Hora: hora,
-      // show just the name (remove avatar/icon per request)
-      Mascota: mascotaName,
-      Motivo: c.motivo || c.descripcion || "",
-      action: (
-        <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-          <IconButton size="small" title={asistioVal == null ? "Anotar/Registrar (sin asistencia)" : (asistioVal ? "Anotar/Registrar (asistió)" : "Anotar/Registrar (no asistió)") } onClick={() => { setSelectedConsultaId(idVal); setOpenAnotar(true); }}>
-            <NoteAddIcon fontSize="small" sx={{ color: iconColor }} />
-          </IconButton>
+      return {
+        Fecha: fecha,
+        Hora: hora,
+        // show just the name (remove avatar/icon per request)
+        Mascota: mascotaName,
+        Motivo: c.motivo || c.descripcion || "",
+        action: (
+          <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+            <IconButton
+              size="small"
+              title={
+                asistioVal == null
+                  ? "Anotar/Registrar (sin asistencia)"
+                  : asistioVal
+                  ? "Anotar/Registrar (asistió)"
+                  : "Anotar/Registrar (no asistió)"
+              }
+              onClick={() => {
+                setSelectedConsultaId(idVal);
+                setOpenAnotar(true);
+              }}
+            >
+              <NoteAddIcon fontSize="small" sx={{ color: iconColor }} />
+            </IconButton>
 
-          <IconButton size="small" title="Historial clínico" onClick={() => { if (mascotaIdVal) { setSelectedMascotaId(mascotaIdVal); setOpenHistorial(true); } }}>
-            <HistoryIcon fontSize="small" />
-          </IconButton>
-        </div>
-      ),
-    };
-  }, [setSelectedConsultaId]);
+            <IconButton
+              size="small"
+              title="Historial clínico"
+              onClick={() => {
+                if (mascotaIdVal) {
+                  setSelectedMascotaId(mascotaIdVal);
+                  setOpenHistorial(true);
+                }
+              }}
+            >
+              <HistoryIcon fontSize="small" />
+            </IconButton>
+          </div>
+        ),
+      };
+    },
+    [setSelectedConsultaId]
+  );
 
   return (
     <DashboardLayout>
@@ -128,14 +167,25 @@ export default function RegistrarConsulta() {
             <SuiBox customClass={classes.tables_table} p={2}>
               {loading ? (
                 <SuiBox display="flex" alignItems="center" justifyContent="center" py={4}>
-                  <SuiTypography variant="body2" textColor="text">Cargando...</SuiTypography>
+                  <SuiTypography variant="body2" textColor="text">
+                    Cargando...
+                  </SuiTypography>
                 </SuiBox>
               ) : apiResource ? (
-                <Table key={`${apiResource}?_=${reload}`} columns={columns} apiResource={apiResource} rowMapper={rowMapper} />
+                <Table
+                  key={`${apiResource}?_=${reload}`}
+                  columns={columns}
+                  apiResource={apiResource}
+                  rowMapper={rowMapper}
+                />
               ) : (
                 <SuiBox textAlign="center" py={6}>
-                  <SuiTypography variant="h6">No se encontró el perfil de veterinario</SuiTypography>
-                  <SuiTypography variant="body2" textColor="text">Asegúrate de tener una cuenta de veterinario o contacta al administrador.</SuiTypography>
+                  <SuiTypography variant="h6">
+                    No se encontró el perfil de veterinario
+                  </SuiTypography>
+                  <SuiTypography variant="body2" textColor="text">
+                    Asegúrate de tener una cuenta de veterinario o contacta al administrador.
+                  </SuiTypography>
                 </SuiBox>
               )}
             </SuiBox>
@@ -145,11 +195,25 @@ export default function RegistrarConsulta() {
       <Footer />
       <ModalAnotarConsulta
         open={openAnotar}
-        onClose={() => { setOpenAnotar(false); setSelectedConsultaId(null); }}
+        onClose={() => {
+          setOpenAnotar(false);
+          setSelectedConsultaId(null);
+        }}
         consultaId={selectedConsultaId}
-        onSaved={() => { setOpenAnotar(false); setSelectedConsultaId(null); setReload((r) => r + 1); }}
+        onSaved={() => {
+          setOpenAnotar(false);
+          setSelectedConsultaId(null);
+          setReload((r) => r + 1);
+        }}
       />
-      <ModalHistorialMascota open={openHistorial} onClose={() => { setOpenHistorial(false); setSelectedMascotaId(null); }} mascotaId={selectedMascotaId} />
+      <ModalHistorialMascota
+        open={openHistorial}
+        onClose={() => {
+          setOpenHistorial(false);
+          setSelectedMascotaId(null);
+        }}
+        mascotaId={selectedMascotaId}
+      />
     </DashboardLayout>
   );
 }

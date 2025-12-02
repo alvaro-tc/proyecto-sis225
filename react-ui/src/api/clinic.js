@@ -164,7 +164,10 @@ async function updateSelf(resource, payload) {
 // or a full URL. `options.body` may be a plain object and will be JSON-stringified.
 async function request(path, options = {}) {
   const { method = "GET", body = null, headers: extraHeaders = {} } = options;
-  const url = path && path.startsWith("http") ? path : `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
+  const url =
+    path && path.startsWith("http")
+      ? path
+      : `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
   const headers = { ...authHeaders(), ...extraHeaders };
   const fetchOpts = { method, headers };
   if (body !== null && body !== undefined) {

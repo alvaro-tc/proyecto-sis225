@@ -92,7 +92,12 @@ function DefaultNavbar({ transparent, light, action }) {
             route="/authentication/sign-up"
             light={light}
           />
-          <DefaultNavbarLink icon="key" name="Iniciar Sesión" route="/authentication/sign-in" light={light} />
+          <DefaultNavbarLink
+            icon="key"
+            name="Iniciar Sesión"
+            route="/authentication/sign-in"
+            light={light}
+          />
         </SuiBox>
         {action &&
           (action.type === "internal" ? (

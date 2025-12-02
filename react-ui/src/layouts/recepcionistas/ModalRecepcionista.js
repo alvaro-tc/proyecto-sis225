@@ -46,7 +46,13 @@ export default function ModalRecepcionista({ open, onClose, onSave, initialData,
           email: initialData.email || initialData.user?.email || "",
           password: "",
           telefono:
-            initialData.telefono || initialData.phone || initialData.telefono_movil || initialData.user?.telefono || initialData.user?.phone || initialData.user?.telefono_movil || "",
+            initialData.telefono ||
+            initialData.phone ||
+            initialData.telefono_movil ||
+            initialData.user?.telefono ||
+            initialData.user?.phone ||
+            initialData.user?.telefono_movil ||
+            "",
           nombre: initialData.nombre || initialData.user?.nombre || "",
         });
         return;
@@ -62,7 +68,14 @@ export default function ModalRecepcionista({ open, onClose, onSave, initialData,
         // eslint-disable-next-line no-console
         console.debug("Fetched recepcionista:", data);
         if (!mounted) return;
-        const telefonoVal = data.telefono || data.phone || data.telefono_movil || data.user?.telefono || data.user?.phone || data.user?.telefono_movil || "";
+        const telefonoVal =
+          data.telefono ||
+          data.phone ||
+          data.telefono_movil ||
+          data.user?.telefono ||
+          data.user?.phone ||
+          data.user?.telefono_movil ||
+          "";
         reset({
           email: data.email || data.user?.email || "",
           password: "",
@@ -101,7 +114,13 @@ export default function ModalRecepcionista({ open, onClose, onSave, initialData,
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, p: 0 } }}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      PaperProps={{ sx: { borderRadius: 3, p: 0 } }}
+    >
       <DialogTitle sx={{ fontWeight: 600, textAlign: "center", pb: 1, fontSize: TITLE_FONT }}>
         Registrar Recepcionista
       </DialogTitle>
@@ -117,7 +136,10 @@ export default function ModalRecepcionista({ open, onClose, onSave, initialData,
                 fullWidth
                 size="small"
                 type="email"
-                {...register("email", { required: "El email es obligatorio", maxLength: { value: 255, message: "Máximo 255 caracteres" } })}
+                {...register("email", {
+                  required: "El email es obligatorio",
+                  maxLength: { value: 255, message: "Máximo 255 caracteres" },
+                })}
                 error={!!errors.email}
                 helperText={errors.email?.message}
                 sx={textFieldSx}
@@ -126,15 +148,43 @@ export default function ModalRecepcionista({ open, onClose, onSave, initialData,
             </Grid>
 
             <Grid item xs={12}>
-              <TextField label="Password" fullWidth size="small" type="password" {...register("password", { required: "La contraseña es obligatoria" })} error={!!errors.password} helperText={errors.password?.message} sx={textFieldSx} InputLabelProps={{ shrink: true }} />
+              <TextField
+                label="Password"
+                fullWidth
+                size="small"
+                type="password"
+                {...register("password", { required: "La contraseña es obligatoria" })}
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                sx={textFieldSx}
+                InputLabelProps={{ shrink: true }}
+              />
             </Grid>
 
             <Grid item xs={12}>
-              <TextField label="Teléfono" fullWidth size="small" {...register("telefono", { maxLength: { value: 50, message: "Máximo 50 caracteres" } })} sx={textFieldSx} InputLabelProps={{ shrink: true }} />
+              <TextField
+                label="Teléfono"
+                fullWidth
+                size="small"
+                {...register("telefono", {
+                  maxLength: { value: 50, message: "Máximo 50 caracteres" },
+                })}
+                sx={textFieldSx}
+                InputLabelProps={{ shrink: true }}
+              />
             </Grid>
 
             <Grid item xs={12}>
-              <TextField label="Nombre" fullWidth size="small" {...register("nombre", { maxLength: { value: 255, message: "Máximo 255 caracteres" } })} sx={textFieldSx} InputLabelProps={{ shrink: true }} />
+              <TextField
+                label="Nombre"
+                fullWidth
+                size="small"
+                {...register("nombre", {
+                  maxLength: { value: 255, message: "Máximo 255 caracteres" },
+                })}
+                sx={textFieldSx}
+                InputLabelProps={{ shrink: true }}
+              />
             </Grid>
 
             {submitError && (
@@ -150,10 +200,20 @@ export default function ModalRecepcionista({ open, onClose, onSave, initialData,
         <Divider />
 
         <DialogActions sx={{ p: 2, justifyContent: "flex-end", gap: 1 }}>
-          <SuiButton variant="outlined" buttonColor="secondary" onClick={onClose} sx={{ fontSize: INPUT_FONT, textTransform: "none", px: 3, minWidth: 120, height: 44 }}>
+          <SuiButton
+            variant="outlined"
+            buttonColor="secondary"
+            onClick={onClose}
+            sx={{ fontSize: INPUT_FONT, textTransform: "none", px: 3, minWidth: 120, height: 44 }}
+          >
             Cancelar
           </SuiButton>
-          <SuiButton variant="gradient" buttonColor="dark" type="submit" sx={{ fontSize: INPUT_FONT, textTransform: "none", px: 3, minWidth: 120, height: 44 }}>
+          <SuiButton
+            variant="gradient"
+            buttonColor="dark"
+            type="submit"
+            sx={{ fontSize: INPUT_FONT, textTransform: "none", px: 3, minWidth: 120, height: 44 }}
+          >
             Guardar
           </SuiButton>
         </DialogActions>

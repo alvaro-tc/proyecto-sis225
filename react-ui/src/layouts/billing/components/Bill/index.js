@@ -25,12 +25,15 @@ import SuiTypography from "components/SuiTypography";
 import SuiButton from "components/SuiButton";
 
 function Bill({ consulta, onEdit, onDelete, noGutter }) {
-  const mascotaName = consulta?.mascota?.nombre || (typeof consulta?.mascota === "string" ? consulta.mascota : "-");
+  const mascotaName =
+    consulta?.mascota?.nombre || (typeof consulta?.mascota === "string" ? consulta.mascota : "-");
   const fecha = consulta?.fecha || "";
   const hora = consulta?.hora || "";
   const motivo = consulta?.motivo || "-";
   const descripcion = consulta?.descripcion || "";
-  const vetName = consulta?.veterinario?.nombre || (typeof consulta?.veterinario === "string" ? consulta.veterinario : "-");
+  const vetName =
+    consulta?.veterinario?.nombre ||
+    (typeof consulta?.veterinario === "string" ? consulta.veterinario : "-");
 
   function formatDateLongSpanish(rawDate) {
     if (!rawDate) return "";
@@ -73,7 +76,11 @@ function Bill({ consulta, onEdit, onDelete, noGutter }) {
 
           <SuiBox display="flex" alignItems="center" mt={{ xs: 2, sm: 0 }} ml={{ xs: -1.5, sm: 0 }}>
             <SuiBox mr={1}>
-              <SuiButton variant="text" buttonColor="error" onClick={() => onDelete && onDelete(consulta)}>
+              <SuiButton
+                variant="text"
+                buttonColor="error"
+                onClick={() => onDelete && onDelete(consulta)}
+              >
                 <Icon className="material-icons-round">delete</Icon>&nbsp;eliminar
               </SuiButton>
             </SuiBox>
@@ -87,7 +94,9 @@ function Bill({ consulta, onEdit, onDelete, noGutter }) {
           <SuiBox mb={1} lineHeight={0}>
             <SuiTypography variant="caption" textColor="text">
               Hora:&nbsp;&nbsp;&nbsp;
-              <SuiTypography variant="caption" fontWeight="medium">{hora}</SuiTypography>
+              <SuiTypography variant="caption" fontWeight="medium">
+                {hora}
+              </SuiTypography>
             </SuiTypography>
           </SuiBox>
         )}
@@ -127,8 +136,6 @@ function Bill({ consulta, onEdit, onDelete, noGutter }) {
             </SuiTypography>
           </SuiTypography>
         </SuiBox>
-
-        
       </SuiBox>
     </SuiBox>
   );

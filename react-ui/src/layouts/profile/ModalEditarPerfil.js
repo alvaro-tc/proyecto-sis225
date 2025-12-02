@@ -1,4 +1,4 @@
-        import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Dialog,
@@ -67,7 +67,7 @@ export default function ModalEditarPerfil({ open, onClose, onSaved }) {
         reset({
           nombre: source.nombre || source.name || u.nombre || u.name || "",
           telefono: source.telefono || source.phone || u.telefono || u.phone || "",
-          email: (u.email || u.user?.email || source.email || source.user?.email) || "",
+          email: u.email || u.user?.email || source.email || source.user?.email || "",
           password: "",
         });
 
@@ -166,7 +166,9 @@ export default function ModalEditarPerfil({ open, onClose, onSaved }) {
                   label="Password (dejar vacío para no cambiar)"
                   fullWidth
                   type="password"
-                  {...register("password", { minLength: { value: 6, message: "Mínimo 6 caracteres" } })}
+                  {...register("password", {
+                    minLength: { value: 6, message: "Mínimo 6 caracteres" },
+                  })}
                   error={!!errors.password}
                   helperText={errors.password?.message}
                   InputLabelProps={{ shrink: true }}
@@ -201,10 +203,20 @@ export default function ModalEditarPerfil({ open, onClose, onSaved }) {
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <SuiButton variant="outlined" buttonColor="secondary" onClick={onClose} disabled={saving || loading}>
+          <SuiButton
+            variant="outlined"
+            buttonColor="secondary"
+            onClick={onClose}
+            disabled={saving || loading}
+          >
             Cancelar
           </SuiButton>
-          <SuiButton variant="gradient" buttonColor="dark" type="submit" disabled={saving || loading}>
+          <SuiButton
+            variant="gradient"
+            buttonColor="dark"
+            type="submit"
+            disabled={saving || loading}
+          >
             {saving ? "Guardando..." : "Guardar"}
           </SuiButton>
         </DialogActions>

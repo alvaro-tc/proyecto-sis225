@@ -91,7 +91,16 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
     setValue,
     watch,
     formState: { errors },
-  } = useForm({ defaultValues: { motivo: "", descripcion: "", fecha: "", mascota: null, veterinario: null, hora: "" } });
+  } = useForm({
+    defaultValues: {
+      motivo: "",
+      descripcion: "",
+      fecha: "",
+      mascota: null,
+      veterinario: null,
+      hora: "",
+    },
+  });
 
   const veterinarioSel = watch("veterinario");
   const fechaSel = watch("fecha");
@@ -115,7 +124,12 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
         setVeterinarios(Array.isArray(vets) ? vets : []);
         setMascotas(Array.isArray(myPets) ? myPets : []);
         // eslint-disable-next-line no-console
-        console.debug("[ModalCrearConsulta] loaded veterinarios count:", Array.isArray(vets) ? vets.length : 0, "mascotas:", Array.isArray(myPets) ? myPets.length : 0);
+        console.debug(
+          "[ModalCrearConsulta] loaded veterinarios count:",
+          Array.isArray(vets) ? vets.length : 0,
+          "mascotas:",
+          Array.isArray(myPets) ? myPets.length : 0
+        );
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error("Error loading vets or mascotas:", err);
@@ -139,12 +153,23 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
     async function loadConsultas() {
       setOcupadas([]);
       if (!veterinarioSel) return;
-      const vetId = veterinarioSel.idVeterinario || veterinarioSel.id || (veterinarioSel.user && veterinarioSel.user.id) || null;
+      const vetId =
+        veterinarioSel.idVeterinario ||
+        veterinarioSel.id ||
+        (veterinarioSel.user && veterinarioSel.user.id) ||
+        null;
       // eslint-disable-next-line no-console
-      console.debug("[ModalCrearConsulta] loadConsultas called, veterinarianSel:", veterinarioSel, "resolved vetId:", vetId);
+      console.debug(
+        "[ModalCrearConsulta] loadConsultas called, veterinarianSel:",
+        veterinarioSel,
+        "resolved vetId:",
+        vetId
+      );
       if (!vetId) return;
       try {
-        const res = await clinicApi.request(`/api/clinic/veterinarios/${vetId}/consultas`, { method: "GET" });
+        const res = await clinicApi.request(`/api/clinic/veterinarios/${vetId}/consultas`, {
+          method: "GET",
+        });
         if (!mounted) return;
         // eslint-disable-next-line no-console
         console.debug("[ModalCrearConsulta] consultas for vet:", res);
@@ -172,7 +197,8 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
   }, [veterinarioSel]);
 
   const availableSlotsForDate = useMemo(() => {
-    if (!veterinarioSel || !veterinarioSel.work_start || !veterinarioSel.work_end || !fechaSel) return [];
+    if (!veterinarioSel || !veterinarioSel.work_start || !veterinarioSel.work_end || !fechaSel)
+      return [];
     const start = parseTime(veterinarioSel.work_start) || { hh: 9, mm: 0 };
     const end = parseTime(veterinarioSel.work_end) || { hh: 17, mm: 0 };
     const startMin = timeToMinutes(start);
@@ -209,7 +235,8 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
         fecha: values.fecha,
         hora: values.hora,
         mascota: values.mascota?.idMascota || values.mascota?.id || values.mascota || null,
-        veterinario: values.veterinario?.idVeterinario || values.veterinario?.id || values.veterinario || null,
+        veterinario:
+          values.veterinario?.idVeterinario || values.veterinario?.id || values.veterinario || null,
       };
       if (!isFuture(payload.fecha, payload.hora)) {
         setError("No se puede agendar en fecha/hora pasada. Selecciona una fecha y hora futuras.");
@@ -242,7 +269,9 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
       maxWidth="sm"
       PaperProps={{ sx: { borderRadius: 3, p: 0 } }}
     >
-      <DialogTitle sx={{ fontWeight: 600, textAlign: "center", pb: 1, fontSize: TITLE_FONT }}>Registrar Consulta</DialogTitle>
+      <DialogTitle sx={{ fontWeight: 600, textAlign: "center", pb: 1, fontSize: TITLE_FONT }}>
+        Registrar Consulta
+      </DialogTitle>
       <Divider />
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -270,7 +299,12 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
                       }}
                       isOptionEqualToValue={(option, value) => {
                         if (!option || !value) return false;
-                        return (option.idVeterinario && value.idVeterinario && option.idVeterinario === value.idVeterinario) || (option.id && value.id && option.id === value.id);
+                        return (
+                          (option.idVeterinario &&
+                            value.idVeterinario &&
+                            option.idVeterinario === value.idVeterinario) ||
+                          (option.id && value.id && option.id === value.id)
+                        );
                       }}
                       renderInput={(params) => (
                         <TextField
@@ -295,15 +329,29 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
                   render={({ field }) => (
                     <Autocomplete
                       options={mascotas}
-                      getOptionLabel={(m) => (m ? m?.nombre || m?.nombreMascota || String(m?.id || "") : "")}
+                      getOptionLabel={(m) =>
+                        m ? m?.nombre || m?.nombreMascota || String(m?.id || "") : ""
+                      }
                       value={field.value}
                       onChange={(_, v) => field.onChange(v)}
                       isOptionEqualToValue={(option, value) => {
                         if (!option || !value) return false;
-                        return (option.idMascota && value.idMascota && option.idMascota === value.idMascota) || (option.id && value.id && option.id === value.id);
+                        return (
+                          (option.idMascota &&
+                            value.idMascota &&
+                            option.idMascota === value.idMascota) ||
+                          (option.id && value.id && option.id === value.id)
+                        );
                       }}
                       renderInput={(params) => (
-                        <TextField {...params} label="Mascota" InputLabelProps={{ shrink: true }} sx={textFieldSx} error={!!errors.mascota} helperText={errors.mascota?.message} />
+                        <TextField
+                          {...params}
+                          label="Mascota"
+                          InputLabelProps={{ shrink: true }}
+                          sx={textFieldSx}
+                          error={!!errors.mascota}
+                          helperText={errors.mascota?.message}
+                        />
                       )}
                     />
                   )}
@@ -322,7 +370,8 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
                 />
                 {veterinarioSel?.work_days && (
                   <Typography variant="caption" color="text.secondary">
-                    Días de trabajo: {String(veterinarioSel.work_days)} — Horario: {veterinarioSel.work_start || "--"} a {veterinarioSel.work_end || "--"}
+                    Días de trabajo: {String(veterinarioSel.work_days)} — Horario:{" "}
+                    {veterinarioSel.work_start || "--"} a {veterinarioSel.work_end || "--"}
                   </Typography>
                 )}
               </Grid>
@@ -344,13 +393,7 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
                       <Grid item key={s.time}>
                         <Button
                           variant={s.time === horaSel ? "contained" : "outlined"}
-                          color={
-                            s.available
-                              ? "primary"
-                              : s.occupied
-                              ? "error"
-                              : "inherit"
-                          }
+                          color={s.available ? "primary" : s.occupied ? "error" : "inherit"}
                           onClick={() => pickSlot(s)}
                           disabled={!s.available}
                           sx={{
@@ -375,17 +418,35 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
                 </Grid>
               </Grid>
 
-
               <Grid item xs={12}>
-                <TextField label="Hora seleccionada" fullWidth value={horaSel || ""} InputProps={{ readOnly: true }} sx={textFieldSx} />
+                <TextField
+                  label="Hora seleccionada"
+                  fullWidth
+                  value={horaSel || ""}
+                  InputProps={{ readOnly: true }}
+                  sx={textFieldSx}
+                />
               </Grid>
 
               <Grid item xs={12}>
-                <TextField label="Motivo" fullWidth {...register("motivo", { required: "El motivo es requerido" })} error={!!errors.motivo} sx={textFieldSx} />
+                <TextField
+                  label="Motivo"
+                  fullWidth
+                  {...register("motivo", { required: "El motivo es requerido" })}
+                  error={!!errors.motivo}
+                  sx={textFieldSx}
+                />
               </Grid>
 
               <Grid item xs={12}>
-                <TextField label="Descripción" fullWidth multiline rows={3} {...register("descripcion")} sx={textFieldSx} />
+                <TextField
+                  label="Descripción"
+                  fullWidth
+                  multiline
+                  rows={3}
+                  {...register("descripcion")}
+                  sx={textFieldSx}
+                />
               </Grid>
 
               {error && (
@@ -400,10 +461,22 @@ export default function ModalCrearConsulta({ open, onClose, onSaved }) {
         <Divider />
 
         <DialogActions sx={{ p: 2, justifyContent: "flex-end", gap: 1 }}>
-          <SuiButton variant="outlined" buttonColor="secondary" onClick={onClose} disabled={saving} sx={{ minWidth: 120, height: 44 }}>
+          <SuiButton
+            variant="outlined"
+            buttonColor="secondary"
+            onClick={onClose}
+            disabled={saving}
+            sx={{ minWidth: 120, height: 44 }}
+          >
             Cancelar
           </SuiButton>
-          <SuiButton variant="gradient" buttonColor="dark" type="submit" disabled={saving} sx={{ minWidth: 120, height: 44 }}>
+          <SuiButton
+            variant="gradient"
+            buttonColor="dark"
+            type="submit"
+            disabled={saving}
+            sx={{ minWidth: 120, height: 44 }}
+          >
             {saving ? "Guardando..." : "Crear"}
           </SuiButton>
         </DialogActions>

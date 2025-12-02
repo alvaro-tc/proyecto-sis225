@@ -40,7 +40,8 @@ import { useHistory } from "react-router-dom";
 import "assets/theme/global-login.css";
 
 // imagen de fondo externa temporal (veterinaria)
-const curved9 = "https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=1350&q=80";
+const curved9 =
+  "https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=1350&q=80";
 
 function SignIn() {
   const history = useHistory();
@@ -132,20 +133,24 @@ function SignIn() {
     }
     // decide default redirect based on role. Try user object first, then decode token if needed
     function decodeJwt(t) {
-      if (!t || typeof t !== 'string') return null;
+      if (!t || typeof t !== "string") return null;
       try {
-        const parts = t.split('.');
+        const parts = t.split(".");
         if (parts.length < 2) return null;
         const payload = parts[1];
-        const b64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-        const str = decodeURIComponent(Array.prototype.map.call(atob(b64), (c) => '%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+        const b64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+        const str = decodeURIComponent(
+          Array.prototype.map
+            .call(atob(b64), (c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+            .join("")
+        );
         return JSON.parse(str);
       } catch (e) {
         try {
           // fallback: try plain atob JSON
-          const parts = t.split('.');
+          const parts = t.split(".");
           const payload = parts[1];
-          const b64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+          const b64 = payload.replace(/-/g, "+").replace(/_/g, "/");
           return JSON.parse(atob(b64));
         } catch (e2) {
           return null;
@@ -154,30 +159,36 @@ function SignIn() {
     }
 
     function resolveRoleFromUserOrToken(u, t) {
-      const normalize = (s) => (s || '').toString().toLowerCase();
+      const normalize = (s) => (s || "").toString().toLowerCase();
       if (u) {
-        const r = normalize(u.role || (u.roles && u.roles[0]) || (u.user && u.user.role) || '');
+        const r = normalize(u.role || (u.roles && u.roles[0]) || (u.user && u.user.role) || "");
         if (r) return r;
         // try common boolean flags
-        if (u.is_admin || u.is_staff) return 'admin';
+        if (u.is_admin || u.is_staff) return "admin";
       }
-      const payload = decodeJwt(t || (u && u.token) || localStorage.getItem('token'));
+      const payload = decodeJwt(t || (u && u.token) || localStorage.getItem("token"));
       if (payload) {
         // common locations for roles
         if (payload.role) return normalize(payload.role);
-        if (payload.roles && Array.isArray(payload.roles) && payload.roles.length) return normalize(payload.roles[0]);
+        if (payload.roles && Array.isArray(payload.roles) && payload.roles.length)
+          return normalize(payload.roles[0]);
         if (payload.user && payload.user.role) return normalize(payload.user.role);
-        if (payload.realm_access && Array.isArray(payload.realm_access.roles) && payload.realm_access.roles.length) return normalize(payload.realm_access.roles[0]);
+        if (
+          payload.realm_access &&
+          Array.isArray(payload.realm_access.roles) &&
+          payload.realm_access.roles.length
+        )
+          return normalize(payload.realm_access.roles[0]);
         if (payload.scope) return normalize(payload.scope);
       }
       return null;
     }
 
     const resolvedRole = resolveRoleFromUserOrToken(userObj, token);
-    let target = '/profile';
-    if (!userObj) target = '/authentication/sign-in';
-    else if (resolvedRole === 'recepcionista') target = '/registro-consulta';
-    else if (resolvedRole === 'veterinario' || resolvedRole === 'vet') target = '/consultas';
+    let target = "/profile";
+    if (!userObj) target = "/authentication/sign-in";
+    else if (resolvedRole === "recepcionista") target = "/registro-consulta";
+    else if (resolvedRole === "veterinario" || resolvedRole === "vet") target = "/consultas";
 
     // Redirect to root so App's DefaultRedirect can resolve role using server-side profile
     history.push("/");
@@ -215,13 +226,23 @@ function SignIn() {
               boxShadow: "0 10px 30px rgba(22,28,45,0.12)",
             }}
           >
-            <SuiBox mb={2} className="auth-cover-header-box" style={{ textAlign: 'center', maxWidth: 480, margin: '0 auto' }}>
+            <SuiBox
+              mb={2}
+              className="auth-cover-header-box"
+              style={{ textAlign: "center", maxWidth: 480, margin: "0 auto" }}
+            >
               <SuiBox mb={1} className="auth-cover-header">
-                <SuiTypography variant="h5" fontWeight="medium" style={{ textAlign: 'center' }}>
+                <SuiTypography variant="h5" fontWeight="medium" style={{ textAlign: "center" }}>
                   Iniciar sesión
                 </SuiTypography>
               </SuiBox>
-              <SuiTypography variant="body2" fontWeight="regular" textColor="text" className="auth-cover-description" style={{ textAlign: 'center' }}>
+              <SuiTypography
+                variant="body2"
+                fontWeight="regular"
+                textColor="text"
+                className="auth-cover-description"
+                style={{ textAlign: "center" }}
+              >
                 Ingrese su correo y contraseña para iniciar sesión
               </SuiTypography>
             </SuiBox>

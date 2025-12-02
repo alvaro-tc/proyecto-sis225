@@ -18,11 +18,17 @@ export default function ModalEliminarRecepcionista({ open, onClose, onConfirm, i
       <Divider />
       <DialogContent>
         <Typography variant="body1" sx={{ mt: 1 }}>
-          ¿Estás seguro que deseas eliminar a <strong>{name}</strong>? Esta acción no se puede deshacer.
+          ¿Estás seguro que deseas eliminar a <strong>{name}</strong>? Esta acción no se puede
+          deshacer.
         </Typography>
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
-        <SuiButton variant="outlined" buttonColor="secondary" onClick={onClose} sx={{ minWidth: 100 }}>
+        <SuiButton
+          variant="outlined"
+          buttonColor="secondary"
+          onClick={onClose}
+          sx={{ minWidth: 100 }}
+        >
           Cancelar
         </SuiButton>
         <SuiButton

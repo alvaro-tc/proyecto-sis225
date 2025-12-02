@@ -34,10 +34,13 @@ export default function ModalHistorialMascota({ open, onClose, mascotaId }) {
           setError("Mascota no proporcionada");
           return;
         }
-        const res = await clinicApi.request(`/api/clinic/mascotas/${mascotaId}/consultas/asistidas`, { method: "GET" });
+        const res = await clinicApi.request(
+          `/api/clinic/mascotas/${mascotaId}/consultas/asistidas`,
+          { method: "GET" }
+        );
         if (!mounted) return;
         // Expect an array of consultas; normalize
-        const arr = Array.isArray(res) ? res : (res?.data || []);
+        const arr = Array.isArray(res) ? res : res?.data || [];
         // sort by fecha+hora desc
         arr.sort((a, b) => {
           const fa = (a.fecha || "") + " " + (a.hora || "");
@@ -74,10 +77,15 @@ export default function ModalHistorialMascota({ open, onClose, mascotaId }) {
               {consultas.map((c) => {
                 const idVal = c.idConsulta || c.id || null;
                 const fecha = c.fecha || (c.fechaHora ? String(c.fechaHora).split("T")[0] : "");
-                const hora = c.hora || (c.fechaHora ? (String(c.fechaHora).split("T")[1] || "").slice(0, 5) : "");
+                const hora =
+                  c.hora ||
+                  (c.fechaHora ? (String(c.fechaHora).split("T")[1] || "").slice(0, 5) : "");
                 const motivo = c.motivo || c.descripcion || "-";
                 return (
-                  <ListItemButton key={idVal || `${fecha}-${hora}-${motivo}`} onClick={() => setSelectedConsultaId(idVal)}>
+                  <ListItemButton
+                    key={idVal || `${fecha}-${hora}-${motivo}`}
+                    onClick={() => setSelectedConsultaId(idVal)}
+                  >
                     <ListItemText primary={`${fecha} ${hora}`} secondary={motivo} />
                   </ListItemButton>
                 );
@@ -86,12 +94,18 @@ export default function ModalHistorialMascota({ open, onClose, mascotaId }) {
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <SuiButton variant="outlined" buttonColor="secondary" onClick={onClose}>Cerrar</SuiButton>
+          <SuiButton variant="outlined" buttonColor="secondary" onClick={onClose}>
+            Cerrar
+          </SuiButton>
         </DialogActions>
       </Dialog>
 
       {selectedConsultaId && (
-        <ModalVerConsulta open={!!selectedConsultaId} onClose={() => setSelectedConsultaId(null)} consultaId={selectedConsultaId} />
+        <ModalVerConsulta
+          open={!!selectedConsultaId}
+          onClose={() => setSelectedConsultaId(null)}
+          consultaId={selectedConsultaId}
+        />
       )}
     </>
   );

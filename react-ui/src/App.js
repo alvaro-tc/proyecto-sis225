@@ -56,64 +56,68 @@ import createCache from "@emotion/cache";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { useAuth } from "auth-context/auth.context";
 import clinicApi from "api/clinic";
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
 
-  function DefaultRedirect() {
-    const { user } = useAuth();
-    const [loading, setLoading] = useState(false);
-    const [resolvedPath, setResolvedPath] = useState(null);
+function DefaultRedirect() {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [resolvedPath, setResolvedPath] = useState(null);
 
-    useEffect(() => {
-      let mounted = true;
-      async function resolve() {
-        try {
-          // If no user at all, go to sign-in
-          if (!user) {
-            setResolvedPath('/authentication/sign-in');
-            return;
-          }
-
-          // helper to normalize role
-          const normalize = (s) => (s || '').toString().toLowerCase();
-          const roleFromUser = normalize(user.role || (user.roles && user.roles[0]) || '');
-          if (roleFromUser) {
-            if (!mounted) return;
-            if (roleFromUser === 'recepcionista') setResolvedPath('/registro-consulta');
-            else if (roleFromUser === 'veterinario' || roleFromUser === 'vet') setResolvedPath('/consultas');
-            else setResolvedPath('/profile');
-            return;
-          }
-
-          // no role present locally; try fetching server-side profile
-          setLoading(true);
-          const me = await clinicApi.request('/api/users/me', { method: 'GET' });
-          if (!mounted) return;
-          const serverRole = normalize(me.role || (me.roles && me.roles[0]) || '');
-          if (serverRole === 'recepcionista') setResolvedPath('/registro-consulta');
-          else if (serverRole === 'veterinario' || serverRole === 'vet') setResolvedPath('/consultas');
-          else setResolvedPath('/profile');
-        } catch (e) {
-          if (!mounted) return;
-          setResolvedPath('/authentication/sign-in');
-        } finally {
-          if (mounted) setLoading(false);
+  useEffect(() => {
+    let mounted = true;
+    async function resolve() {
+      try {
+        // If no user at all, go to sign-in
+        if (!user) {
+          setResolvedPath("/authentication/sign-in");
+          return;
         }
+
+        // helper to normalize role
+        const normalize = (s) => (s || "").toString().toLowerCase();
+        const roleFromUser = normalize(user.role || (user.roles && user.roles[0]) || "");
+        if (roleFromUser) {
+          if (!mounted) return;
+          if (roleFromUser === "recepcionista") setResolvedPath("/registro-consulta");
+          else if (roleFromUser === "veterinario" || roleFromUser === "vet")
+            setResolvedPath("/consultas");
+          else setResolvedPath("/profile");
+          return;
+        }
+
+        // no role present locally; try fetching server-side profile
+        setLoading(true);
+        const me = await clinicApi.request("/api/users/me", { method: "GET" });
+        if (!mounted) return;
+        const serverRole = normalize(me.role || (me.roles && me.roles[0]) || "");
+        if (serverRole === "recepcionista") setResolvedPath("/registro-consulta");
+        else if (serverRole === "veterinario" || serverRole === "vet")
+          setResolvedPath("/consultas");
+        else setResolvedPath("/profile");
+      } catch (e) {
+        if (!mounted) return;
+        setResolvedPath("/authentication/sign-in");
+      } finally {
+        if (mounted) setLoading(false);
       }
-      resolve();
-      return () => { mounted = false; };
-    }, [user]);
-
-    if (loading || !resolvedPath) {
-      return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
-        </Box>
-      );
     }
+    resolve();
+    return () => {
+      mounted = false;
+    };
+  }, [user]);
 
-    return <Redirect to={resolvedPath} />;
+  if (loading || !resolvedPath) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
+
+  return <Redirect to={resolvedPath} />;
+}
 
 export default function App() {
   const [controller, dispatch] = useSoftUIController();
@@ -127,7 +131,9 @@ export default function App() {
       // try to resolve from user object first
       if (!u) return "/authentication/sign-in";
       const normalize = (s) => (s || "").toString().toLowerCase();
-      const roleFromUser = normalize(u.role || (u.roles && u.roles[0]) || (u.user && u.user.role) || "");
+      const roleFromUser = normalize(
+        u.role || (u.roles && u.roles[0]) || (u.user && u.user.role) || ""
+      );
       if (roleFromUser) {
         if (roleFromUser === "recepcionista") return "/registro-consulta";
         if (roleFromUser === "veterinario" || roleFromUser === "vet") return "/consultas";
@@ -135,27 +141,40 @@ export default function App() {
       }
       // fallback: try decoding token from user.token or localStorage
       try {
-        const token = (u && u.token) || localStorage.getItem('token');
+        const token = (u && u.token) || localStorage.getItem("token");
         if (token) {
-          const parts = token.split('.');
+          const parts = token.split(".");
           if (parts.length >= 2) {
             const payload = parts[1];
-            const b64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+            const b64 = payload.replace(/-/g, "+").replace(/_/g, "/");
             let parsed = null;
             try {
               parsed = JSON.parse(atob(b64));
             } catch (e) {
               try {
-                const str = decodeURIComponent(Array.prototype.map.call(atob(b64), (c) => '%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                const str = decodeURIComponent(
+                  Array.prototype.map
+                    .call(atob(b64), (c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+                    .join("")
+                );
                 parsed = JSON.parse(str);
               } catch (e2) {
                 parsed = null;
               }
             }
             if (parsed) {
-              const r = normalize(parsed.role || (parsed.roles && parsed.roles[0]) || (parsed.user && parsed.user.role) || (parsed.realm_access && parsed.realm_access.roles && parsed.realm_access.roles[0]) || parsed.scope || '');
-              if (r === 'recepcionista') return '/registro-consulta';
-              if (r === 'veterinario' || r === 'vet') return '/consultas';
+              const r = normalize(
+                parsed.role ||
+                  (parsed.roles && parsed.roles[0]) ||
+                  (parsed.user && parsed.user.role) ||
+                  (parsed.realm_access &&
+                    parsed.realm_access.roles &&
+                    parsed.realm_access.roles[0]) ||
+                  parsed.scope ||
+                  ""
+              );
+              if (r === "recepcionista") return "/registro-consulta";
+              if (r === "veterinario" || r === "vet") return "/consultas";
             }
           }
         }
@@ -253,12 +272,12 @@ export default function App() {
           </>
         )}
         {layout === "vr" && <Configurator />}
-          <Switch>
-            {getRoutes(routes)}
-            <Route path="*">
-              <DefaultRedirect />
-            </Route>
-          </Switch>
+        <Switch>
+          {getRoutes(routes)}
+          <Route path="*">
+            <DefaultRedirect />
+          </Route>
+        </Switch>
       </ThemeProvider>
     </StyledEngineProvider>
   );

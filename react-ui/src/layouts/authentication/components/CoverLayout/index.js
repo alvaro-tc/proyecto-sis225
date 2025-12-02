@@ -53,7 +53,7 @@ function CoverLayout({ color, header, title, description, image, top, children }
         <Grid item xs={11} sm={8} md={6} xl={4}>
           <SuiBox mt={top}>
             {/* wrapper to align title/description with the inner white form */}
-            <SuiBox sx={{ maxWidth: 480, margin: '0 auto' }}>
+            <SuiBox sx={{ maxWidth: 480, margin: "0 auto" }}>
               <SuiBox pt={3} px={3}>
                 {!header ? (
                   <>
@@ -68,7 +68,12 @@ function CoverLayout({ color, header, title, description, image, top, children }
                         {title}
                       </SuiTypography>
                     </SuiBox>
-                    <SuiTypography variant="body2" fontWeight="regular" textColor="text" style={titleStyle}>
+                    <SuiTypography
+                      variant="body2"
+                      fontWeight="regular"
+                      textColor="text"
+                      style={titleStyle}
+                    >
                       {description}
                     </SuiTypography>
                   </>

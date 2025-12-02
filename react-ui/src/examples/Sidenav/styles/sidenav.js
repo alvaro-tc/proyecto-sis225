@@ -60,36 +60,35 @@ export default makeStyles(
       },
 
       sidenav_logo: {
-          width: pxToRem(40),
+        width: pxToRem(40),
         // ensure the logo sits nicely on the background
         display: "block",
       },
 
       sidenav_logoLabel: {
-          marginLeft: pxToRem(6),
-          fontWeight: fontWeightMedium,
-          wordSpacing: pxToRem(-1),
-          fontSize: pxToRem(16),
-          transition: transitions.create("opacity", {
-            easing: transitions.easing.easeInOut,
-            duration: transitions.duration.standard,
-          }),
-          color: white.main,
+        marginLeft: pxToRem(6),
+        fontWeight: fontWeightMedium,
+        wordSpacing: pxToRem(-1),
+        fontSize: pxToRem(16),
+        transition: transitions.create("opacity", {
+          easing: transitions.easing.easeInOut,
+          duration: transitions.duration.standard,
+        }),
+        color: white.main,
 
-          [breakpoints.up("xl")]: {
-            opacity: ({ miniSidenav }) => (miniSidenav ? 0 : 1),
-          },
-
+        [breakpoints.up("xl")]: {
+          opacity: ({ miniSidenav }) => (miniSidenav ? 0 : 1),
         },
+      },
 
       sidenav_title: {
-          display: "block",
-          color: white.main,
-          opacity: 0.9,
-          paddingLeft: pxToRem(24),
-          margin: `${pxToRem(16)} 0 ${pxToRem(8)} ${pxToRem(8)}`,
-          fontSize: pxToRem(13),
-        },
+        display: "block",
+        color: white.main,
+        opacity: 0.9,
+        paddingLeft: pxToRem(24),
+        margin: `${pxToRem(16)} 0 ${pxToRem(8)} ${pxToRem(8)}`,
+        fontSize: pxToRem(13),
+      },
 
       marginTopNone: {
         marginTop: 0,

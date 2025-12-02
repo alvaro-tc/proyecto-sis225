@@ -27,7 +27,15 @@ import CloseIcon from "@mui/icons-material/Close";
  * - submitLabel
  * - onSubmit(values) -> Promise
  */
-export default function ReusableModal({ open, onClose, title, fields, initialValues, submitLabel, onSubmit }) {
+export default function ReusableModal({
+  open,
+  onClose,
+  title,
+  fields,
+  initialValues,
+  submitLabel,
+  onSubmit,
+}) {
   const [values, setValues] = useState(initialValues || {});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -91,11 +99,19 @@ export default function ReusableModal({ open, onClose, title, fields, initialVal
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle sx={{ pb: 0 }}>
-        <SuiBox px={3} pt={2} pb={1} sx={{ background: "linear-gradient(90deg,#2d7aee,#4b67f6)", borderRadius: "8px 8px 0 0" }}>
+        <SuiBox
+          px={3}
+          pt={2}
+          pb={1}
+          sx={{ background: "linear-gradient(90deg,#2d7aee,#4b67f6)", borderRadius: "8px 8px 0 0" }}
+        >
           <SuiTypography variant="h5" fontWeight="bold" sx={{ fontSize: "1.15rem", color: "#fff" }}>
             {title}
           </SuiTypography>
-          <SuiTypography variant="body2" sx={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.9)" }}>
+          <SuiTypography
+            variant="body2"
+            sx={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.9)" }}
+          >
             Completa los datos
           </SuiTypography>
         </SuiBox>
@@ -117,10 +133,18 @@ export default function ReusableModal({ open, onClose, title, fields, initialVal
                       onClose={() => setOpenSelects((s) => ({ ...s, [f.name]: false }))}
                       onOpen={() => setOpenSelects((s) => ({ ...s, [f.name]: true }))}
                       sx={{
-                        "& .MuiSelect-select": { fontSize: "0.95rem", padding: "12px 14px", minHeight: 48, display: "flex", alignItems: "center" },
+                        "& .MuiSelect-select": {
+                          fontSize: "0.95rem",
+                          padding: "12px 14px",
+                          minHeight: 48,
+                          display: "flex",
+                          alignItems: "center",
+                        },
                         borderRadius: 1,
                       }}
-                      MenuProps={{ PaperProps: { sx: { "& .MuiMenuItem-root": { fontSize: "0.95rem" } } } }}
+                      MenuProps={{
+                        PaperProps: { sx: { "& .MuiMenuItem-root": { fontSize: "0.95rem" } } },
+                      }}
                     >
                       {(f.options || []).map((opt) => (
                         <MenuItem value={opt.value} key={opt.value}>
@@ -179,7 +203,14 @@ export default function ReusableModal({ open, onClose, title, fields, initialVal
         <SuiButton color="secondary" onClick={onClose} sx={{ fontSize: "0.9rem", mr: 1 }}>
           Cancelar
         </SuiButton>
-        <SuiButton type="submit" form="reusable-modal-form" variant="gradient" buttonColor="dark" sx={{ fontSize: "0.95rem", padding: "8px 18px" }} disabled={submitting}>
+        <SuiButton
+          type="submit"
+          form="reusable-modal-form"
+          variant="gradient"
+          buttonColor="dark"
+          sx={{ fontSize: "0.95rem", padding: "8px 18px" }}
+          disabled={submitting}
+        >
           {submitLabel || "Guardar"}
         </SuiButton>
       </DialogActions>

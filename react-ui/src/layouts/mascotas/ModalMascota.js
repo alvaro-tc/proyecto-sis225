@@ -56,7 +56,12 @@ export default function ModalMascota({ open, onClose, onSave }) {
       // normalize dueno: if the autocomplete returns an object, send the id
       const normalized = { ...data };
       if (normalized.dueno && typeof normalized.dueno === "object") {
-        normalized.dueno = normalized.dueno.id || normalized.dueno.idDueno || normalized.dueno.pk || normalized.dueno.dueno || null;
+        normalized.dueno =
+          normalized.dueno.id ||
+          normalized.dueno.idDueno ||
+          normalized.dueno.pk ||
+          normalized.dueno.dueno ||
+          null;
       }
       await onSave?.(normalized);
       reset();
@@ -128,7 +133,9 @@ export default function ModalMascota({ open, onClose, onSave }) {
           <Grid container spacing={1}>
             {/* Nombre */}
             <Grid item xs={12}>
-              <Typography sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}>
+              <Typography
+                sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}
+              >
                 Nombre
               </Typography>
               <TextField
@@ -149,7 +156,14 @@ export default function ModalMascota({ open, onClose, onSave }) {
                 control={control}
                 render={({ field }) => (
                   <>
-                    <Typography sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}>
+                    <Typography
+                      sx={{
+                        fontSize: "1.05rem",
+                        fontWeight: 400,
+                        display: "block",
+                        marginBottom: "6px",
+                      }}
+                    >
                       Especie
                     </Typography>
                     <Autocomplete
@@ -180,7 +194,11 @@ export default function ModalMascota({ open, onClose, onSave }) {
                       disableClearable
                       sx={{
                         // reducir la altura del root del Autocomplete solo para especie
-                        "& .MuiAutocomplete-inputRoot": { fontSize: INPUT_FONT, minHeight: 44, alignItems: "center" },
+                        "& .MuiAutocomplete-inputRoot": {
+                          fontSize: INPUT_FONT,
+                          minHeight: 44,
+                          alignItems: "center",
+                        },
                       }}
                     />
                   </>
@@ -191,7 +209,14 @@ export default function ModalMascota({ open, onClose, onSave }) {
             {/* Campo "Otro" si corresponde */}
             {especieSel === "Otro" && (
               <Grid item xs={12}>
-                <Typography sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}>
+                <Typography
+                  sx={{
+                    fontSize: "1.05rem",
+                    fontWeight: 400,
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
                   Otra especie
                 </Typography>
                 <TextField
@@ -210,7 +235,9 @@ export default function ModalMascota({ open, onClose, onSave }) {
 
             {/* Raza */}
             <Grid item xs={12}>
-              <Typography sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}>
+              <Typography
+                sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}
+              >
                 Raza
               </Typography>
               <TextField
@@ -224,7 +251,9 @@ export default function ModalMascota({ open, onClose, onSave }) {
 
             {/* Edad */}
             <Grid item xs={12}>
-              <Typography sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}>
+              <Typography
+                sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}
+              >
                 Edad
               </Typography>
               <TextField
@@ -245,12 +274,21 @@ export default function ModalMascota({ open, onClose, onSave }) {
                 rules={{ required: "Selecciona un dueño" }}
                 render={({ field }) => (
                   <>
-                    <Typography sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}>
+                    <Typography
+                      sx={{
+                        fontSize: "1.05rem",
+                        fontWeight: 400,
+                        display: "block",
+                        marginBottom: "6px",
+                      }}
+                    >
                       Dueño
                     </Typography>
                     <Autocomplete
                       options={owners}
-                      getOptionLabel={(opt) => (opt && (opt.nombre || opt.dueno_nombre || opt.name)) || String(opt || "")}
+                      getOptionLabel={(opt) =>
+                        (opt && (opt.nombre || opt.dueno_nombre || opt.name)) || String(opt || "")
+                      }
                       isOptionEqualToValue={(option, value) => {
                         if (!option || !value) return false;
                         const oid = option.id || option.idDueno || option.pk || option.dueno;
@@ -289,7 +327,7 @@ export default function ModalMascota({ open, onClose, onSave }) {
 
         <Divider />
 
-        <DialogActions sx={{ p:2, justifyContent: "flex-end", gap: 1}}>
+        <DialogActions sx={{ p: 2, justifyContent: "flex-end", gap: 1 }}>
           {/* Ambos botones usan el mismo tamaño/alto/ancho para consistencia */}
           <SuiButton
             variant="outlined"

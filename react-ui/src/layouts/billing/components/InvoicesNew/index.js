@@ -1,6 +1,6 @@
 /**
-* Invoices (past citas) - custom component
-*/
+ * Invoices (past citas) - custom component
+ */
 
 // @mui material components
 import Card from "@mui/material/Card";

@@ -139,7 +139,13 @@ export default function ModalEditarMascota({ open, onClose, onSave, initialData 
                     )}
                     popupIcon={<ArrowDropDownIcon sx={{ fontSize: 22 }} />}
                     disableClearable
-                    sx={{ "& .MuiAutocomplete-inputRoot": { fontSize: INPUT_FONT, minHeight: 44, alignItems: "center" } }}
+                    sx={{
+                      "& .MuiAutocomplete-inputRoot": {
+                        fontSize: INPUT_FONT,
+                        minHeight: 44,
+                        alignItems: "center",
+                      },
+                    }}
                   />
                 )}
               />
@@ -161,11 +167,26 @@ export default function ModalEditarMascota({ open, onClose, onSave, initialData 
             )}
 
             <Grid item xs={12}>
-              <TextField label="Raza" fullWidth size="small" {...register("raza")} sx={textFieldSx} InputLabelProps={{ shrink: true }} />
+              <TextField
+                label="Raza"
+                fullWidth
+                size="small"
+                {...register("raza")}
+                sx={textFieldSx}
+                InputLabelProps={{ shrink: true }}
+              />
             </Grid>
 
             <Grid item xs={12}>
-              <TextField label="Edad" type="number" fullWidth size="small" {...register("edad", { valueAsNumber: true })} sx={textFieldSx} InputLabelProps={{ shrink: true }} />
+              <TextField
+                label="Edad"
+                type="number"
+                fullWidth
+                size="small"
+                {...register("edad", { valueAsNumber: true })}
+                sx={textFieldSx}
+                InputLabelProps={{ shrink: true }}
+              />
             </Grid>
 
             {submitError && (
@@ -181,10 +202,20 @@ export default function ModalEditarMascota({ open, onClose, onSave, initialData 
         <Divider />
 
         <DialogActions sx={{ p: 2, justifyContent: "flex-end", gap: 1 }}>
-          <SuiButton variant="outlined" buttonColor="secondary" onClick={onClose} sx={{ fontSize: INPUT_FONT, textTransform: "none", px: 3, minWidth: 120, height: 44 }}>
+          <SuiButton
+            variant="outlined"
+            buttonColor="secondary"
+            onClick={onClose}
+            sx={{ fontSize: INPUT_FONT, textTransform: "none", px: 3, minWidth: 120, height: 44 }}
+          >
             Cancelar
           </SuiButton>
-          <SuiButton variant="gradient" buttonColor="dark" type="submit" sx={{ fontSize: INPUT_FONT, textTransform: "none", px: 3, minWidth: 120, height: 44 }}>
+          <SuiButton
+            variant="gradient"
+            buttonColor="dark"
+            type="submit"
+            sx={{ fontSize: INPUT_FONT, textTransform: "none", px: 3, minWidth: 120, height: 44 }}
+          >
             Guardar
           </SuiButton>
         </DialogActions>

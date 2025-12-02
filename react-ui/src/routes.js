@@ -126,7 +126,6 @@ const routes = [
     roles: ["veterinario"],
   },
 
-  
   {
     type: "none",
     name: "Historial Veterinario",

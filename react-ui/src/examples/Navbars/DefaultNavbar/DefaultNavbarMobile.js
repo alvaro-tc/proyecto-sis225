@@ -48,7 +48,11 @@ function DefaultNavbarMobile({ open, close }) {
       <SuiBox px={0.5}>
         <DefaultNavbarLink icon="donut_large" name="Inicio" route="/dashboard" />
         <DefaultNavbarLink icon="person" name="Perfil" route="/profile" />
-        <DefaultNavbarLink icon="account_circle" name="Registrarse" route="/authentication/sign-up" />
+        <DefaultNavbarLink
+          icon="account_circle"
+          name="Registrarse"
+          route="/authentication/sign-up"
+        />
         <DefaultNavbarLink icon="key" name="Iniciar Sesión" route="/authentication/sign-in" />
       </SuiBox>
     </Menu>

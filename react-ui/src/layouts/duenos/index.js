@@ -66,13 +66,23 @@ export default function Duenos() {
       const name = m.nombre || m.name || (m.user && (m.user.nombre || m.user.email)) || "-";
       return {
         Nombre: [null, name],
-        "Teléfono": m.telefono || "",
+        Teléfono: m.telefono || "",
         action: (
           <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-            <IconButton size="small" title="Crear mascota" onClick={() => { setCreatingOwnerId(m.id || m.idDueno || m.idUsuario || m.id); setCreatePetOpen(true); }}>
+            <IconButton
+              size="small"
+              title="Crear mascota"
+              onClick={() => {
+                setCreatingOwnerId(m.id || m.idDueno || m.idUsuario || m.id);
+                setCreatePetOpen(true);
+              }}
+            >
               <AddCircleOutlineIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" onClick={() => openEdit(m.id || m.idDueno || m.idUsuario || m.id)}>
+            <IconButton
+              size="small"
+              onClick={() => openEdit(m.id || m.idDueno || m.idUsuario || m.id)}
+            >
               <EditIcon fontSize="small" />
             </IconButton>
             <IconButton size="small" color="error" onClick={() => openDeleteModal(m)}>
@@ -179,13 +189,21 @@ export default function Duenos() {
             <SuiBox customClass={classes.tables_table} p={2}>
               {loadingItems ? (
                 <SuiBox display="flex" alignItems="center" justifyContent="center" py={4}>
-                  <SuiTypography variant="body2" textColor="text">Cargando...</SuiTypography>
+                  <SuiTypography variant="body2" textColor="text">
+                    Cargando...
+                  </SuiTypography>
                 </SuiBox>
               ) : itemsCount === 0 ? (
                 <SuiBox textAlign="center" py={6}>
-                  <SuiTypography variant="h6" sx={{ mb: 1 }}>No hay dueños registrados</SuiTypography>
-                  <SuiTypography variant="body2" textColor="text" sx={{ mb: 2 }}>Registra al primer dueño usando el botón Agregar</SuiTypography>
-                  <SuiButton variant="gradient" buttonColor="dark" onClick={() => setOpen(true)}>Agregar dueño</SuiButton>
+                  <SuiTypography variant="h6" sx={{ mb: 1 }}>
+                    No hay dueños registrados
+                  </SuiTypography>
+                  <SuiTypography variant="body2" textColor="text" sx={{ mb: 2 }}>
+                    Registra al primer dueño usando el botón Agregar
+                  </SuiTypography>
+                  <SuiButton variant="gradient" buttonColor="dark" onClick={() => setOpen(true)}>
+                    Agregar dueño
+                  </SuiButton>
                 </SuiBox>
               ) : (
                 <Table columns={columns} apiResource="duenos" rowMapper={rowMapper} />
@@ -195,10 +213,27 @@ export default function Duenos() {
         </SuiBox>
 
         <ModalDueno open={open} onClose={() => setOpen(false)} onSave={handleSaveDueno} />
-        <ModalDueno open={editOpen} onClose={() => setEditOpen(false)} onSave={handleUpdateDueno} initialData={editingData} id={editingId} />
-        <ModalEliminarDueno open={deleteOpen} onClose={closeDeleteModal} onConfirm={confirmDelete} item={deletingItem} />
-        <ModalMascota open={createPetOpen} onClose={() => { setCreatePetOpen(false); setCreatingOwnerId(null); }} onSave={handleSaveMascotaForOwner} />
-
+        <ModalDueno
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          onSave={handleUpdateDueno}
+          initialData={editingData}
+          id={editingId}
+        />
+        <ModalEliminarDueno
+          open={deleteOpen}
+          onClose={closeDeleteModal}
+          onConfirm={confirmDelete}
+          item={deletingItem}
+        />
+        <ModalMascota
+          open={createPetOpen}
+          onClose={() => {
+            setCreatePetOpen(false);
+            setCreatingOwnerId(null);
+          }}
+          onSave={handleSaveMascotaForOwner}
+        />
       </SuiBox>
       <Footer />
     </DashboardLayout>

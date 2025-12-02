@@ -19,7 +19,12 @@ export default function ModalDueno({ open, onClose, onSave, initialData, id }) {
   const INPUT_FONT = "1rem";
   const TITLE_FONT = "1.25rem";
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
     defaultValues: { nombre: "", telefono: "" },
   });
 
@@ -72,35 +77,51 @@ export default function ModalDueno({ open, onClose, onSave, initialData, id }) {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, p: 0 } }}>
-      <DialogTitle sx={{ fontWeight: 600, textAlign: "center", pb: 1, fontSize: TITLE_FONT }}>Registrar Dueño</DialogTitle>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      PaperProps={{ sx: { borderRadius: 3, p: 0 } }}
+    >
+      <DialogTitle sx={{ fontWeight: 600, textAlign: "center", pb: 1, fontSize: TITLE_FONT }}>
+        Registrar Dueño
+      </DialogTitle>
       <Divider />
       <form onSubmit={handleSubmit(submit)}>
         <DialogContent sx={{ pt: 2 }}>
           <Grid container spacing={1}>
             <Grid item xs={12}>
-              <Typography sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}>
+              <Typography
+                sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}
+              >
                 Nombre
               </Typography>
               <TextField
                 placeholder="Nombre"
                 fullWidth
                 size="small"
-                {...register("nombre", { maxLength: { value: 255, message: "Máximo 255 caracteres" } })}
+                {...register("nombre", {
+                  maxLength: { value: 255, message: "Máximo 255 caracteres" },
+                })}
                 sx={textFieldSx}
                 error={!!errors?.nombre}
                 helperText={errors?.nombre?.message}
               />
             </Grid>
             <Grid item xs={12}>
-              <Typography sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}>
+              <Typography
+                sx={{ fontSize: "1.05rem", fontWeight: 400, display: "block", marginBottom: "6px" }}
+              >
                 Teléfono
               </Typography>
               <TextField
                 placeholder="Teléfono"
                 fullWidth
                 size="small"
-                {...register("telefono", { maxLength: { value: 50, message: "Máximo 50 caracteres" } })}
+                {...register("telefono", {
+                  maxLength: { value: 50, message: "Máximo 50 caracteres" },
+                })}
                 sx={textFieldSx}
                 error={!!errors?.telefono}
                 helperText={errors?.telefono?.message}
@@ -117,8 +138,12 @@ export default function ModalDueno({ open, onClose, onSave, initialData, id }) {
 
         <Divider />
         <DialogActions sx={{ p: 2, justifyContent: "flex-end", gap: 1 }}>
-          <SuiButton variant="outlined" buttonColor="secondary" onClick={onClose}>Cancelar</SuiButton>
-          <SuiButton variant="gradient" buttonColor="dark" type="submit">Guardar</SuiButton>
+          <SuiButton variant="outlined" buttonColor="secondary" onClick={onClose}>
+            Cancelar
+          </SuiButton>
+          <SuiButton variant="gradient" buttonColor="dark" type="submit">
+            Guardar
+          </SuiButton>
         </DialogActions>
       </form>
     </Dialog>

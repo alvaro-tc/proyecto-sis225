@@ -20,5 +20,5 @@ urlpatterns = [
     path("", lambda request: redirect("redoc-ui")),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+# Static files should be served by the production webserver (nginx) in cloud deployments.
+# Do not serve static files from Django in production.

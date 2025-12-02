@@ -133,7 +133,10 @@ export default function ModalVeterinario({ open, onClose, onSave, initialData, i
                 fullWidth
                 size="small"
                 type="email"
-                {...register("email", { required: "El email es obligatorio", maxLength: { value: 300, message: "Máximo 255 caracteres" } })}
+                {...register("email", {
+                  required: "El email es obligatorio",
+                  maxLength: { value: 300, message: "Máximo 255 caracteres" },
+                })}
                 error={!!errors.email}
                 helperText={errors.email?.message}
                 sx={textFieldSx}
@@ -156,11 +159,29 @@ export default function ModalVeterinario({ open, onClose, onSave, initialData, i
             </Grid>
 
             <Grid item xs={12}>
-              <TextField label="Teléfono" fullWidth size="small" {...register("telefono", { maxLength: { value: 50, message: "Máximo 50 caracteres" } })} sx={textFieldSx} InputLabelProps={{ shrink: true }} />
+              <TextField
+                label="Teléfono"
+                fullWidth
+                size="small"
+                {...register("telefono", {
+                  maxLength: { value: 50, message: "Máximo 50 caracteres" },
+                })}
+                sx={textFieldSx}
+                InputLabelProps={{ shrink: true }}
+              />
             </Grid>
 
             <Grid item xs={12}>
-              <TextField label="Nombre" fullWidth size="small" {...register("nombre", { maxLength: { value: 255, message: "Máximo 255 caracteres" } })} sx={textFieldSx} InputLabelProps={{ shrink: true }} />
+              <TextField
+                label="Nombre"
+                fullWidth
+                size="small"
+                {...register("nombre", {
+                  maxLength: { value: 255, message: "Máximo 255 caracteres" },
+                })}
+                sx={textFieldSx}
+                InputLabelProps={{ shrink: true }}
+              />
             </Grid>
 
             {submitError && (
@@ -176,10 +197,20 @@ export default function ModalVeterinario({ open, onClose, onSave, initialData, i
         <Divider />
 
         <DialogActions sx={{ p: 2, justifyContent: "flex-end", gap: 1 }}>
-          <SuiButton variant="outlined" buttonColor="secondary" onClick={onClose} sx={{ fontSize: INPUT_FONT, textTransform: "none", px: 3, minWidth: 120, height: 44 }}>
+          <SuiButton
+            variant="outlined"
+            buttonColor="secondary"
+            onClick={onClose}
+            sx={{ fontSize: INPUT_FONT, textTransform: "none", px: 3, minWidth: 120, height: 44 }}
+          >
             Cancelar
           </SuiButton>
-          <SuiButton variant="gradient" buttonColor="dark" type="submit" sx={{ fontSize: INPUT_FONT, textTransform: "none", px: 3, minWidth: 120, height: 44 }}>
+          <SuiButton
+            variant="gradient"
+            buttonColor="dark"
+            type="submit"
+            sx={{ fontSize: INPUT_FONT, textTransform: "none", px: 3, minWidth: 120, height: 44 }}
+          >
             Guardar
           </SuiButton>
         </DialogActions>
