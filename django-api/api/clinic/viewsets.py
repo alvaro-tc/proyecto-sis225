@@ -519,6 +519,36 @@ class MascotaViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
+    @extend_schema(tags=["Mascotas"], summary="Consultas asistidas de una mascota")
+    @action(detail=True, methods=["get"], url_path="consultas/asistidas", permission_classes=[IsAuthenticated])
+    def consultas_asistidas(self, request, pk=None):
+        """Return consultas for this mascota where `asistio` is True (attended visits).
+
+        Access restricted to staff (recepcionista), veterinario or admin users.
+        """
+        try:
+            mascota = Mascota.objects.get(pk=pk)
+        except Mascota.DoesNotExist:
+            from rest_framework.exceptions import NotFound
+
+            raise NotFound({"detail": "Mascota not found"})
+
+        user = request.user
+        if not (hasattr(user, "recepcionista_profile") or hasattr(user, "veterinario_profile") or user.is_superuser):
+            from rest_framework.exceptions import PermissionDenied
+
+            raise PermissionDenied({"detail": "Not allowed to view this mascota's attended consultas"})
+
+        qs = Consulta.objects.filter(mascota=mascota, asistio=True).order_by("-fecha", "-hora")
+
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = ConsultaSerializer(page, many=True, context={"request": request})
+            return self.get_paginated_response(serializer.data)
+
+        serializer = ConsultaSerializer(qs, many=True, context={"request": request})
+        return Response(serializer.data, status=200)
+
 
 
 @extend_schema_view(

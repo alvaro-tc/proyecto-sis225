@@ -11,7 +11,9 @@ import SuiTypography from "components/SuiTypography";
 import SuiButton from "components/SuiButton";
 import IconButton from "@mui/material/IconButton";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
+import HistoryIcon from "@mui/icons-material/History";
 import ModalAnotarConsulta from "./ModalAnotarConsulta";
+import ModalHistorialMascota from "./ModalHistorialMascota";
 import Table from "examples/Table";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -27,6 +29,8 @@ export default function RegistrarConsulta() {
   const [reload, setReload] = useState(0);
   const [openAnotar, setOpenAnotar] = useState(false);
   const [selectedConsultaId, setSelectedConsultaId] = useState(null);
+  const [openHistorial, setOpenHistorial] = useState(false);
+  const [selectedMascotaId, setSelectedMascotaId] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -84,6 +88,12 @@ export default function RegistrarConsulta() {
     const hora = c.hora || (c.fechaHora ? (String(c.fechaHora).split("T")[1] || "").slice(0,5) : "");
     const mascotaName = c.mascota && (c.mascota.nombre || c.mascota.nombreMascota || (c.mascota.user && (c.mascota.user.nombre || c.mascota.user.email))) || "-";
 
+    // determine asistio state: 1/true -> green, 0/false -> red, null/undefined -> blue
+    const asistioVal = c.asistio;
+    const iconColor = asistioVal === 1 || asistioVal === true ? "success.main" : (asistioVal === 0 || asistioVal === false ? "error.main" : "info.main");
+
+    const mascotaIdVal = c.mascota && (c.mascota.idMascota || c.mascota.id) || c.mascota || null;
+
     return {
       Fecha: fecha,
       Hora: hora,
@@ -92,8 +102,12 @@ export default function RegistrarConsulta() {
       Motivo: c.motivo || c.descripcion || "",
       action: (
         <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-          <IconButton size="small" title="Anotar/Registrar" onClick={() => { setSelectedConsultaId(idVal); setOpenAnotar(true); }}>
-            <NoteAddIcon fontSize="small" />
+          <IconButton size="small" title={asistioVal == null ? "Anotar/Registrar (sin asistencia)" : (asistioVal ? "Anotar/Registrar (asistió)" : "Anotar/Registrar (no asistió)") } onClick={() => { setSelectedConsultaId(idVal); setOpenAnotar(true); }}>
+            <NoteAddIcon fontSize="small" sx={{ color: iconColor }} />
+          </IconButton>
+
+          <IconButton size="small" title="Historial clínico" onClick={() => { if (mascotaIdVal) { setSelectedMascotaId(mascotaIdVal); setOpenHistorial(true); } }}>
+            <HistoryIcon fontSize="small" />
           </IconButton>
         </div>
       ),
@@ -135,6 +149,7 @@ export default function RegistrarConsulta() {
         consultaId={selectedConsultaId}
         onSaved={() => { setOpenAnotar(false); setSelectedConsultaId(null); setReload((r) => r + 1); }}
       />
+      <ModalHistorialMascota open={openHistorial} onClose={() => { setOpenHistorial(false); setSelectedMascotaId(null); }} mascotaId={selectedMascotaId} />
     </DashboardLayout>
   );
 }

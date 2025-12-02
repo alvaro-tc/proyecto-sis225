@@ -26,7 +26,6 @@ import SuiTypography from "components/SuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import Footer from "examples/Footer";
 import ProfileInfoCard from "examples/Cards/InfoCards/ProfileInfoCard";
-import ProfilesList from "examples/ProfilesList";
 import SuiButton from "components/SuiButton";
 import clinicApi from "api/clinic";
 import ModalEditarPerfil from "./ModalEditarPerfil";
@@ -108,14 +107,14 @@ function Overview() {
     let mounted = true;
     setLoadingSummary(true);
     clinicApi
-      .list("duenos/me/summary")
+      .request("/api/users/me", { method: "GET" })
       .then((data) => {
         if (!mounted) return;
-        console.log("Fetched profile summary:", data);
+        console.debug("Fetched authenticated user:", data);
         setSummary(data);
       })
       .catch((err) => {
-        console.warn("Error fetching profile summary:", err);
+        console.warn("Error fetching authenticated user:", err);
         if (mounted) setSummaryError(err);
       })
       .finally(() => {
@@ -133,144 +132,36 @@ function Overview() {
 
   function ProfileSummary({ summary, loading, error }) {
 
-        // helper to map mascota to ProfilesList shape (use imported petsIcon)
-        const mapMascotas = (mascotas = []) =>
-          mascotas.map((m) => ({
-            image: petsIcon,
-            name: m.nombre || "-",
-            description: `${m.especie || "-"}${m.raza ? ` · ${m.raza}` : ""}`,
-            action: { type: "internal", route: `#/clinic/mascotas/${m.idMascota || m.id || ""}`, color: "info", label: "ver" },
-          }));
-
-        const mapCitas = (citas = []) =>
-          citas.map((c) => {
-            // format date dd-mm-yyyy
-            const rawDate = c.fecha || "";
-            let formatted = rawDate;
-            try {
-              const d = new Date(rawDate);
-              if (!Number.isNaN(d.getTime())) {
-                const dd = String(d.getDate()).padStart(2, "0");
-                const mm = String(d.getMonth() + 1).padStart(2, "0");
-                const yyyy = d.getFullYear();
-                formatted = `${dd}-${mm}-${yyyy}`;
-              }
-            } catch (e) {}
-
-            const hora = c.hora || "";
-            const mascotaName = c.mascota?.nombre || (typeof c.mascota === "string" ? c.mascota : "-");
-
-            return {
-              image: "",
-              name: `Consulta para ${formatted}`,
-              description: `Hora: ${hora} · Mascota: ${mascotaName}`,
-              action: {
-                type: "callback",
-                onClick: () => {
-                  setViewConsultaId(c.idConsulta || c.id || null);
-                  setViewConsultaOpen(true);
-                },
-                color: "info",
-                label: "ver",
-              },
-            };
-          });
-
         return (
           <SuiBox mt={5} mb={3}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6} xl={4}>
-                <ProfileInfoCard
-                  title="Perfil"
-                  description={summary?.profile ? "Perfil del usuario" : "Detalle del usuario"}
-                  info={{
-                    "Nombre completo": summary?.dueno?.nombre || "Nombre Apellido",
-                    Teléfono: summary?.dueno?.telefono || "",
-                    Email: summary?.dueno?.user?.email || "",
-                  }}
-                  action={{ onClick: () => setEditProfileOpen(true), tooltip: "Editar perfil" }}
-                />
-              </Grid>
+            <Grid container spacing={3} justifyContent="center">
+                <Grid item xs={12} md={10} xl={8}>
+                {(() => {
+                  // Build info object with nicer labels and hide work fields for 'recepcionista'
+                  const info = {};
+                  info["Rol"] = summary?.role || "-";
+                  info["Email"] = summary?.email || summary?.user?.email || "-";
+                  info["Nombre"] = summary?.nombre || summary?.user?.name || "-";
+                  info["Teléfono"] = summary?.telefono || "-";
+                  if (typeof summary?.profile_id !== "undefined") info["Profile ID"] = summary?.profile_id ?? "-";
 
-              <Grid item xs={12} md={6} xl={4}>
-                {loading ? (
-                    <ProfileLoadingCard title="Mascotas" />
-                  ) : summary?.mascotas && summary.mascotas.length > 0 ? (
-                    (() => {
-                      const mascotasToShow = (summary.mascotas || []).slice(0, 4);
-                      return (
-                        <Card className="h-100">
-                          <SuiBox pt={2} px={2} display="flex" alignItems="center" justifyContent="space-between">
-                            <SuiTypography variant="h6" fontWeight="medium">
-                              Mascotas
-                            </SuiTypography>
-                            <SuiButton component="a" href="/mascotas" variant="text" buttonColor="info">
-                              Ver más
-                            </SuiButton>
-                          </SuiBox>
-                          <SuiBox p={2}>
-                            <SuiBox component="ul" display="flex" flexDirection="column" p={0} m={0}>
-                              {mapMascotas(mascotasToShow).map(({ image, name, description, action }) => (
-                                <SuiBox key={name} component="li" display="flex" alignItems="center" py={1} mb={1}>
-                                  <SuiBox mr={2}>
-                                    <img src={image || petsIcon} alt={name} style={{ width: 44, height: 44, borderRadius: 8, objectFit: "cover" }} />
-                                  </SuiBox>
-                                  <SuiBox display="flex" flexDirection="column" alignItems="flex-start" justifyContent="center">
-                                    <SuiTypography variant="button" fontWeight="medium">
-                                      {name}
-                                    </SuiTypography>
-                                    <SuiTypography variant="caption" textColor="text">
-                                      {description}
-                                    </SuiTypography>
-                                  </SuiBox>
-                                  {/* action removed for inline mascotas list */}
-                                </SuiBox>
-                              ))}
-                            </SuiBox>
-                          </SuiBox>
-                        </Card>
-                      );
-                    })()
-                  ) : (
-                  <Card className="h-100">
-                    <SuiBox pt={2} px={2}>
-                      <SuiTypography variant="h6" fontWeight="medium">
-                        Mascotas
-                      </SuiTypography>
-                    </SuiBox>
-                    <SuiBox p={2}>
-                          <SuiTypography variant="body2" textColor="text">
-                            Aún no tienes mascotas registradas.
-                          </SuiTypography>
-                          <SuiBox mt={2}>
-                            <SuiButton component="a" href="/mascotas" variant="gradient" buttonColor="dark">
-                              Agregar mascota
-                            </SuiButton>
-                          </SuiBox>
-                        </SuiBox>
-                  </Card>
-                )}
-              </Grid>
+                  const isRecepcionista = String((summary?.role || "")).toLowerCase() === "recepcionista";
+                  if (!isRecepcionista) {
+                    // only show work schedule fields for non-receptionists
+                    info["Hora inicio"] = summary?.work_start || "-";
+                    info["Hora fin"] = summary?.work_end || "-";
+                    info["Días de trabajo"] = summary?.work_days || "-";
+                  }
 
-              <Grid item xs={12} md={6} xl={4}>
-                {loading ? (
-                  <ProfileLoadingCard title="Citas próximas" />
-                ) : summary?.citas && summary.citas.length > 0 ? (
-                  <ProfilesList title="Citas próximas" profiles={mapCitas((summary.citas || []).slice(0, 4))} />
-                ) : (
-                  <Card className="h-100">
-                    <SuiBox pt={2} px={2}>
-                      <SuiTypography variant="h6" fontWeight="medium">
-                        Citas próximas
-                      </SuiTypography>
-                    </SuiBox>
-                    <SuiBox p={2}>
-                      <SuiTypography variant="body2" textColor="text">
-                        No hay consultas disponibles.
-                      </SuiTypography>
-                    </SuiBox>
-                  </Card>
-                )}
+                  return (
+                    <ProfileInfoCard
+                      title="Perfil"
+                      description={summary ? "Perfil del usuario autenticado" : "Detalle del usuario"}
+                      info={info}
+                      action={{ onClick: () => setEditProfileOpen(true), tooltip: "Editar perfil" }}
+                    />
+                  );
+                })()}
               </Grid>
             </Grid>
           </SuiBox>

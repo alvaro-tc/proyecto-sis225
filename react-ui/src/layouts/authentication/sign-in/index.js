@@ -130,7 +130,58 @@ function SignIn() {
     } catch (e) {
       // ignore
     }
-    return history.push("/dashboard");
+    // decide default redirect based on role. Try user object first, then decode token if needed
+    function decodeJwt(t) {
+      if (!t || typeof t !== 'string') return null;
+      try {
+        const parts = t.split('.');
+        if (parts.length < 2) return null;
+        const payload = parts[1];
+        const b64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+        const str = decodeURIComponent(Array.prototype.map.call(atob(b64), (c) => '%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+        return JSON.parse(str);
+      } catch (e) {
+        try {
+          // fallback: try plain atob JSON
+          const parts = t.split('.');
+          const payload = parts[1];
+          const b64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+          return JSON.parse(atob(b64));
+        } catch (e2) {
+          return null;
+        }
+      }
+    }
+
+    function resolveRoleFromUserOrToken(u, t) {
+      const normalize = (s) => (s || '').toString().toLowerCase();
+      if (u) {
+        const r = normalize(u.role || (u.roles && u.roles[0]) || (u.user && u.user.role) || '');
+        if (r) return r;
+        // try common boolean flags
+        if (u.is_admin || u.is_staff) return 'admin';
+      }
+      const payload = decodeJwt(t || (u && u.token) || localStorage.getItem('token'));
+      if (payload) {
+        // common locations for roles
+        if (payload.role) return normalize(payload.role);
+        if (payload.roles && Array.isArray(payload.roles) && payload.roles.length) return normalize(payload.roles[0]);
+        if (payload.user && payload.user.role) return normalize(payload.user.role);
+        if (payload.realm_access && Array.isArray(payload.realm_access.roles) && payload.realm_access.roles.length) return normalize(payload.realm_access.roles[0]);
+        if (payload.scope) return normalize(payload.scope);
+      }
+      return null;
+    }
+
+    const resolvedRole = resolveRoleFromUserOrToken(userObj, token);
+    let target = '/profile';
+    if (!userObj) target = '/authentication/sign-in';
+    else if (resolvedRole === 'recepcionista') target = '/registro-consulta';
+    else if (resolvedRole === 'veterinario' || resolvedRole === 'vet') target = '/consultas';
+
+    // Redirect to root so App's DefaultRedirect can resolve role using server-side profile
+    history.push("/");
+    return;
   };
 
   return (
@@ -139,7 +190,7 @@ function SignIn() {
       description="Ingresa tus datos para gestionar citas y fichas de mascotas."
       color="white"
       image={"DIAGONAL_GRADIENT"}
-      top={10}
+      top={0}
     >
       {user && user.token ? (
         <div>
@@ -164,13 +215,13 @@ function SignIn() {
               boxShadow: "0 10px 30px rgba(22,28,45,0.12)",
             }}
           >
-            <SuiBox mb={2} className="auth-cover-header-box">
+            <SuiBox mb={2} className="auth-cover-header-box" style={{ textAlign: 'center', maxWidth: 480, margin: '0 auto' }}>
               <SuiBox mb={1} className="auth-cover-header">
-                <SuiTypography variant="h5" fontWeight="medium">
+                <SuiTypography variant="h5" fontWeight="medium" style={{ textAlign: 'center' }}>
                   Iniciar sesión
                 </SuiTypography>
               </SuiBox>
-              <SuiTypography variant="body2" fontWeight="regular" textColor="text" className="auth-cover-description">
+              <SuiTypography variant="body2" fontWeight="regular" textColor="text" className="auth-cover-description" style={{ textAlign: 'center' }}>
                 Ingrese su correo y contraseña para iniciar sesión
               </SuiTypography>
             </SuiBox>

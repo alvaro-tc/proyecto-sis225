@@ -22,7 +22,7 @@ export default makeStyles(({ functions, borders }) => {
 
   return {
     coverLayout: {
-      minHeight: "75vh",
+      minHeight: "100vh",
       margin: 0,
     },
 

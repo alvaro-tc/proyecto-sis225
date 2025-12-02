@@ -205,14 +205,23 @@ class VeterinarioUpdateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(required=False, write_only=True)
     telefono = serializers.CharField(max_length=50, required=False, allow_null=True, allow_blank=True)
 
+    # Allow updating working hours and days
+    work_start = serializers.TimeField(required=False, allow_null=True)
+    work_end = serializers.TimeField(required=False, allow_null=True)
+    work_days = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
     class Meta:
         model = Veterinario
-        fields = ("nombre", "telefono", "email", "password")
+        fields = ("nombre", "telefono", "email", "password", "work_start", "work_end", "work_days")
 
     def update(self, instance, validated_data):
         email = validated_data.pop("email", None)
         password = validated_data.pop("password", None)
         telefono = validated_data.pop("telefono", None)
+        # working hours
+        work_start = validated_data.pop("work_start", None)
+        work_end = validated_data.pop("work_end", None)
+        work_days = validated_data.pop("work_days", None)
 
         # Update Veterinario fields (nombre)
         instance = super().update(instance, validated_data)
@@ -232,6 +241,18 @@ class VeterinarioUpdateSerializer(serializers.ModelSerializer):
                 changed = True
             if changed:
                 user.save()
+        except Exception:
+            pass
+
+        # Persist working hours on Veterinario instance when provided
+        try:
+            if work_start is not None:
+                instance.work_start = work_start
+            if work_end is not None:
+                instance.work_end = work_end
+            if work_days is not None:
+                instance.work_days = work_days
+            instance.save()
         except Exception:
             pass
 
@@ -351,6 +372,7 @@ class ConsultaSerializer(serializers.ModelSerializer):
     hora = serializers.TimeField(required=False, allow_null=True)
     # clinical fields
     sintomas = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    asistio = serializers.BooleanField(required=False, allow_null=True, default=None)
     tratamiento = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
     class Meta:
@@ -362,6 +384,7 @@ class ConsultaSerializer(serializers.ModelSerializer):
             "fecha",
             "hora",
             "sintomas",
+            "asistio",
             "tratamiento",
             "veterinario",
             "mascota",

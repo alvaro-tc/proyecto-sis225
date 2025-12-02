@@ -12,6 +12,7 @@ import {
   FormControlLabel,
   Switch,
   Typography,
+  Box,
 } from "@mui/material";
 import SuiButton from "components/SuiButton";
 import clinicApi from "api/clinic";
@@ -34,7 +35,57 @@ export default function ModalAnotarConsulta({ open, onClose, consultaId, onSaved
     },
   });
 
+  const LABEL_FONT = "1rem";
+  const INPUT_FONT = "1.05rem";
+  const DISPLAY_FONT = "0.9rem";
+  const TITLE_FONT = "1.25rem";
+
+  const textFieldSx = {
+    "& .MuiInputLabel-root": { fontSize: LABEL_FONT },
+    "& .MuiFormHelperText-root": { fontSize: "1.1rem" },
+    "& .MuiOutlinedInput-root": { minHeight: 52 },
+    "& .MuiInputBase-input": { fontSize: INPUT_FONT, padding: "14px 12px" },
+  };
+
   const asistio = watch("asistio");
+  const motivoVal = watch("motivo");
+  const descripcionVal = watch("descripcion");
+  const fechaVal = watch("fecha");
+  const horaVal = watch("hora");
+
+  function formatFechaHora(fecha, hora) {
+    if (!fecha) return "-";
+    try {
+      const weekdays = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+      const months = [
+        "enero",
+        "febrero",
+        "marzo",
+        "abril",
+        "mayo",
+        "junio",
+        "julio",
+        "agosto",
+        "septiembre",
+        "octubre",
+        "noviembre",
+        "diciembre",
+      ];
+      const parts = String(fecha).split("-");
+      if (parts.length !== 3) return `${fecha}${hora ? ' a hrs ' + hora : ''}`;
+      const [y, m, d] = parts;
+      const day = Number(d);
+      const monthIndex = Number(m) - 1;
+      const monthName = months[monthIndex] || m;
+      // construct date without timezone shifts
+      const dt = new Date(Number(y), monthIndex, day);
+      const weekday = weekdays[dt.getDay()] || "";
+      const weekdayCap = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+      return `${weekdayCap} ${day} de ${monthName} ${y}${hora ? ' a hrs ' + hora : ''}`;
+    } catch (e) {
+      return `${fecha}${hora ? ' a hrs ' + hora : ''}`;
+    }
+  }
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -105,8 +156,8 @@ export default function ModalAnotarConsulta({ open, onClose, consultaId, onSaved
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3 } }}>
-      <DialogTitle sx={{ textAlign: "center", fontWeight: 700 }}>Anotar / Registrar Consulta</DialogTitle>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" PaperProps={{ sx: { borderRadius: 3, p: 0 } }}>
+      <DialogTitle sx={{ fontWeight: 600, textAlign: "center", pb: 1, fontSize: TITLE_FONT }}>Anotar / Registrar Consulta</DialogTitle>
       <Divider />
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent sx={{ pt: 2 }}>
@@ -115,40 +166,87 @@ export default function ModalAnotarConsulta({ open, onClose, consultaId, onSaved
               <Typography>Cargando...</Typography>
             </Grid>
           ) : (
-            <Grid container spacing={2}>
+            <Grid container spacing={1}>
               <Grid item xs={12}>
-                <TextField label="Motivo" fullWidth {...register("motivo", { required: true, maxLength: 255 })} InputProps={{ readOnly: true }} />
+                <Typography sx={{ fontSize: INPUT_FONT, color: "text.primary", mb: 0.5 }}>{formatFechaHora(fechaVal, horaVal)}</Typography>
               </Grid>
 
               <Grid item xs={12}>
-                <TextField label="Descripción" fullWidth multiline rows={2} {...register("descripcion")} InputProps={{ readOnly: true }} />
-              </Grid>
-
-              <Grid item xs={6}>
-                <TextField label="Fecha" type="date" fullWidth InputLabelProps={{ shrink: true }} {...register("fecha")} InputProps={{ readOnly: true }} />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField label="Hora" type="time" fullWidth InputLabelProps={{ shrink: true }} {...register("hora")} InputProps={{ readOnly: true }} />
+                <Typography sx={{ fontSize: INPUT_FONT, color: "text.primary", mb: 0.5 }}>
+                  <Box component="span" sx={{ fontSize: LABEL_FONT, fontWeight: 600, mr: 0.5 }}>Motivo:</Box>
+                  <Box component="span" sx={{ fontSize: DISPLAY_FONT, color: "text.primary", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{motivoVal || "-"}</Box>
+                </Typography>
               </Grid>
 
               <Grid item xs={12}>
-                <FormControlLabel control={<Controller name="asistio" control={control} render={({ field }) => <Switch {...field} checked={!!field.value} />} />} label="Asistió" />
+                <Typography sx={{ fontSize: INPUT_FONT, color: "text.primary", mb: 0.5 }}>
+                  <Box component="span" sx={{ fontSize: LABEL_FONT, fontWeight: 600, mr: 0.5 }}>Descripción:</Box>
+                  <Box component="span" sx={{ fontSize: DISPLAY_FONT, color: "text.primary", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{descripcionVal || "-"}</Box>
+                </Typography>
+              </Grid>
+
+              <Grid item xs={12} container justifyContent="flex-start" alignItems="center">
+                <FormControlLabel sx={{ ml: 0 }} control={<Controller name="asistio" control={control} render={({ field }) => <Switch {...field} checked={!!field.value} />} />} label="Asistió" />
               </Grid>
 
               <Grid item xs={12}>
-                <TextField label="Síntomas" fullWidth multiline rows={2} {...register("sintomas")} disabled={!asistio} />
+                <Typography sx={{ fontSize: LABEL_FONT, mb: 0.5 }}>Síntomas</Typography>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={1}
+                  {...register("sintomas")}
+                  sx={{
+                    ...textFieldSx,
+                    "& .MuiOutlinedInput-root": { minHeight: 40 },
+                    "& .MuiInputBase-input": { padding: "8px 10px", fontSize: INPUT_FONT },
+                  }}
+                />
               </Grid>
 
               <Grid item xs={12}>
-                <TextField label="Diagnóstico" fullWidth multiline rows={2} {...register("diagnostico")} disabled={!asistio} />
+                <Typography sx={{ fontSize: LABEL_FONT, mb: 0.5 }}>Diagnóstico</Typography>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={1}
+                  {...register("diagnostico")}
+                  sx={{
+                    ...textFieldSx,
+                    "& .MuiOutlinedInput-root": { minHeight: 40 },
+                    "& .MuiInputBase-input": { padding: "8px 10px", fontSize: INPUT_FONT },
+                  }}
+                />
               </Grid>
 
               <Grid item xs={12}>
-                <TextField label="Tratamiento" fullWidth multiline rows={2} {...register("tratamiento")} disabled={!asistio} />
+                <Typography sx={{ fontSize: LABEL_FONT, mb: 0.5 }}>Tratamiento</Typography>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={1}
+                  {...register("tratamiento")}
+                  sx={{
+                    ...textFieldSx,
+                    "& .MuiOutlinedInput-root": { minHeight: 40 },
+                    "& .MuiInputBase-input": { padding: "8px 10px", fontSize: INPUT_FONT },
+                  }}
+                />
               </Grid>
 
               <Grid item xs={12}>
-                <TextField label="Notas" fullWidth multiline rows={2} {...register("notas")} disabled={!asistio} />
+                <Typography sx={{ fontSize: LABEL_FONT, mb: 0.5 }}>Notas</Typography>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={4}
+                  {...register("notas")}
+                  sx={{
+                    ...textFieldSx,
+                    "& .MuiOutlinedInput-root": { minHeight: 120 },
+                    "& .MuiInputBase-input": { padding: "12px 12px", fontSize: INPUT_FONT },
+                  }}
+                />
               </Grid>
 
               {error && (
@@ -162,8 +260,8 @@ export default function ModalAnotarConsulta({ open, onClose, consultaId, onSaved
 
         <Divider />
         <DialogActions sx={{ p: 2, justifyContent: "flex-end", gap: 1 }}>
-          <SuiButton variant="outlined" buttonColor="secondary" onClick={onClose} disabled={saving}>Cancelar</SuiButton>
-          <SuiButton variant="gradient" buttonColor="dark" type="submit" disabled={saving}>{saving ? "Guardando..." : "Guardar"}</SuiButton>
+          <SuiButton variant="outlined" buttonColor="secondary" onClick={onClose} disabled={saving} sx={{ minWidth: 120, height: 44 }}>Cancelar</SuiButton>
+          <SuiButton variant="gradient" buttonColor="dark" type="submit" disabled={saving} sx={{ minWidth: 120, height: 44 }}>{saving ? "Guardando..." : "Guardar"}</SuiButton>
         </DialogActions>
       </form>
     </Dialog>

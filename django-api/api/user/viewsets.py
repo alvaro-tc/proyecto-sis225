@@ -26,6 +26,10 @@ class CurrentUserSerializer(serializers.Serializer):
     nombre = serializers.CharField(allow_null=True, required=False)
     telefono = serializers.CharField(allow_null=True, required=False)
     profile_id = serializers.IntegerField(allow_null=True, required=False)
+    # Veterinario schedule fields
+    work_start = serializers.TimeField(allow_null=True, required=False)
+    work_end = serializers.TimeField(allow_null=True, required=False)
+    work_days = serializers.CharField(allow_null=True, required=False)
 
 
 
@@ -66,6 +70,9 @@ def current_user(request):
         "nombre": None,
         "telefono": getattr(user, "telefono", None),
         "profile_id": None,
+        "work_start": None,
+        "work_end": None,
+        "work_days": None,
     }
 
     # enrich with profile fields for staff roles; owners are represented by Dueno objects
@@ -80,6 +87,15 @@ def current_user(request):
             payload["nombre"] = vet.nombre or (user.email.split("@")[0] if getattr(user, "email", None) else "")
             payload["telefono"] = getattr(user, "telefono", None)
             payload["profile_id"] = getattr(vet, "idVeterinario", None) or getattr(vet, "pk", None)
+            try:
+                # include veterinarian working hours in the /me response
+                if getattr(vet, "work_start", None) is not None:
+                    payload["work_start"] = vet.work_start.isoformat()
+                if getattr(vet, "work_end", None) is not None:
+                    payload["work_end"] = vet.work_end.isoformat()
+                payload["work_days"] = getattr(vet, "work_days", None)
+            except Exception:
+                pass
         elif role == "admin":
             payload["telefono"] = getattr(user, "telefono", None)
     except Exception:
@@ -116,6 +132,15 @@ def current_user(request):
             profile_serializer.is_valid(raise_exception=True)
             profile_serializer.save()
             payload["nombre"] = vet.nombre or (user.email.split("@")[0] if getattr(user, "email", None) else "")
+            # Refresh schedule fields from saved profile
+            try:
+                if getattr(vet, "work_start", None) is not None:
+                    payload["work_start"] = vet.work_start.isoformat()
+                if getattr(vet, "work_end", None) is not None:
+                    payload["work_end"] = vet.work_end.isoformat()
+                payload["work_days"] = getattr(vet, "work_days", None)
+            except Exception:
+                pass
 
         # Refresh email/telefono from saved user
         payload["email"] = user.email

@@ -49,32 +49,35 @@ function CoverLayout({ color, header, title, description, image, top, children }
   return (
     <PageLayout background="">
       <DefaultNavbar routes={routes} transparent light />
-      <Grid container justifyContent="center" className={classes.coverLayout}>
+      <Grid container justifyContent="center" alignItems="center" className={classes.coverLayout}>
         <Grid item xs={11} sm={8} md={6} xl={4}>
           <SuiBox mt={top}>
-            <SuiBox pt={3} px={3}>
-              {!header ? (
-                <>
-                  <SuiBox mb={1}>
-                    <SuiTypography
-                      variant="h3"
-                      fontWeight="bold"
-                      textColor={color}
-                      textGradient={color !== "white"}
-                      style={titleStyle}
-                    >
-                      {title}
+            {/* wrapper to align title/description with the inner white form */}
+            <SuiBox sx={{ maxWidth: 480, margin: '0 auto' }}>
+              <SuiBox pt={3} px={3}>
+                {!header ? (
+                  <>
+                    <SuiBox mb={1}>
+                      <SuiTypography
+                        variant="h3"
+                        fontWeight="bold"
+                        textColor={color}
+                        textGradient={color !== "white"}
+                        style={titleStyle}
+                      >
+                        {title}
+                      </SuiTypography>
+                    </SuiBox>
+                    <SuiTypography variant="body2" fontWeight="regular" textColor="text" style={titleStyle}>
+                      {description}
                     </SuiTypography>
-                  </SuiBox>
-                  <SuiTypography variant="body2" fontWeight="regular" textColor="text" style={titleStyle}>
-                    {description}
-                  </SuiTypography>
-                </>
-              ) : (
-                header
-              )}
+                  </>
+                ) : (
+                  header
+                )}
+              </SuiBox>
+              <SuiBox p={3}>{children}</SuiBox>
             </SuiBox>
-            <SuiBox p={3}>{children}</SuiBox>
           </SuiBox>
         </Grid>
         {image && image !== "DIAGONAL_GRADIENT" ? (

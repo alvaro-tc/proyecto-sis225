@@ -93,6 +93,9 @@ class Consulta(models.Model):
     fecha = models.DateField()
     # Clinical fields (simplified)
     sintomas = models.TextField(blank=True, null=True)
+    # marca si el cliente asistió a la consulta/turno
+    # Puede ser NULL cuando el estado no está definido (pendiente/indefinido)
+    asistio = models.BooleanField(null=True, blank=True, default=None)
     tratamiento = models.TextField(blank=True, null=True)
     veterinario = models.ForeignKey(
         "api_clinic.Veterinario",
