@@ -1,6 +1,7 @@
 from rest_framework import viewsets, mixins, status, serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema
 
 
 class ActiveSessionSerializer(serializers.Serializer):
@@ -9,6 +10,7 @@ class ActiveSessionSerializer(serializers.Serializer):
 
 
 
+@extend_schema(tags=["Auth"], summary="Verificar sesión activa")
 class ActiveSessionViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     http_method_names = ["post"]
     permission_classes = (IsAuthenticated,)

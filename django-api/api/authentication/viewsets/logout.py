@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
 from api.authentication.models import ActiveSession
+from drf_spectacular.utils import extend_schema
 
 
 class LogoutSerializer(serializers.Serializer):
@@ -12,6 +13,7 @@ class LogoutSerializer(serializers.Serializer):
     msg = serializers.CharField(read_only=True)
 
 
+@extend_schema(tags=["Auth"], summary="Cerrar sesión")
 class LogoutViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     permission_classes = (IsAuthenticated,)
     serializer_class = LogoutSerializer

@@ -3,8 +3,10 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
 from api.authentication.serializers import RegisterSerializer
+from drf_spectacular.utils import extend_schema
 
 
+@extend_schema(tags=["Auth"], summary="Registrar usuario")
 class RegisterViewSet(viewsets.ModelViewSet):
     http_method_names = ["post"]
     permission_classes = (AllowAny,)

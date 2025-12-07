@@ -91,16 +91,6 @@ WSGI_APPLICATION = "core.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE"  : env("DB_ENGINE"  , default="django.db.backends.sqlite3"),
-        "NAME"    : env("DB_DATABASE", default=os.path.join(BASE_DIR, "db.sqlite3")),
-        "USER"    : env("DB_USER"    , default=None),
-        "PASSWORD": env("DB_PASSWORD", default=None),
-        "HOST"    : env("DB_HOST"    , default=None),
-        "PORT"    : env("DB_PORT"    , default=None),
-    }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -177,7 +167,6 @@ SPECTACULAR_SETTINGS = {
         {"name": "Veterinarios", "description": "Gestión de veterinarios y su perfil"},
         {"name": "Mascotas", "description": "Operaciones sobre mascotas y listas por dueño"},
         {"name": "Consultas", "description": "Consultas médicas y reservas (unificadas)"},
-        {"name": "Comprobantes", "description": "Comprobantes relacionados a consultas"},
         {"name": "Perfil", "description": "Endpoints para obtener/editar el perfil autenticado"},
     ],
 }
