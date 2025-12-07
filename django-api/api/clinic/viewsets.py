@@ -519,6 +519,45 @@ class MascotaViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
+    @extend_schema(tags=["Mascotas"], summary="Todas las consultas de una mascota")
+    @action(detail=True, methods=["get"], url_path="consultas", permission_classes=[IsAuthenticated])
+    def consultas(self, request, pk=None):
+        """Return all consultas for this mascota, ordered by date and time descending.
+
+        Access restricted to staff (recepcionista), veterinario or admin users.
+        Optional query params: start_date, end_date (YYYY-MM-DD format).
+        """
+        try:
+            mascota = Mascota.objects.get(pk=pk)
+        except Mascota.DoesNotExist:
+            from rest_framework.exceptions import NotFound
+
+            raise NotFound({"detail": "Mascota not found"})
+
+        user = request.user
+        if not (hasattr(user, "recepcionista_profile") or hasattr(user, "veterinario_profile") or user.is_superuser):
+            from rest_framework.exceptions import PermissionDenied
+
+            raise PermissionDenied({"detail": "Not allowed to view this mascota's consultas"})
+
+        qs = Consulta.objects.filter(mascota=mascota).order_by("-fecha", "-hora")
+
+        # Optional filtering by date range
+        start_date = request.query_params.get("start_date")
+        end_date = request.query_params.get("end_date")
+        if start_date:
+            qs = qs.filter(fecha__gte=start_date)
+        if end_date:
+            qs = qs.filter(fecha__lte=end_date)
+
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = ConsultaSerializer(page, many=True, context={"request": request})
+            return self.get_paginated_response(serializer.data)
+
+        serializer = ConsultaSerializer(qs, many=True, context={"request": request})
+        return Response(serializer.data, status=200)
+
     @extend_schema(tags=["Mascotas"], summary="Consultas asistidas de una mascota")
     @action(detail=True, methods=["get"], url_path="consultas/asistidas", permission_classes=[IsAuthenticated])
     def consultas_asistidas(self, request, pk=None):

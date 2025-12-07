@@ -13,30 +13,28 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import Autocomplete from "@mui/material/Autocomplete";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
+import SimpleCalendar from "components/SimpleCalendar";
 import SuiBox from "components/SuiBox";
 import SuiTypography from "components/SuiTypography";
 import SuiButton from "components/SuiButton";
 import SuiAvatar from "components/SuiAvatar";
-import Autocomplete from "@mui/material/Autocomplete";
-// Using a lightweight in-file calendar component instead of Flatpickr
-import Table from "examples/Table";
+
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
+
 import clinicApi from "api/clinic";
 import { useSoftUIController } from "context";
-import styles from "layouts/tables/styles";
-import IconButton from "@mui/material/IconButton";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const SLOT_MINUTES = 30;
-
 function minutesToTime(min) {
   const h = Math.floor(min / 60);
   const m = min % 60;
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
-
 function generateSlots(start = 9 * 60, end = 17 * 60, step = SLOT_MINUTES) {
   const slots = [];
   for (let t = start; t < end; t += step) slots.push(t);
@@ -44,9 +42,10 @@ function generateSlots(start = 9 * 60, end = 17 * 60, step = SLOT_MINUTES) {
 }
 
 export default function RegistroConsulta() {
-  const classes = styles();
   const [controller, dispatch] = useSoftUIController();
-  const { fixedNavbar: fixedNavbarCurrent } = controller;
+  const { fixedNavbar } = controller;
+  const [fixedNavbarCurrent] = useState(fixedNavbar);
+
   const [veterinarios, setVeterinarios] = useState([]);
   const [owners, setOwners] = useState([]);
   const [mascotas, setMascotas] = useState([]);
@@ -55,267 +54,18 @@ export default function RegistroConsulta() {
   const [ownerSel, setOwnerSel] = useState(null);
   const [mascotaSel, setMascotaSel] = useState(null);
 
-  const [date, setDate] = useState(() => {
-    const d = new Date();
-    return d.toISOString().slice(0, 10);
-  });
+  const [date, setDate] = useState("");
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [motivo, setMotivo] = useState("");
+  const [descripcion, setDescripcion] = useState("");
 
   const [consultas, setConsultas] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // comprobante state
-  const [motivo, setMotivo] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [selectedSlot, setSelectedSlot] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [reserveError, setReserveError] = useState(null);
   const [successOpen, setSuccessOpen] = useState(false);
   const [reservedData, setReservedData] = useState(null);
-
-  // Simple responsive calendar component (fills container width)
-  function SimpleCalendar({ value, onChange }) {
-    function parseISOToDate(iso) {
-      if (!iso) return null;
-      const parts = String(iso).split("-");
-      if (parts.length < 3) return null;
-      const y = Number(parts[0]);
-      const m = Number(parts[1]) - 1;
-      const d = Number(parts[2]);
-      return new Date(y, m, d);
-    }
-
-    function formatDateToISO(d) {
-      if (!d) return "";
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${y}-${m}-${day}`;
-    }
-
-    const [viewDate, setViewDate] = useState(() => parseISOToDate(value) || new Date());
-
-    useEffect(() => {
-      if (value) {
-        const parsed = parseISOToDate(value);
-        if (parsed) setViewDate(parsed);
-      }
-    }, [value]);
-
-    function startOfMonth(d) {
-      return new Date(d.getFullYear(), d.getMonth(), 1);
-    }
-    function endOfMonth(d) {
-      return new Date(d.getFullYear(), d.getMonth() + 1, 0);
-    }
-    function prevMonth() {
-      setViewDate((v) => new Date(v.getFullYear(), v.getMonth() - 1, 1));
-    }
-    function nextMonth() {
-      setViewDate((v) => new Date(v.getFullYear(), v.getMonth() + 1, 1));
-    }
-
-    function buildMatrix(d) {
-      const year = d.getFullYear();
-      const month = d.getMonth();
-      const first = new Date(year, month, 1);
-      const last = new Date(year, month + 1, 0);
-      const matrix = [];
-      let week = [];
-      // JS: Sunday = 0 ... Saturday = 6. We'll render starting Sunday.
-      const startDay = first.getDay();
-      // fill leading nulls
-      for (let i = 0; i < startDay; i++) week.push(null);
-      for (let day = 1; day <= last.getDate(); day++) {
-        week.push(new Date(year, month, day));
-        if (week.length === 7) {
-          matrix.push(week);
-          week = [];
-        }
-      }
-      if (week.length) {
-        while (week.length < 7) week.push(null);
-        matrix.push(week);
-      }
-      return matrix;
-    }
-
-    const matrix = useMemo(() => buildMatrix(viewDate), [viewDate]);
-
-    function toISO(d) {
-      return formatDateToISO(d);
-    }
-
-    const monthName = viewDate.toLocaleString(undefined, { month: "long", year: "numeric" });
-    const months = Array.from({ length: 12 }).map((_, i) =>
-      new Date(0, i).toLocaleString(undefined, { month: "long" })
-    );
-    const currentYear = new Date().getFullYear();
-    const years = Array.from({ length: 11 }).map((_, i) => currentYear - 5 + i);
-    const [showPicker, setShowPicker] = useState(false);
-
-    return (
-      <div className="simple-calendar" style={{ width: "100%" }}>
-        <div
-          className="sc-header"
-          style={{ display: "flex", alignItems: "center", marginBottom: 8 }}
-        >
-          <div style={{ flex: "0 0 auto" }}>
-            <SuiButton
-              aria-label="Mes anterior"
-              variant="outlined"
-              size="small"
-              onClick={() => {
-                prevMonth();
-                setShowPicker(false);
-              }}
-              style={{ minWidth: 36 }}
-            >
-              ◀
-            </SuiButton>
-          </div>
-          <div
-            style={{
-              flex: "1 1 auto",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              position: "relative",
-            }}
-          >
-            <div
-              onClick={() => setShowPicker((s) => !s)}
-              role="button"
-              tabIndex={0}
-              style={{
-                fontSize: "0.98rem",
-                fontWeight: 700,
-                cursor: "pointer",
-                userSelect: "none",
-              }}
-            >
-              {monthName}
-            </div>
-            {showPicker ? (
-              <div
-                style={{
-                  position: "absolute",
-                  top: 36,
-                  display: "flex",
-                  gap: 8,
-                  background: "#fff",
-                  padding: 8,
-                  borderRadius: 6,
-                  boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-                }}
-              >
-                <select
-                  aria-label="Seleccionar mes"
-                  value={viewDate.getMonth()}
-                  onChange={(e) =>
-                    setViewDate(new Date(viewDate.getFullYear(), Number(e.target.value), 1))
-                  }
-                  style={{
-                    fontSize: "0.9rem",
-                    padding: "6px 8px",
-                    borderRadius: 6,
-                    border: "1px solid rgba(0,0,0,0.12)",
-                  }}
-                >
-                  {months.map((m, i) => (
-                    <option key={m} value={i}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  aria-label="Seleccionar año"
-                  value={viewDate.getFullYear()}
-                  onChange={(e) =>
-                    setViewDate(new Date(Number(e.target.value), viewDate.getMonth(), 1))
-                  }
-                  style={{
-                    fontSize: "0.9rem",
-                    padding: "6px 8px",
-                    borderRadius: 6,
-                    border: "1px solid rgba(0,0,0,0.12)",
-                  }}
-                >
-                  {years.map((y) => (
-                    <option key={y} value={y}>
-                      {y}
-                    </option>
-                  ))}
-                </select>
-                <SuiButton variant="outlined" size="small" onClick={() => setShowPicker(false)}>
-                  Cerrar
-                </SuiButton>
-              </div>
-            ) : null}
-          </div>
-          <div style={{ flex: "0 0 auto" }}>
-            <SuiButton
-              aria-label="Mes siguiente"
-              variant="outlined"
-              size="small"
-              onClick={() => {
-                nextMonth();
-                setShowPicker(false);
-              }}
-              style={{ minWidth: 36 }}
-            >
-              ▶
-            </SuiButton>
-          </div>
-        </div>
-
-        <div
-          className="sc-weekdays"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(7, 1fr)",
-            gap: 6,
-            marginBottom: 6,
-          }}
-        >
-          {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
-            <div key={d} style={{ textAlign: "center", fontSize: "0.72rem", color: "#666" }}>
-              {d}
-            </div>
-          ))}
-        </div>
-
-        <div
-          className="sc-grid"
-          style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}
-        >
-          {matrix.flat().map((cell, idx) => {
-            const isSelected = cell && toISO(cell) === value;
-            const isToday = cell && toISO(cell) === toISO(new Date());
-            return (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => cell && onChange(toISO(cell))}
-                disabled={!cell}
-                className={"sc-cell" + (isSelected ? " selected" : "") + (isToday ? " today" : "")}
-                style={{
-                  width: "100%",
-                  height: 36,
-                  borderRadius: 6,
-                  border: isSelected ? "1px solid #333" : "1px solid rgba(0,0,0,0.08)",
-                  background: isSelected ? "#212121" : "#fff",
-                  color: isSelected ? "#fff" : cell ? "#111" : "#aaa",
-                  cursor: cell ? "pointer" : "default",
-                }}
-              >
-                {cell ? cell.getDate() : ""}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
 
   useEffect(() => {
     let mounted = true;
@@ -338,7 +88,6 @@ export default function RegistroConsulta() {
         if (mounted) setOwners([]);
       }
 
-      // mascotas will be loaded on owner selection
       if (mounted) setLoading(false);
     }
     loadLists();
@@ -350,21 +99,17 @@ export default function RegistroConsulta() {
     if ((!vetSel || vetSel === null) && Array.isArray(veterinarios) && veterinarios.length > 0) {
       setVetSel(veterinarios[0]);
     }
-    // only run when veterinarios changes
   }, [veterinarios]);
 
-  // Ensure navbar is fixed on this page and restore previous state when leaving
   useEffect(() => {
     try {
       dispatch({ type: "FIXED_NAVBAR", value: true });
     } catch (e) {
-      // no-op
     }
     return () => {
       try {
         dispatch({ type: "FIXED_NAVBAR", value: fixedNavbarCurrent });
       } catch (e) {
-        // no-op
       }
     };
   }, []);
@@ -378,15 +123,14 @@ export default function RegistroConsulta() {
       }
       setMascotas([]);
       try {
-        // try endpoint that returns mascotas for owner; fallback to general list and filter
         const all = await clinicApi.list("mascotas/with-dueno");
         if (!mounted) return;
         const filtered = Array.isArray(all)
           ? all.filter(
-              (m) =>
-                String(m.dueno) ===
-                String(ownerSel.id || ownerSel.idDueno || ownerSel.pk || ownerSel.dueno)
-            )
+            (m) =>
+              String(m.dueno) ===
+              String(ownerSel.id || ownerSel.idDueno || ownerSel.pk || ownerSel.dueno)
+          )
           : [];
         setMascotas(filtered);
       } catch (err) {
@@ -405,13 +149,11 @@ export default function RegistroConsulta() {
       if (!vetSel) return;
       try {
         const id = vetSel.id || vetSel.idVeterinario || vetSel.idVet || vetSel.pk;
-        // fetch all consultas for vet and filter by date
         const res = await clinicApi.request(`/api/clinic/veterinarios/${id}/consultas`, {
           method: "GET",
         });
         if (!mounted) return;
         const arr = Array.isArray(res) ? res : [];
-        // normalize consulta date fields and filter by date
         const byDate = arr.filter((c) => {
           const f =
             c.fecha || (c.fechaHora ? String(c.fechaHora).split("T")[0] : null) || c.date || null;
@@ -427,26 +169,6 @@ export default function RegistroConsulta() {
     return () => (mounted = false);
   }, [vetSel, date]);
 
-  const availableSlots = useMemo(() => {
-    const allSlots = generateSlots();
-    if (!consultas || consultas.length === 0) return allSlots;
-    // build occupied minutes from consultas
-    const occupied = new Set();
-    consultas.forEach((c) => {
-      const hora =
-        c.hora ||
-        (c.fechaHora ? (String(c.fechaHora).split("T")[1] || "").slice(0, 5) : null) ||
-        c.time ||
-        "";
-      if (!hora) return;
-      const [hh, mm] = String(hora).split(":");
-      const start = Number(hh) * 60 + Number(mm);
-      occupied.add(start);
-    });
-    return allSlots.filter((s) => !occupied.has(s));
-  }, [consultas]);
-
-  // compute occupied set once for rendering both available and unavailable slots
   const occupiedSlots = useMemo(() => {
     const set = new Set();
     if (!consultas || consultas.length === 0) return set;
@@ -477,9 +199,36 @@ export default function RegistroConsulta() {
   async function performReserve() {
     setReserveError(null);
     if (!vetSel || !ownerSel || !mascotaSel || !selectedSlot) {
-      setReserveError("Faltan campos obligatorios: veterinario, dueño, mascota o horario");
+      setReserveError("Faltan campos obligatorios");
       return;
     }
+
+    // Strict Validation for Past Dates/Time
+    const today = new Date();
+    // Reset time to start of day for accurate date comparison
+    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    // Parse selected date (safe assumption it's yyyy-mm-dd from SimpleCalendar)
+    const [y, m, d] = date.split('-').map(Number);
+    const selectedDateObj = new Date(y, m - 1, d);
+
+    if (selectedDateObj < todayDateOnly) {
+      setReserveError("No se puede reservar en una fecha pasada.");
+      setConfirmOpen(false); // keep in view to see error
+      alert("Error: Fecha pasada.");
+      return;
+    }
+
+    if (selectedDateObj.getTime() === todayDateOnly.getTime()) {
+      // checks time
+      const currentMinutes = today.getHours() * 60 + today.getMinutes();
+      if (selectedSlot < currentMinutes) {
+        setReserveError("No se puede reservar en un horario pasado.");
+        setConfirmOpen(false);
+        return;
+      }
+    }
+
     const idVet = vetSel.id || vetSel.idVeterinario || vetSel.idVet || vetSel.pk;
     const idMasc = mascotaSel.idMascota || mascotaSel.id || mascotaSel.pk;
     const payload = {
@@ -493,7 +242,6 @@ export default function RegistroConsulta() {
     };
     try {
       await clinicApi.request("/api/clinic/consultas", { method: "POST", body: payload });
-      // prepare reserved data to display in success modal before clearing state
       const reserved = {
         fecha: date,
         hora: minutesToTime(selectedSlot),
@@ -505,14 +253,11 @@ export default function RegistroConsulta() {
       };
       setConfirmOpen(false);
       setReservedData(reserved);
-      // success: show modal with reserved info
       setSuccessOpen(true);
-      // then clear form
       setSelectedSlot(null);
       setMotivo("");
       setDescripcion("");
-      // refresh consultas list
-      setDate((d) => d);
+      setDate((d) => d); // trigger re-fetch
     } catch (err) {
       console.error("Error reservando consulta", err);
       const msg = err?.body?.message || err?.body?._raw || JSON.stringify(err);
@@ -520,20 +265,46 @@ export default function RegistroConsulta() {
     }
   }
 
+  // Handle Date Change wrapper to prevent selecting past dates (visual feedback)
+  const handleDateChange = (newDate) => {
+    const today = new Date();
+    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    const [y, m, d] = newDate.split('-').map(Number);
+    const selectedObj = new Date(y, m - 1, d);
+
+    if (selectedObj < todayDateOnly) {
+      // You could block it here, or just let them select but disable slots.
+      // User asked "verify that past days cannot be selected".
+      // Let's block the state update and alert.
+      // alert("No puedes seleccionar días pasados."); // Optional: too intrusive?
+      // just ignore
+      return;
+    }
+    setDate(newDate);
+    setSelectedSlot(null); // reset slot on date change
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <SuiBox py={3}>
         <SuiBox mb={3}>
           <Card>
-            {/* Header removed to keep the page compact for receptionists */}
             <Divider />
             <SuiBox p={3}>
               <Grid container spacing={3}>
                 {/* Left column */}
                 <Grid item xs={12} md={8}>
                   <SuiTypography variant="h6">Disponibilidad</SuiTypography>
+
+                  {/* Veterinario - Label Above */}
                   <SuiBox mt={2}>
+                    <SuiBox mb={1}>
+                      <SuiTypography variant="caption" fontWeight="bold" color="text">
+                        Buscar veterinario
+                      </SuiTypography>
+                    </SuiBox>
                     <Autocomplete
                       options={veterinarios}
                       getOptionLabel={(o) => o && (o.nombre || o.name || (o.user && o.user.email))}
@@ -544,7 +315,7 @@ export default function RegistroConsulta() {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Buscar veterinario"
+                          placeholder="Escribe para buscar..."
                           variant="outlined"
                           size="small"
                           autoFocus
@@ -559,7 +330,14 @@ export default function RegistroConsulta() {
                       )}
                     />
                   </SuiBox>
+
+                  {/* Dueño - Label Above */}
                   <SuiBox mt={2}>
+                    <SuiBox mb={1}>
+                      <SuiTypography variant="caption" fontWeight="bold" color="text">
+                        Buscar dueño
+                      </SuiTypography>
+                    </SuiBox>
                     <Autocomplete
                       options={owners}
                       getOptionLabel={(o) => o && (o.nombre || o.name || (o.user && o.user.email))}
@@ -569,7 +347,7 @@ export default function RegistroConsulta() {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Buscar dueño"
+                          placeholder="Escribe para buscar..."
                           variant="outlined"
                           size="small"
                           fullWidth
@@ -585,7 +363,14 @@ export default function RegistroConsulta() {
                       )}
                     />
                   </SuiBox>
+
+                  {/* Mascota - Label Above */}
                   <SuiBox mt={2}>
+                    <SuiBox mb={1}>
+                      <SuiTypography variant="caption" fontWeight="bold" color="text">
+                        Mascota (por dueño)
+                      </SuiTypography>
+                    </SuiBox>
                     <Autocomplete
                       options={mascotas}
                       getOptionLabel={(o) => o && (o.nombre || o.name || "")}
@@ -595,7 +380,7 @@ export default function RegistroConsulta() {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Mascota (por dueño)"
+                          placeholder="Selecciona una mascota"
                           variant="outlined"
                           size="small"
                           fullWidth
@@ -617,6 +402,26 @@ export default function RegistroConsulta() {
                     <SuiBox display="flex" flexWrap="wrap" gap={1} mt={1}>
                       {generateSlots().map((s) => {
                         const occupied = occupiedSlots.has(s);
+                        let past = false;
+
+                        // Check if time is past
+                        const today = new Date();
+                        const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+                        // Assume `date` is YYYY-MM-DD
+                        if (date) {
+                          const [y, m, d] = date.split('-').map(Number);
+                          const selectedDateObj = new Date(y, m - 1, d);
+
+                          if (selectedDateObj < todayDateOnly) {
+                            past = true; // All slots in past days are past
+                          } else if (selectedDateObj.getTime() === todayDateOnly.getTime()) {
+                            const nowMinutes = today.getHours() * 60 + today.getMinutes();
+                            if (s <= nowMinutes) past = true;
+                          }
+                        }
+
+                        const disabled = occupied || !vetSel || past;
                         return (
                           <SuiButton
                             key={s}
@@ -625,28 +430,28 @@ export default function RegistroConsulta() {
                               selectedSlot === s ? "dark" : occupied ? "secondary" : "info"
                             }
                             size="small"
-                            onClick={() => !occupied && vetSel && setSelectedSlot(s)}
-                            disabled={occupied || !vetSel}
+                            onClick={() => !disabled && vetSel && setSelectedSlot(s)}
+                            disabled={disabled}
                             sx={{
                               textTransform: "none",
                               minWidth: 64,
                               padding: "6px 8px",
                               fontSize: "0.75rem",
-                              ...(occupied
+                              ...(occupied || past
                                 ? {
-                                    color: "#ffffff",
-                                    borderColor: "#bdbdbd",
+                                  color: "#ffffff",
+                                  borderColor: "#bdbdbd",
+                                  backgroundColor: "#bdbdbd",
+                                  pointerEvents: "none",
+                                  "&.Mui-disabled": {
                                     backgroundColor: "#bdbdbd",
-                                    pointerEvents: "none",
-                                    "&.Mui-disabled": {
-                                      backgroundColor: "#bdbdbd",
-                                      color: "#ffffff",
-                                      opacity: 1,
-                                    },
-                                  }
+                                    color: "#ffffff",
+                                    opacity: 1,
+                                  },
+                                }
                                 : !vetSel
-                                ? { opacity: 0.65 }
-                                : {}),
+                                  ? { opacity: 0.65 }
+                                  : {}),
                             }}
                           >
                             {minutesToTime(s)}
@@ -656,11 +461,16 @@ export default function RegistroConsulta() {
                     </SuiBox>
                   </SuiBox>
 
+                  {/* Motivo - Label Above */}
                   <SuiBox mt={3}>
+                    <SuiBox mb={1}>
+                      <SuiTypography variant="caption" fontWeight="bold" color="text">
+                        Motivo
+                      </SuiTypography>
+                    </SuiBox>
                     <TextField
                       fullWidth
                       size="small"
-                      label="Motivo"
                       value={motivo}
                       onChange={(e) => setMotivo(e.target.value)}
                       InputLabelProps={{ sx: { fontSize: "0.78rem" } }}
@@ -671,13 +481,18 @@ export default function RegistroConsulta() {
                     />
                   </SuiBox>
 
+                  {/* Descripción - Label Above */}
                   <SuiBox mt={2}>
+                    <SuiBox mb={1}>
+                      <SuiTypography variant="caption" fontWeight="bold" color="text">
+                        Descripción
+                      </SuiTypography>
+                    </SuiBox>
                     <TextField
                       fullWidth
                       multiline
                       minRows={3}
                       size="small"
-                      label="Descripción"
                       value={descripcion}
                       onChange={(e) => setDescripcion(e.target.value)}
                       InputLabelProps={{ sx: { fontSize: "0.78rem" } }}
@@ -715,7 +530,6 @@ export default function RegistroConsulta() {
                 <Grid item xs={12} md={4}>
                   <SuiTypography variant="h6">Seleccionar fecha</SuiTypography>
                   <SuiBox mt={2}>
-                    {/* hide any visible flatpickr input and show calendar inline filling container */}
                     <div
                       id="rc-calendar"
                       style={{ display: "flex", justifyContent: "center", width: "100%" }}
@@ -729,9 +543,10 @@ export default function RegistroConsulta() {
                         #rc-calendar .sc-cell.selected { background: #212121; color: #fff; border: 1px solid #333; }
                         #rc-calendar .sc-cell.today { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.04); }
                       `}</style>
-                      <SimpleCalendar value={date} onChange={(d) => setDate(d)} />
+                      <SimpleCalendar value={date} onChange={handleDateChange} disablePast={true} />
                     </div>
                   </SuiBox>
+
                   {/* Confirm dialog for reservation */}
                   <Dialog
                     open={confirmOpen}
@@ -802,8 +617,8 @@ export default function RegistroConsulta() {
                             {reservedData
                               ? reservedData.hora
                               : selectedSlot
-                              ? minutesToTime(selectedSlot)
-                              : "—"}
+                                ? minutesToTime(selectedSlot)
+                                : "—"}
                           </SuiTypography>
                         </SuiBox>
                         <SuiBox mt={1}>
@@ -812,8 +627,8 @@ export default function RegistroConsulta() {
                             {reservedData
                               ? reservedData.veterinario
                               : vetSel
-                              ? vetSel.nombre || vetSel.name || "-"
-                              : "—"}
+                                ? vetSel.nombre || vetSel.name || "-"
+                                : "—"}
                           </SuiTypography>
                         </SuiBox>
                         <SuiBox mt={1}>
@@ -822,8 +637,8 @@ export default function RegistroConsulta() {
                             {reservedData
                               ? reservedData.dueno
                               : ownerSel
-                              ? ownerSel.nombre || ownerSel.name || "-"
-                              : "—"}
+                                ? ownerSel.nombre || ownerSel.name || "-"
+                                : "—"}
                           </SuiTypography>
                         </SuiBox>
                         <SuiBox mt={1}>
@@ -832,8 +647,8 @@ export default function RegistroConsulta() {
                             {reservedData
                               ? reservedData.mascota
                               : mascotaSel
-                              ? mascotaSel.nombre || mascotaSel.name || "-"
-                              : "—"}
+                                ? mascotaSel.nombre || mascotaSel.name || "-"
+                                : "—"}
                           </SuiTypography>
                         </SuiBox>
                         {reservedData && reservedData.motivo ? (

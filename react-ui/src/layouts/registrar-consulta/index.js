@@ -5,6 +5,7 @@
 */
 
 import React, { useEffect, useState, useCallback } from "react";
+import { useHistory } from "react-router-dom";
 import Card from "@mui/material/Card";
 import SuiBox from "components/SuiBox";
 import SuiTypography from "components/SuiTypography";
@@ -24,6 +25,7 @@ import petIcon from "assets/images/user.svg";
 
 export default function RegistrarConsulta() {
   const classes = styles();
+  const history = useHistory();
   const [vetId, setVetId] = useState(null);
   const [apiResource, setApiResource] = useState(null);
   const [reload, setReload] = useState(0);
@@ -38,34 +40,96 @@ export default function RegistrarConsulta() {
     async function resolveVet() {
       setLoading(true);
       try {
-        // Try role-specific endpoint first
+        // 1) Try dedicated endpoint (if API exposes /veterinarios/me)
         try {
           const me = await clinicApi.request("/api/clinic/veterinarios/me");
           if (!mounted) return;
-          const id = me.idVeterinario || me.id;
+          const id = me && (me.idVeterinario || me.id || me.pk);
           if (id) {
             setVetId(id);
             setApiResource(`veterinarios/${id}/consultas`);
             return;
           }
         } catch (e) {
-          // ignore and fallback to matching by user
+          // ignore and continue to broader matching
         }
 
-        // fallback: fetch current user and find veterinarian entry
+        // 2) Fetch authenticated user and try to match against vet lists
         const user = await clinicApi.request("/api/users/me");
+        // If the authenticated user is not a veterinarian, redirect to the receptionist view
+        const userRole = (user && (user.role || (user.roles && user.roles[0])) || "").toString().toLowerCase();
+        if (userRole !== "veterinario") {
+          // If recepcionista or other role, send them to the receptionist registro page
+          try {
+            history.replace("/registro-consulta");
+          } catch (e) {
+            // ignore if history not available
+          }
+          return;
+        }
         if (!mounted) return;
-        const vets = await clinicApi.list("veterinarios");
-        if (!mounted) return;
-        const found = Array.isArray(vets)
-          ? vets.find((v) => v.user && (v.user.id === user.id || v.user.email === user.email))
-          : null;
-        const id = found ? found.idVeterinario || found.id : null;
-        if (id) {
+
+        // Try fetching vets from multiple endpoints and merge
+        let vets = [];
+        try {
+          const a = await clinicApi.list("veterinarios/with-availability");
+          if (Array.isArray(a)) vets = vets.concat(a);
+        } catch (e) {
+          // ignore
+        }
+        try {
+          const b = await clinicApi.list("veterinarios");
+          if (Array.isArray(b)) vets = vets.concat(b);
+        } catch (e) {
+          // ignore
+        }
+
+        // de-duplicate by id if possible
+        const byKey = new Map();
+        vets.forEach((v) => {
+          const key = v && (v.idVeterinario || v.id || v.pk || v.user?.id || v.user?.email);
+          if (key) byKey.set(String(key), v);
+        });
+        vets = Array.from(byKey.values());
+
+        // matching heuristics: match by nested user.id, nested user.email, vet.idVeterinario/id against user.id, or email field
+        const found = vets.find((v) => {
+          try {
+            if (!v) return false;
+            if (v.user && (String(v.user.id) === String(user.id) || String(v.user.email) === String(user.email))) return true;
+            if (v.idVeterinario && String(v.idVeterinario) === String(user.id)) return true;
+            if (v.id && String(v.id) === String(user.id)) return true;
+            if (v.email && String(v.email).toLowerCase() === String(user.email).toLowerCase()) return true;
+            return false;
+          } catch (e) {
+            return false;
+          }
+        });
+
+        if (found) {
+          const id = found.idVeterinario || found.id || found.pk;
           setVetId(id);
           setApiResource(`veterinarios/${id}/consultas`);
+          return;
         }
+
+        // 3) As a last resort: if authenticated user claims role veterinario, but no profile found,
+        // try to use user.id as a fallback resource id (some APIs map user->veterinario directly)
+        if (user && (String(user.role || "").toLowerCase() === "veterinario" || user.is_veterinario)) {
+          const possible = user.id || user.pk || user.idVeterinario;
+          if (possible) {
+            setVetId(possible);
+            setApiResource(`veterinarios/${possible}/consultas`);
+            return;
+          }
+        }
+
+        // if we reach here, we couldn't resolve the veterinarian profile: apiResource remains null
+        // UI will display the 'No se encontró el perfil' message. Log for easier debugging.
+        // eslint-disable-next-line no-console
+        console.warn("registrar-consulta: no se pudo resolver perfil de veterinario para el usuario:", user);
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error("Error resolving veterinarian identity:", err);
       } finally {
         if (mounted) setLoading(false);
@@ -103,8 +167,8 @@ export default function RegistrarConsulta() {
         asistioVal === 1 || asistioVal === true
           ? "success.main"
           : asistioVal === 0 || asistioVal === false
-          ? "error.main"
-          : "info.main";
+            ? "error.main"
+            : "info.main";
 
       const mascotaIdVal =
         (c.mascota && (c.mascota.idMascota || c.mascota.id)) || c.mascota || null;
@@ -123,8 +187,8 @@ export default function RegistrarConsulta() {
                 asistioVal == null
                   ? "Anotar/Registrar (sin asistencia)"
                   : asistioVal
-                  ? "Anotar/Registrar (asistió)"
-                  : "Anotar/Registrar (no asistió)"
+                    ? "Anotar/Registrar (asistió)"
+                    : "Anotar/Registrar (no asistió)"
               }
               onClick={() => {
                 setSelectedConsultaId(idVal);

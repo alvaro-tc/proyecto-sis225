@@ -45,6 +45,8 @@ import Profile from "layouts/profile";
 import DuenosLayout from "layouts/duenos";
 import RegistrarConsulta from "layouts/registrar-consulta";
 import RegistroConsulta from "layouts/registro-consulta";
+import ConsultasRecepcion from "layouts/consultas-recepcionista";
+import EditConsultaPage from "layouts/consultas/editar";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import SignOut from "layouts/authentication/sign-out";
@@ -111,6 +113,26 @@ const routes = [
     icon: <CreditCard size="12px" />,
     component: RegistroConsulta,
     noCollapse: true,
+    protected: true,
+    roles: ["recepcionista"],
+  },
+  {
+    type: "collapse",
+    name: "Consultas",
+    key: "consultas-recepcionista",
+    route: "/consultas-recepcionista",
+    icon: <CreditCard size="12px" />,
+    component: ConsultasRecepcion,
+    noCollapse: true,
+    protected: true,
+    roles: ["recepcionista"],
+  },
+  {
+    type: "none",
+    name: "Editar Consulta",
+    key: "editar-consulta",
+    route: "/consultas/editar/:id",
+    component: EditConsultaPage,
     protected: true,
     roles: ["recepcionista"],
   },

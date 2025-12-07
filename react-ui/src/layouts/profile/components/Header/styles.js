@@ -28,8 +28,8 @@ export default makeStyles(({ palette, functions, borders, boxShadows }) => {
   return {
     profileHeader_background: {
       backgroundImage: `${linearGradient(
-        rgba(gradients.info.main, 0.6),
-        rgba(gradients.info.state, 0.6)
+        rgba(gradients.primary.main, 0.6),
+        rgba(gradients.primary.state, 0.6)
       )}, url(${curved0})`,
       backgroundSize: "cover",
       backgroundPosition: "50%",

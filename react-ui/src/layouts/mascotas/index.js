@@ -23,6 +23,8 @@ import ModalEliminarMascota from "./ModalEliminarMascota";
 import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import ArticleIcon from "@mui/icons-material/Article";
+import ModalHistorialCompleto from "./ModalHistorialCompleto";
 import SuiBox from "components/SuiBox";
 import SuiAvatar from "components/SuiAvatar";
 import SuiTypography from "components/SuiTypography";
@@ -53,6 +55,15 @@ function Mascotas() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deleteError, setDeleteError] = useState(null);
+
+  // History modal state
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyPet, setHistoryPet] = useState(null);
+
+  function openHistory(pet) {
+    setHistoryPet(pet);
+    setHistoryOpen(true);
+  }
 
   useEffect(() => {
     let mounted = true;
@@ -135,6 +146,9 @@ function Mascotas() {
             <IconButton size="small" onClick={() => confirmDelete(m)} style={{ marginLeft: 8 }}>
               <DeleteIcon fontSize="small" />
             </IconButton>
+            <IconButton size="small" onClick={() => openHistory(m)} title="Ver Historial" style={{ marginLeft: 8 }}>
+              <ArticleIcon fontSize="small" />
+            </IconButton>
           </div>
         ),
       };
@@ -212,7 +226,7 @@ function Mascotas() {
         const possibleId = user.idDueno || user.id || user.user || user.pk || null;
         if (possibleId) payload.dueno = possibleId;
       }
-    } catch (err) {}
+    } catch (err) { }
 
     const res = await clinicApi.update("mascotas", editingId, payload);
     setReload((r) => r + 1);
@@ -306,6 +320,11 @@ function Mascotas() {
           onConfirm={performDelete}
           item={itemToDelete}
           errorMessage={deleteError}
+        />
+        <ModalHistorialCompleto
+          open={historyOpen}
+          onClose={() => setHistoryOpen(false)}
+          mascota={historyPet}
         />
       </SuiBox>
       <Footer />
