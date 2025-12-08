@@ -1,0 +1,31 @@
+{
+  "files": {
+    "main.css": "/static/css/main.e6bb4425.chunk.css",
+    "main.js": "/static/js/main.86bc6c2a.chunk.js",
+    "main.js.map": "/static/js/main.86bc6c2a.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.020efa49.js",
+    "runtime-main.js.map": "/static/js/runtime-main.020efa49.js.map",
+    "static/js/2.71229868.chunk.js": "/static/js/2.71229868.chunk.js",
+    "static/js/2.71229868.chunk.js.map": "/static/js/2.71229868.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/main.e6bb4425.chunk.css.map": "/static/css/main.e6bb4425.chunk.css.map",
+    "static/js/2.71229868.chunk.js.LICENSE.txt": "/static/js/2.71229868.chunk.js.LICENSE.txt",
+    "static/media/curved0.d146ec6e.jpg": "/static/media/curved0.d146ec6e.jpg",
+    "static/media/gemini_ave.ca37a9b4.png": "/static/media/gemini_ave.ca37a9b4.png",
+    "static/media/gemini_gato.38b6bd7f.png": "/static/media/gemini_gato.38b6bd7f.png",
+    "static/media/gemini_perro.e929ac7b.png": "/static/media/gemini_perro.e929ac7b.png",
+    "static/media/login-dog.a338b26e.png": "/static/media/login-dog.a338b26e.png",
+    "static/media/logo-spotify.3f055cde.svg": "/static/media/logo-spotify.3f055cde.svg",
+    "static/media/menu-dog.8ae54afe.png": "/static/media/menu-dog.8ae54afe.png",
+    "static/media/pets.f2b6c2f4.svg": "/static/media/pets.f2b6c2f4.svg",
+    "static/media/team-2.e725aef8.jpg": "/static/media/team-2.e725aef8.jpg",
+    "static/media/user.e3a7fca9.svg": "/static/media/user.e3a7fca9.svg",
+    "static/media/users.24d6ee47.svg": "/static/media/users.24d6ee47.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.020efa49.js",
+    "static/js/2.71229868.chunk.js",
+    "static/css/main.e6bb4425.chunk.css",
+    "static/js/main.86bc6c2a.chunk.js"
+  ]
+}
