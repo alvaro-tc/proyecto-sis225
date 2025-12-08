@@ -100,6 +100,15 @@ class Consulta(models.Model):
     # `dueno` relationship was removed — Dueno is not a User-linked profile anymore
     # Optional time for appointments
     hora = models.TimeField(null=True, blank=True)
+    
+    # Track which receptionist created the consultation
+    registrada_por = models.ForeignKey(
+        "api_clinic.Recepcionista",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="consultas_registradas",
+    )
 
     def __str__(self):
         return f"Consulta {self.idConsulta} - {self.motivo}"

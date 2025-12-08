@@ -378,7 +378,9 @@ class ConsultaSerializer(serializers.ModelSerializer):
             "veterinario",
             "mascota",
             "mascota_id",
+            "registrada_por",
         )
+        read_only_fields = ("registrada_por",)
 
     def create(self, validated_data):
         # Ensure `fecha` is set (existing code used auto_now_add=True previously)

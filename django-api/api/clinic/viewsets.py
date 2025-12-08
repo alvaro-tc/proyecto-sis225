@@ -204,9 +204,8 @@ class RecepcionistaViewSet(viewsets.ModelViewSet):
         profile = RecepcionistaSerializer(rec, context={"request": request}).data
 
         # counts and recent items
-        # counts and recent items
-        total_duenos = 0 # Dueno.objects.filter(registrado_por_recepcionista=rec).count()
-        recent_mascotas_qs = Mascota.objects.all().order_by("-idMascota")[:5] # Fallback to all recent for now, or just empty
+        total_duenos = Dueno.objects.filter(registrado_por_recepcionista=rec).count()
+        recent_mascotas_qs = Mascota.objects.filter(registrada_por_recepcionista=rec).order_by("-idMascota")[:5]
         recent_mascotas = MascotaSerializer(recent_mascotas_qs, many=True, context={"request": request}).data
 
         # recent consultas across the clinic (limit 5) to give context to recepcionista
@@ -444,7 +443,12 @@ class MascotaViewSet(viewsets.ModelViewSet):
         mascota = serializer.save()
 
         # Record who registered the mascota (recepcionista)
-
+        try:
+            if is_recepcionista:
+                mascota.registrada_por_recepcionista = user.recepcionista_profile
+                mascota.save()
+        except Exception:
+            pass
 
         out_serializer = MascotaSerializer(mascota, context={"request": request})
         return Response(out_serializer.data, status=201)
@@ -640,6 +644,12 @@ class ConsultaViewSet(viewsets.ModelViewSet):
         obj = serializer.save()
         out = self.get_serializer(obj, context={"request": request})
         return Response(out.data, status=201)
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        recepcionista = getattr(user, "recepcionista_profile", None)
+        # Even if not a receptionist (e.g. admin), this will be None or handle it safely if logic allows
+        serializer.save(registrada_por=recepcionista)
 
     @action(detail=False, methods=["get"], url_path="user/recent", permission_classes=[IsAuthenticated])
     def user_recent(self, request):
