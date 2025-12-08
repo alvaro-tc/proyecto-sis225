@@ -10,7 +10,7 @@ from .models import (
 
 @admin.register(Dueno)
 class DuenoAdmin(admin.ModelAdmin):
-    list_display = ("idDueno", "nombre", "telefono", "registrado_por_recepcionista")
+    list_display = ("idDueno", "nombre", "telefono")
     search_fields = ("nombre",)
 
 
