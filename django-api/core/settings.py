@@ -94,12 +94,13 @@ WSGI_APPLICATION = "core.wsgi.application"
 
 DATABASES = {
     'default': {
-        'ENGINE': env('DB_ENGINE', default='django.db.backends.sqlite3'),
-        'NAME': env('DB_DATABASE', default=os.path.join(BASE_DIR, 'db.sqlite3')),
-        'USER': env('DB_USER', default=''),
-        'PASSWORD': env('DB_PASSWORD', default=''),
-        'HOST': env('DB_HOST', default=''),
-        'PORT': env('DB_PORT', default=''),
+        'ENGINE': env('DB_ENGINE', default='django.db.backends.postgresql'),
+        # AQUÍ ESTABA EL ERROR: Cambiamos 'DB_DATABASE' por 'DB_NAME'
+        'NAME': env('DB_NAME', default='mi_base_datos'),
+        'USER': env('DB_USER', default='usuario_admin'),
+        'PASSWORD': env('DB_PASSWORD', default='16C5313UXXF'),
+        'HOST': env('DB_HOST', default='db-postgres'),
+        'PORT': env('DB_PORT', default='5432'),
     }
 }
 # Password validation
