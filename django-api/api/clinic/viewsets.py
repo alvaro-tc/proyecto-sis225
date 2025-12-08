@@ -204,8 +204,9 @@ class RecepcionistaViewSet(viewsets.ModelViewSet):
         profile = RecepcionistaSerializer(rec, context={"request": request}).data
 
         # counts and recent items
-        total_duenos = Dueno.objects.filter(registrado_por_recepcionista=rec).count()
-        recent_mascotas_qs = Mascota.objects.filter(registrada_por_recepcionista=rec).order_by("-idMascota")[:5]
+        # counts and recent items
+        total_duenos = 0 # Dueno.objects.filter(registrado_por_recepcionista=rec).count()
+        recent_mascotas_qs = Mascota.objects.all().order_by("-idMascota")[:5] # Fallback to all recent for now, or just empty
         recent_mascotas = MascotaSerializer(recent_mascotas_qs, many=True, context={"request": request}).data
 
         # recent consultas across the clinic (limit 5) to give context to recepcionista
@@ -443,12 +444,7 @@ class MascotaViewSet(viewsets.ModelViewSet):
         mascota = serializer.save()
 
         # Record who registered the mascota (recepcionista)
-        try:
-            if is_recepcionista:
-                mascota.registrada_por_recepcionista = user.recepcionista_profile
-                mascota.save()
-        except Exception:
-            pass
+
 
         out_serializer = MascotaSerializer(mascota, context={"request": request})
         return Response(out_serializer.data, status=201)

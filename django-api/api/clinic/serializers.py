@@ -26,29 +26,18 @@ class UserNestedSerializer(serializers.ModelSerializer):
 class DuenoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dueno
-        fields = ("idDueno", "nombre", "telefono", "registrado_por_recepcionista")
+        fields = ("idDueno", "nombre", "telefono")
 
 
 class DuenoCreateSerializer(serializers.Serializer):
     nombre = serializers.CharField(max_length=255, required=False, allow_null=True, allow_blank=True)
     telefono = serializers.CharField(max_length=50, required=False, allow_null=True, allow_blank=True)
-    registrado_por_recepcionista = serializers.IntegerField(required=False, allow_null=True)
-
     def create(self, validated_data):
         nombre = validated_data.get("nombre", None)
         telefono = validated_data.get("telefono", None)
-        recep_id = validated_data.get("registrado_por_recepcionista", None)
 
         default_name = nombre or ""
         dueno = Dueno.objects.create(nombre=default_name, telefono=telefono)
-
-        if recep_id:
-            try:
-                recep = Recepcionista.objects.get(idRecepcionista=recep_id)
-                dueno.registrado_por_recepcionista = recep
-                dueno.save()
-            except Recepcionista.DoesNotExist:
-                pass
 
         return dueno
 
