@@ -24,14 +24,7 @@ class Dueno(models.Model):
     # Note: Dueno is no longer linked to a User account.
     nombre = models.CharField(max_length=255, blank=True, null=True)
     telefono = models.CharField(max_length=50, blank=True, null=True)
-    # Si este campo es NULL, se asume que el dueño se registró a sí mismo
-    registrado_por_recepcionista = models.ForeignKey(
-        "api_clinic.Recepcionista",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="duenos_registrados",
-    )
+
 
     def __str__(self):
         return f"{self.user.email}"
@@ -68,14 +61,7 @@ class Mascota(models.Model):
     dueno = models.ForeignKey(
         "api_clinic.Dueno", on_delete=models.CASCADE, related_name="mascotas"
     )
-    # Si este campo es NULL, se asume que la mascota fue registrada por su dueño
-    registrada_por_recepcionista = models.ForeignKey(
-        "api_clinic.Recepcionista",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="mascotas_registradas",
-    )
+
 
     def __str__(self):
         return f"{self.nombre} ({self.especie})"

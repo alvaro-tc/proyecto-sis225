@@ -155,11 +155,11 @@ function SignUp() {
                 {error}
               </h6>
             </SuiBox>
-            <SuiBox mt={4} mb={1}>
+            {/* <SuiBox mt={4} mb={1}>
               <SuiButton onClick={register} variant="gradient" buttonColor="dark" fullWidth>
                 {buttonText}
               </SuiButton>
-            </SuiBox>
+            </SuiBox> */}
             <SuiBox mt={3} textAlign="center">
               <SuiTypography variant="button" textColor="text" fontWeight="regular">
                 ¿Ya tienes cuenta?&nbsp;

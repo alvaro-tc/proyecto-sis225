@@ -20,6 +20,10 @@ import { Link } from "react-router-dom";
 
 // @mui material components
 import Switch from "@mui/material/Switch";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import InputLabel from "@mui/material/InputLabel";
+import FormControl from "@mui/material/FormControl";
 
 // Soft UI Dashboard React components
 import SuiBox from "components/SuiBox";
@@ -51,6 +55,7 @@ function SignIn() {
   const [rememberMe, setRememberMe] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("recepcionista");
   const [error, setError] = useState(undefined);
   const [buttonText, setButtonText] = useState("Iniciar sesión");
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
@@ -93,6 +98,7 @@ function SignIn() {
       let response = await AuthApi.Login({
         email,
         password,
+        role,
       });
       if (response.data && response.data.success === false) {
         return setError(response.data.msg);
@@ -289,6 +295,43 @@ function SignIn() {
                 &nbsp;&nbsp;Recordarme
               </SuiTypography>
             </SuiBox>
+            <SuiBox mb={2}>
+              <SuiBox mb={1} ml={0.5}>
+                <SuiTypography component="label" variant="caption" fontWeight="bold">
+                  Rol
+                </SuiTypography>
+              </SuiBox>
+              <Select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                displayEmpty
+                inputProps={{ "aria-label": "Without label" }}
+                sx={{
+                  height: "40px",
+                  backgroundColor: "#fff",
+                  borderRadius: "0.5rem",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#d2d6da",
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#3584cf",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#3584cf",
+                    borderWidth: "2px",
+                  },
+                  "& .MuiSelect-select": {
+                    padding: "10px 12px",
+                    fontSize: "0.875rem",
+                    color: "#495057",
+                  },
+                }}
+              >
+                <MenuItem value="recepcionista">Recepcionista</MenuItem>
+                <MenuItem value="veterinario">Veterinario</MenuItem>
+              </Select>
+            </SuiBox>
+
             <SuiBox mt={2} mb={2} textAlign="center">
               <h6
                 style={{
@@ -313,21 +356,7 @@ function SignIn() {
                 {buttonText}
               </SuiButton>
             </SuiBox>
-            <SuiBox mt={3} textAlign="center">
-              <SuiTypography variant="button" textColor="text" fontWeight="regular">
-                ¿No tienes cuenta?{" "}
-                <SuiTypography
-                  component={Link}
-                  to="/authentication/sign-up"
-                  variant="button"
-                  textColor="info"
-                  fontWeight="medium"
-                  textGradient
-                >
-                  Regístrate
-                </SuiTypography>
-              </SuiTypography>
-            </SuiBox>
+
           </SuiBox>
         </SuiBox>
       )}
